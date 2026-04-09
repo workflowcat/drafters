@@ -9,6 +9,7 @@ import RelatedPanel from '~/components/RelatedPanel.astro';
 import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
 import LangToggle from '~/components/LangToggle.astro';
+import ReadingTime from '~/components/ReadingTime.astro';
 import { listClauseBases, getClauseByBase } from '~/lib/clause-variants';
 
 export async function getStaticPaths() {
@@ -54,6 +55,9 @@ const title =
   <slot slot="header">
     <h1 class="header__title">{title}</h1>
     <MetaBlock pillar="clause" languages={languages} />
+    <div class="header__meta">
+      <ReadingTime body={entry.body ?? ''} lang={resolveLang as any} />
+    </div>
     <LangToggle base={`/clauses/${baseId}`} languages={languages} current={resolveLang} />
     <ExportMenu clauseId={baseId} />
   </slot>

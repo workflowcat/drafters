@@ -1,0 +1,44 @@
+---
+// Client-side enhancer for paragraph-level anchors:
+//   - clicking the ¶ marker on any .has-para-anchor paragraph copies
+//     the deep-link URL to clipboard and flashes feedback
+//   - also handles scroll-into-view on page load when a #p-N is present
+---
+
+<script>
+  function setupParaAnchors() {
+    document.querySelectorAll<HTMLElement>('.has-para-anchor').forEach((p) => {
+      const id = p.id;
+      if (!id) return;
+      p.addEventListener('click', async (e) => {
+        // Only trigger when the click lands on the ::before region
+        // (leftmost ~1.5em of the paragraph)
+        const rect = p.getBoundingClientRect();
+        const x = (e as MouseEvent).clientX - rect.left;
+        if (x > 0) return;
+        e.preventDefault();
+        const url = `${location.origin}${location.pathname}#${id}`;
+        try {
+          await navigator.clipboard.writeText(url);
+          flash(p);
+        } catch {}
+      });
+    });
+    if (location.hash && location.hash.startsWith('#p-')) {
+      const target = document.getElementById(location.hash.slice(1));
+      if (target) {
+        target.style.background = 'color-mix(in srgb, var(--lavender) 15%, transparent)';
+        setTimeout(() => { target.style.background = ''; }, 1800);
+      }
+    }
+  }
+
+  function flash(el: HTMLElement) {
+    el.style.transition = 'background 400ms ease';
+    el.style.background = 'var(--lavender-wash)';
+    setTimeout(() => { el.style.background = ''; }, 600);
+  }
+
+  setupParaAnchors();
+  document.addEventListener('astro:page-load', setupParaAnchors);
+</script>

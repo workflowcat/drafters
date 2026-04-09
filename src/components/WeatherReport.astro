@@ -1,0 +1,152 @@
+---
+/**
+ * Home-page status strip: a single-line report of what's new and
+ * what needs attention. Computed at build time from content + git.
+ */
+import { getCollection } from 'astro:content';
+import { buildBacklinks } from '~/lib/backlinks';
+import { readGitLog } from '~/lib/git-log';
+
+const safeGet = async (name: any) => {
+  try { return await getCollection(name); } catch { return []; }
+};
+
+const [clauses, contracts, workflows, documents] = await Promise.all([
+  safeGet('clauses'),
+  safeGet('contracts'),
+  safeGet('workflows'),
+  safeGet('documents'),
+]);
+
+// Unique clause baseIds
+const clauseBases = new Set<string>();
+for (const c of clauses) clauseBases.add(c.data.baseId || c.data.id);
+
+const backlinks = await buildBacklinks();
+
+// Orphan clauses
+let orphans = 0;
+for (const b of clauseBases) {
+  if ((backlinks.get(`clauses/${b}`) || []).length === 0) orphans++;
+}
+
+// Cross-pillar reuse count
+const peopleClauses = new Set<string>();
+const clientClauses = new Set<string>();
+for (const d of documents) {
+  const isPeople = d.data.id.startsWith('subcontract-');
+  const isClient = d.data.id.startsWith('services-') || d.data.id.startsWith('nda-');
+  if (!isPeople && !isClient) continue;
+  for (const c of (d.data.composedOf ?? [])) {
+    if (isPeople) peopleClauses.add(c);
+    if (isClient) clientClauses.add(c);
+  }
+}
+let crossPillar = 0;
+for (const c of peopleClauses) if (clientClauses.has(c)) crossPillar++;
+
+// Drafts
+const drafts = [...clauses, ...workflows, ...documents].filter(
+  (e) => e.data.status === 'draft'
+).length;
+
+// Git: commits this week
+const commits = readGitLog(30);
+const weekAgo = Date.now() - 7 * 24 * 3600 * 1000;
+const recent = commits.filter((c) => new Date(c.date).getTime() > weekAgo);
+
+// Contract count
+const contractBases = new Set<string>();
+for (const c of contracts) contractBases.add(c.data.baseId || c.data.id);
+---
+
+<div class="weather">
+  <div class="weather__stat">
+    <span class="weather__value">{clauseBases.size}</span>
+    <span class="weather__label">пунктів</span>
+  </div>
+  <div class="weather__stat">
+    <span class="weather__value">{contractBases.size}</span>
+    <span class="weather__label">контрактів</span>
+  </div>
+  <div class="weather__stat">
+    <span class="weather__value">{workflows.length}</span>
+    <span class="weather__label">процесів</span>
+  </div>
+  <div class="weather__stat">
+    <span class="weather__value" style="color: var(--lavender-dim)">{crossPillar}</span>
+    <span class="weather__label">cross-pillar</span>
+  </div>
+  {recent.length > 0 && (
+    <div class="weather__stat">
+      <span class="weather__value">{recent.length}</span>
+      <span class="weather__label">комітів · 7 днів</span>
+    </div>
+  )}
+  {orphans > 0 && (
+    <div class="weather__stat weather__stat--warn">
+      <span class="weather__value">{orphans}</span>
+      <span class="weather__label">orphan</span>
+    </div>
+  )}
+  {drafts > 0 && (
+    <div class="weather__stat weather__stat--warn">
+      <span class="weather__value">{drafts}</span>
+      <span class="weather__label">draft</span>
+    </div>
+  )}
+  <a href="/changelog" class="weather__link">журнал →</a>
+</div>
+
+<style>
+  .weather {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 1.6rem;
+    padding: 1rem 0;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    margin: 2rem 0 3rem;
+    max-width: var(--measure);
+  }
+  .weather__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .weather__value {
+    font-family: var(--font-serif);
+    font-size: 1.8rem;
+    font-weight: var(--fw-light);
+    line-height: 1;
+    color: var(--ink);
+  }
+  .weather__label {
+    font-family: var(--font-sans);
+    font-size: calc(var(--fs-meta) * 0.9);
+    font-weight: var(--fw-bold);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+  .weather__stat--warn .weather__value {
+    color: var(--peach-dim);
+  }
+  .weather__link {
+    margin-left: auto;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    color: var(--ink-muted);
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    border-bottom: 1px solid transparent;
+    transition: color var(--t-base), border-color var(--t-base);
+  }
+  .weather__link:hover {
+    color: var(--lavender-dim);
+    border-bottom-color: var(--lavender-dim);
+  }
+</style>

@@ -1,0 +1,247 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import { listClauseBases } from '~/lib/clause-variants';
+import { buildBacklinks } from '~/lib/backlinks';
+import { pickTitle } from '~/lib/collection-helpers';
+
+const bases = await listClauseBases();
+const backlinks = await buildBacklinks();
+
+type HeatEntry = {
+  baseId: string;
+  title: string;
+  tags: string[];
+  usage: number;
+  workflowsCount: number;
+  documentsCount: number;
+  contractsCount: number;
+  termsCount: number;
+  languages: string[];
+};
+
+function usage(baseId: string) {
+  return backlinks.get(`clauses/${baseId}`) || [];
+}
+
+const entries: HeatEntry[] = bases.map((b) => {
+  const refs = usage(b.baseId);
+  const byCol: Record<string, number> = {};
+  for (const r of refs) byCol[r.collection] = (byCol[r.collection] ?? 0) + 1;
+  return {
+    baseId: b.baseId,
+    title: pickTitle(b.preferred.data.title),
+    tags: (b.preferred.data.tags ?? []) as string[],
+    usage: refs.length,
+    workflowsCount: byCol.workflows ?? 0,
+    documentsCount: byCol.documents ?? 0,
+    contractsCount: byCol.contracts ?? 0,
+    termsCount: byCol.terms ?? 0,
+    languages: b.languages,
+  };
+});
+
+// Sort by usage descending
+entries.sort((a, b) => b.usage - a.usage);
+
+const max = Math.max(...entries.map((e) => e.usage), 1);
+
+// Cross-pillar metric: clauses used in both people + client-engagement pillars
+// via workflows
+const crossPillar = entries.filter((e) => {
+  const refs = usage(e.baseId);
+  // Gather pillars from referenced workflows
+  const pillarsUsed = new Set<string>();
+  for (const r of refs) {
+    if (r.collection === 'workflows') {
+      // Can't look up workflow data directly from here, but we can infer
+      // from the id prefix (subcontract → people, client → client-engagement)
+      if (r.id.startsWith('subcontractor')) pillarsUsed.add('people');
+      if (r.id.startsWith('client')) pillarsUsed.add('client-engagement');
+    }
+    if (r.collection === 'contracts' || r.collection === 'documents') {
+      if (r.id.startsWith('subcontract-')) pillarsUsed.add('people');
+      if (r.id.startsWith('services-') || r.id.startsWith('nda-')) pillarsUsed.add('client-engagement');
+    }
+  }
+  return pillarsUsed.size >= 2;
+});
+
+const totalUsage = entries.reduce((s, e) => s + e.usage, 0);
+const orphans = entries.filter((e) => e.usage === 0);
+---
+
+<PageLayout title="Clause heat map" crumbSegments={['clauses', 'heat']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Heat map</h1>
+    <p class="header__subtitle">
+      {entries.length} пункт · {totalUsage} посилань · {crossPillar.length} cross-pillar · {orphans.length} orphans
+    </p>
+  </slot>
+
+  <p class="lead">
+    Кожен квадрат — один пункт. Розмір і колір відображають частоту
+    використання. Наведіть курсор, щоб побачити деталі. Клацніть,
+    щоб відкрити повну сторінку.
+  </p>
+
+  <div class="heat-meta">
+    <div class="heat-meta__card">
+      <p class="heat-meta__label">Cross-pillar reuse</p>
+      <p class="heat-meta__value">{crossPillar.length}</p>
+      <p class="heat-meta__detail">
+        пункти використовуються в обох пілларах
+      </p>
+    </div>
+    <div class="heat-meta__card">
+      <p class="heat-meta__label">Orphaned</p>
+      <p class="heat-meta__value">{orphans.length}</p>
+      <p class="heat-meta__detail">пункти без жодного посилання</p>
+    </div>
+    <div class="heat-meta__card">
+      <p class="heat-meta__label">Average reuse</p>
+      <p class="heat-meta__value">{(totalUsage / entries.length).toFixed(1)}×</p>
+      <p class="heat-meta__detail">посилань на один пункт в середньому</p>
+    </div>
+    <div class="heat-meta__card">
+      <p class="heat-meta__label">Most reused</p>
+      <p class="heat-meta__value">{entries[0]?.usage ?? 0}×</p>
+      <p class="heat-meta__detail">
+        <a href={`/clauses/${entries[0]?.baseId}`}>{entries[0]?.title}</a>
+      </p>
+    </div>
+  </div>
+
+  <div class="heat-grid">
+    {entries.map((e) => {
+      const intensity = max > 0 ? e.usage / max : 0;
+      const size = 4 + Math.round(intensity * 16);
+      return (
+        <a
+          href={`/clauses/${e.baseId}`}
+          class="heat-cell"
+          data-intensity={intensity.toFixed(2)}
+          style={`--intensity: ${intensity}`}
+          title={`${e.title} — ${e.usage} посилань`}
+        >
+          <span class="heat-cell__label">{e.title}</span>
+          <span class="heat-cell__stats">
+            <span>{e.usage}×</span>
+            <span>{e.languages.join('·')}</span>
+          </span>
+          <span class="heat-cell__breakdown">
+            {e.contractsCount > 0 && <span title="contracts">c{e.contractsCount}</span>}
+            {e.documentsCount > 0 && <span title="documents">d{e.documentsCount}</span>}
+            {e.workflowsCount > 0 && <span title="workflows">w{e.workflowsCount}</span>}
+            {e.termsCount > 0 && <span title="terms">t{e.termsCount}</span>}
+          </span>
+        </a>
+      );
+    })}
+  </div>
+</PageLayout>
+
+<style>
+  .heat-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+    max-width: 100%;
+  }
+  .heat-meta__card {
+    background: var(--paper-soft);
+    border: 1px solid var(--rule);
+    padding: 1rem 1.2rem;
+  }
+  .heat-meta__label {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+    margin: 0 0 0.6rem;
+  }
+  .heat-meta__value {
+    font-family: var(--font-serif);
+    font-size: 2.2rem;
+    font-weight: var(--fw-light);
+    margin: 0;
+    color: var(--ink);
+  }
+  .heat-meta__detail {
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    color: var(--ink-muted);
+    margin: 0.3rem 0 0;
+    font-style: italic;
+  }
+  .heat-meta__detail a {
+    color: var(--lavender-dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--lavender-wash);
+  }
+  .heat-meta__detail a:hover {
+    border-bottom-color: var(--lavender-dim);
+  }
+
+  .heat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 0.6rem;
+    margin: 2rem 0 4rem;
+    max-width: 100%;
+  }
+  .heat-cell {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+    min-height: 6.5rem;
+    background: color-mix(in srgb, var(--lavender) calc(var(--intensity, 0) * 55%), var(--paper-soft));
+    border: 1px solid color-mix(in srgb, var(--lavender-dim) calc(var(--intensity, 0) * 100%), var(--rule));
+    text-decoration: none;
+    color: var(--ink);
+    transition: transform var(--t-base), box-shadow var(--t-base), border-color var(--t-base);
+  }
+  .heat-cell:hover {
+    transform: translateY(-2px);
+    box-shadow: 4px 4px 0 0 var(--lavender-dim);
+    border-color: var(--ink);
+  }
+  .heat-cell__label {
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    font-weight: var(--fw-regular);
+    line-height: 1.25;
+    color: var(--ink);
+  }
+  .heat-cell__stats {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.8rem;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+  .heat-cell__breakdown {
+    display: flex;
+    gap: 0.4rem;
+    margin-top: 0.4rem;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+  }
+  .heat-cell[data-intensity='0.00']::after {
+    content: 'orphan';
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--peach-dim);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    margin-top: 0.4rem;
+  }
+</style>

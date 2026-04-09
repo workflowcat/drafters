@@ -35,6 +35,7 @@ type Node = {
   x: number;
   y: number;
   r: number;
+  weight: number; // usage weight for radius + edge thickness
 };
 
 // Dedupe clauses by baseId
@@ -50,18 +51,26 @@ const H = 700;
 const cx = W / 2;
 const cy = H / 2;
 
+// Precompute backlinks for weighting
+const backlinks = await buildBacklinks();
+
 function distribute(items: any[], collection: string, radius: number, startAngle = 0): Node[] {
   return items.map((e, i) => {
     const id = collection === 'clauses' ? e.data.baseId || e.data.id : e.data.id;
+    const key = `${collection}/${id}`;
+    const weight = (backlinks.get(key) || []).length;
     const angle = startAngle + (i / items.length) * Math.PI * 2;
+    const baseR = collection === 'workflows' ? 10 : collection === 'documents' ? 8 : 6;
+    const r = Math.min(baseR + weight * 0.6, baseR * 2.2);
     return {
       id,
-      key: `${collection}/${id}`,
+      key,
       collection,
       title: pickTitle(e.data.title) || id,
       x: cx + radius * Math.cos(angle),
       y: cy + radius * Math.sin(angle),
-      r: collection === 'workflows' ? 10 : collection === 'documents' ? 8 : 6,
+      r,
+      weight,
     };
   });
 }
@@ -77,9 +86,8 @@ const nodes: Node[] = [
 const nodeByKey = new Map<string, Node>();
 for (const n of nodes) nodeByKey.set(n.key, n);
 
-// Edges — collect references from backlinks
-const backlinks = await buildBacklinks();
-type Edge = { from: Node; to: Node };
+// Edges — collect references from backlinks (already computed)
+type Edge = { from: Node; to: Node; weight: number };
 const edges: Edge[] = [];
 for (const [targetKey, refs] of backlinks.entries()) {
   const target = nodeByKey.get(targetKey);
@@ -87,7 +95,7 @@ for (const [targetKey, refs] of backlinks.entries()) {
   for (const ref of refs) {
     const source = nodeByKey.get(`${ref.collection}/${ref.id}`);
     if (source && source !== target) {
-      edges.push({ from: source, to: target });
+      edges.push({ from: source, to: target, weight: target.weight });
     }
   }
 }
@@ -131,6 +139,7 @@ const COLORS: Record<string, string> = {
           y2={e.to.y}
           data-from={e.from.key}
           data-to={e.to.key}
+          style={`stroke-width: ${Math.max(0.5, Math.min(e.weight * 0.4, 3))}`}
         />
       ))}
     </g>

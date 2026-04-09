@@ -11,6 +11,9 @@
     "build:astro": "astro build",
     "build:exports": "node scripts/build-exports.mjs",
     "index": "pagefind --site dist",
+    "lint:content": "node scripts/lint-content.mjs",
+    "new:clause": "node scripts/new-clause.mjs",
+    "new:contract": "node scripts/new-contract.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

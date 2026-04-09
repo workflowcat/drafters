@@ -4,6 +4,7 @@ import sitemap from '@astrojs/sitemap';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 import { remarkWikiLinks } from './src/lib/remark-wikilinks.mjs';
+import { remarkParagraphIds } from './src/lib/remark-paragraph-ids.mjs';
 
 const rehypePlugins = [
   rehypeSlug,
@@ -31,13 +32,13 @@ export default defineConfig({
   trailingSlash: 'never',
   integrations: [
     mdx({
-      remarkPlugins: [remarkWikiLinks],
+      remarkPlugins: [remarkWikiLinks, remarkParagraphIds],
       rehypePlugins,
     }),
     sitemap(),
   ],
   markdown: {
-    remarkPlugins: [remarkWikiLinks],
+    remarkPlugins: [remarkWikiLinks, remarkParagraphIds],
     rehypePlugins,
     smartypants: false,
   },

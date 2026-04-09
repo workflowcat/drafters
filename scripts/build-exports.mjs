@@ -26,8 +26,12 @@ import {
   AlignmentType,
   LevelFormat,
   Footer,
+  Header,
   PageNumber,
+  BorderStyle,
+  PageBreak,
 } from 'docx';
+import { markdownToChildren } from './lib/md-to-docx.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -65,182 +69,110 @@ function ensureDir(p) {
   mkdirSync(p, { recursive: true });
 }
 
-// ── Tiny markdown → docx walker ───────────────────────────
-// Covers: h1-h3, paragraphs, bold/italic, bullet lists, numbered
-// lists, blockquotes, wikilinks (flatten to their display text).
-//
-// This is deliberately minimal. The point is clean legal output,
-// not parity with every markdown feature. Tables and images are
-// stripped; code fences render as plain paragraphs.
+// ── Doc assembly ──────────────────────────────────────────
+// Uses the shared md → docx walker from scripts/lib/md-to-docx.mjs.
+// Supports three document kinds:
+//   - wiki:     plain page with a title heading, default footer
+//   - clause:   clause-only doc with clause metadata footer
+//   - contract: cover page, running header with contract name,
+//               running footer with "Drafters · page X", numbered
+//               sections, clean legal styling
 
-function stripFrontmatter(md) {
-  if (md.startsWith('---')) {
-    const end = md.indexOf('\n---', 3);
-    if (end !== -1) return md.slice(end + 4).replace(/^\n+/, '');
+function coverPageChildren({ title, parties, lang = 'uk' }) {
+  const children = [];
+  // Empty runs to push the title down the page
+  for (let i = 0; i < 6; i++) {
+    children.push(new Paragraph({ children: [new TextRun({ text: '' })] }));
   }
-  return md;
-}
-
-function flattenInline(text) {
-  // Convert [[Target]] and [[Target|Display]] to just the display text
-  text = text.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2');
-  text = text.replace(/\[\[([^\]]+)\]\]/g, '$1');
-  // Convert [text](url) to text
-  text = text.replace(/\[([^\]]+)\]\([^)]+\)/g, '$1');
-  return text;
-}
-
-function inlineRuns(text) {
-  // Split by bold/italic markers and produce TextRun[] with formatting
-  const runs = [];
-  const re = /(\*\*[^*]+\*\*|_[^_]+_|`[^`]+`)/g;
-  let lastIndex = 0;
-  let m;
-  while ((m = re.exec(text))) {
-    if (m.index > lastIndex) {
-      runs.push(new TextRun({ text: text.slice(lastIndex, m.index) }));
-    }
-    const token = m[0];
-    if (token.startsWith('**')) {
-      runs.push(new TextRun({ text: token.slice(2, -2), bold: true }));
-    } else if (token.startsWith('_')) {
-      runs.push(new TextRun({ text: token.slice(1, -1), italics: true }));
-    } else if (token.startsWith('`')) {
-      runs.push(new TextRun({ text: token.slice(1, -1), font: 'Consolas' }));
-    }
-    lastIndex = m.index + token.length;
-  }
-  if (lastIndex < text.length) {
-    runs.push(new TextRun({ text: text.slice(lastIndex) }));
-  }
-  return runs.length ? runs : [new TextRun({ text })];
-}
-
-function markdownToParagraphs(md, titleText) {
-  const body = stripFrontmatter(md);
-  const lines = body.split('\n');
-  const paragraphs = [];
-
-  if (titleText) {
-    paragraphs.push(
+  children.push(
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 600 },
+      children: [
+        new TextRun({
+          text: title,
+          size: 48, // 24pt
+          bold: true,
+          font: 'Georgia',
+        }),
+      ],
+    })
+  );
+  if (parties) {
+    const sep = lang === 'uk' ? 'між' : 'between';
+    children.push(
       new Paragraph({
-        text: titleText,
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 240 },
+        children: [new TextRun({ text: sep, size: 22, italics: true, color: INK_MUTED })],
+      })
+    );
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 120 },
+        children: [new TextRun({ text: parties.contractor, size: 24, bold: true })],
+      })
+    );
+    const amp = lang === 'uk' ? 'та' : 'and';
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 120 },
+        children: [new TextRun({ text: amp, size: 22, italics: true, color: INK_MUTED })],
+      })
+    );
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.CENTER,
+        spacing: { after: 800 },
+        children: [new TextRun({ text: parties.counterparty, size: 24, bold: true })],
+      })
+    );
+  }
+  children.push(
+    new Paragraph({
+      alignment: AlignmentType.CENTER,
+      spacing: { after: 120 },
+      children: [
+        new TextRun({
+          text: 'Drafters',
+          size: 18,
+          color: '8A8578',
+          font: 'Georgia',
+        }),
+      ],
+    })
+  );
+  // Force the rest of the document onto a new page
+  children.push(
+    new Paragraph({
+      children: [new TextRun({ children: [new PageBreak()] })],
+    })
+  );
+  return children;
+}
+
+const INK_MUTED = '555555';
+
+function makeDoc({ kind, title, body, parties, lang = 'uk' }) {
+  const bodyChildren = markdownToChildren(body);
+
+  let allChildren;
+  if (kind === 'contract') {
+    allChildren = [...coverPageChildren({ title, parties, lang }), ...bodyChildren];
+  } else {
+    allChildren = [
+      new Paragraph({
+        text: title,
         heading: HeadingLevel.TITLE,
         alignment: AlignmentType.LEFT,
         spacing: { after: 400 },
-      })
-    );
+      }),
+      ...bodyChildren,
+    ];
   }
 
-  let i = 0;
-  while (i < lines.length) {
-    const line = lines[i];
-    const trimmed = line.trim();
-
-    // Blank
-    if (trimmed === '') {
-      i++;
-      continue;
-    }
-
-    // Headings
-    const hMatch = /^(#{1,6})\s+(.*)$/.exec(trimmed);
-    if (hMatch) {
-      const level = hMatch[1].length;
-      const text = flattenInline(hMatch[2]);
-      const heading =
-        level === 1
-          ? HeadingLevel.HEADING_1
-          : level === 2
-          ? HeadingLevel.HEADING_2
-          : level === 3
-          ? HeadingLevel.HEADING_3
-          : HeadingLevel.HEADING_4;
-      paragraphs.push(
-        new Paragraph({ text, heading, spacing: { before: 280, after: 160 } })
-      );
-      i++;
-      continue;
-    }
-
-    // Bullet list
-    if (/^[-*]\s+/.test(trimmed)) {
-      while (i < lines.length && /^[-*]\s+/.test(lines[i].trim())) {
-        const text = flattenInline(lines[i].trim().replace(/^[-*]\s+/, ''));
-        paragraphs.push(
-          new Paragraph({
-            children: inlineRuns(text),
-            bullet: { level: 0 },
-            spacing: { after: 60 },
-          })
-        );
-        i++;
-      }
-      continue;
-    }
-
-    // Numbered list
-    if (/^\d+\.\s+/.test(trimmed)) {
-      while (i < lines.length && /^\d+\.\s+/.test(lines[i].trim())) {
-        const text = flattenInline(lines[i].trim().replace(/^\d+\.\s+/, ''));
-        paragraphs.push(
-          new Paragraph({
-            children: inlineRuns(text),
-            numbering: { reference: 'standard-numbering', level: 0 },
-            spacing: { after: 60 },
-          })
-        );
-        i++;
-      }
-      continue;
-    }
-
-    // Blockquote
-    if (trimmed.startsWith('>')) {
-      const text = flattenInline(trimmed.replace(/^>\s*/, ''));
-      paragraphs.push(
-        new Paragraph({
-          children: [new TextRun({ text, italics: true })],
-          indent: { left: 400 },
-          spacing: { after: 120 },
-        })
-      );
-      i++;
-      continue;
-    }
-
-    // HR / divider — skip
-    if (/^[-=*]{3,}$/.test(trimmed)) {
-      i++;
-      continue;
-    }
-
-    // Strip HTML tags (sidenote components etc.)
-    if (trimmed.startsWith('<') && trimmed.endsWith('>')) {
-      i++;
-      continue;
-    }
-
-    // Collect a paragraph (consecutive non-blank lines)
-    const chunk = [];
-    while (i < lines.length && lines[i].trim() !== '' && !/^#{1,6}\s/.test(lines[i].trim())) {
-      chunk.push(lines[i].trim());
-      i++;
-    }
-    const joined = flattenInline(chunk.join(' '));
-    paragraphs.push(
-      new Paragraph({
-        children: inlineRuns(joined),
-        spacing: { after: 160 },
-        alignment: AlignmentType.JUSTIFIED,
-      })
-    );
-  }
-
-  return paragraphs;
-}
-
-function makeDoc(paragraphs, title) {
   return new Document({
     creator: 'Drafters',
     title,
@@ -249,6 +181,18 @@ function makeDoc(paragraphs, title) {
       default: {
         document: {
           run: { font: 'Georgia', size: 22 }, // 11pt
+        },
+        heading1: {
+          run: { font: 'Georgia', size: 32, bold: true },
+          paragraph: { spacing: { before: 400, after: 200 } },
+        },
+        heading2: {
+          run: { font: 'Georgia', size: 26, bold: true },
+          paragraph: { spacing: { before: 320, after: 160 } },
+        },
+        heading3: {
+          run: { font: 'Georgia', size: 22, bold: true },
+          paragraph: { spacing: { before: 240, after: 120 } },
         },
       },
     },
@@ -269,29 +213,52 @@ function makeDoc(paragraphs, title) {
     },
     sections: [
       {
-        properties: { page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
+        properties: {
+          page: { margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } },
+        },
+        headers: kind === 'contract'
+          ? {
+              default: new Header({
+                children: [
+                  new Paragraph({
+                    alignment: AlignmentType.RIGHT,
+                    children: [
+                      new TextRun({ text: title, size: 16, color: '8A8578', font: 'Georgia' }),
+                    ],
+                  }),
+                ],
+              }),
+            }
+          : undefined,
         footers: {
           default: new Footer({
             children: [
               new Paragraph({
                 alignment: AlignmentType.RIGHT,
                 children: [
-                  new TextRun({ text: 'Drafters · ', size: 16, color: '888888' }),
-                  new TextRun({ children: [PageNumber.CURRENT], size: 16, color: '888888' }),
+                  new TextRun({ text: 'Drafters · ', size: 16, color: '8A8578' }),
+                  new TextRun({ children: [PageNumber.CURRENT], size: 16, color: '8A8578' }),
+                  new TextRun({ text: ' / ', size: 16, color: '8A8578' }),
+                  new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 16, color: '8A8578' }),
                 ],
               }),
             ],
           }),
         },
-        children: paragraphs,
+        children: allChildren,
       },
     ],
   });
 }
 
-async function writeDocx(md, title, outPath) {
-  const paragraphs = markdownToParagraphs(md, title);
-  const doc = makeDoc(paragraphs, title);
+async function writeDocx(md, title, outPath, options = {}) {
+  const doc = makeDoc({
+    kind: options.kind || 'wiki',
+    title,
+    body: md,
+    parties: options.parties,
+    lang: options.lang || 'uk',
+  });
   const buffer = await Packer.toBuffer(doc);
   writeFileSync(outPath, buffer);
 }
@@ -371,6 +338,25 @@ function mkReadme({ title, lines, generated }) {
 
 // ── Main ──────────────────────────────────────────────────
 
+async function writeClausesManifest(clausesByBase) {
+  // Shape: { [baseId]: { title, tags, commentary, variants: { uk: body, en: body } } }
+  const manifest = {};
+  for (const [baseId, variants] of clausesByBase) {
+    const first = variants[0];
+    const title = first.data.title;
+    const tags = first.data.tags || [];
+    const commentary = first.data.commentary || null;
+    const body = {};
+    for (const v of variants) {
+      if (v.data.lang) body[v.data.lang] = v.body;
+    }
+    manifest[baseId] = { title, tags, commentary, variants: body };
+  }
+  const outPath = join(ROOT, 'public', 'clauses.json');
+  writeFileSync(outPath, JSON.stringify(manifest, null, 2));
+  console.log(`[exports] Wrote clauses manifest (${Object.keys(manifest).length} clauses)`);
+}
+
 async function main() {
   // Clean previous exports
   try {
@@ -402,6 +388,9 @@ async function main() {
     if (!contractsByBase.has(base)) contractsByBase.set(base, []);
     contractsByBase.get(base).push(c);
   }
+
+  // Write the clauses manifest for the /builder page
+  await writeClausesManifest(clausesByBase);
 
   let count = 0;
 
@@ -478,10 +467,25 @@ async function main() {
       const title = pickTitle(v.data.title) || baseId;
       // Inline clauses into the body text
       const inlined = inlineClauses(v.body, clausesByBase, lang);
+      // Build parties for the cover page
+      const parties =
+        v.data.contractor === 'sloboda-gmbh'
+          ? {
+              contractor: 'Sloboda Software GMBH',
+              counterparty:
+                v.data.counterparty === 'customer'
+                  ? lang === 'uk' ? 'Клієнт' : 'Customer'
+                  : lang === 'uk' ? 'Субпідрядник' : 'Subcontractor',
+            }
+          : undefined;
       // Write raw mdx + compiled markdown + docx
       writeFileSync(join(outDir, `contract.${lang}.mdx`), v.raw);
       writeFileSync(join(outDir, `contract.${lang}.md`), inlined);
-      await writeDocx(inlined, title, join(outDir, `contract.${lang}.docx`));
+      await writeDocx(inlined, title, join(outDir, `contract.${lang}.docx`), {
+        kind: 'contract',
+        parties,
+        lang,
+      });
       count++;
     }
     // Bundle: zip all lang variants + README

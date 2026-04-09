@@ -2,6 +2,7 @@
 import PageLayout from '~/layouts/PageLayout.astro';
 import { getCollection } from 'astro:content';
 import { listClauseBases } from '~/lib/clause-variants';
+import WeatherReport from '~/components/WeatherReport.astro';
 
 const safeGet = async (name: any) => {
   try { return await getCollection(name); } catch { return []; }
@@ -39,10 +40,15 @@ const otherWorkflows = workflows.filter((w) => !['people', 'client-engagement'].
     <a class="btn btn--primary" href="/cases/new-eu-client-2026">
       Дивитись кейс: новий клієнт з ЄС
     </a>
-    <a class="btn btn--secondary" href="/graph">
-      Граф зв'язків
+    <a class="btn btn--secondary" href="/builder">
+      Contract builder →
+    </a>
+    <a class="btn btn--ghost" href="/clauses/heat">
+      Heat map
     </a>
   </div>
+
+  <WeatherReport />
 
   {clientWorkflows.length > 0 && (
     <>

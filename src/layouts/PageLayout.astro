@@ -9,6 +9,8 @@ import { ClientRouter } from 'astro:transitions';
 import ScrollProgress from '~/components/ScrollProgress.astro';
 import MobileNav from '~/components/MobileNav.astro';
 import CommandPalette from '~/components/CommandPalette.astro';
+import ReadingTools from '~/components/ReadingTools.astro';
+import RecentlyViewed from '~/components/RecentlyViewed.astro';
 
 export interface Props {
   title: string;
@@ -41,6 +43,7 @@ const crumbs = crumbSegments.map((seg, i) => ({
     <ScrollProgress />
     <MobileNav />
     <CommandPalette />
+    <ReadingTools />
 
     <div class="page">
       <aside class="page__rail" aria-label="Навігація">
@@ -62,6 +65,7 @@ const crumbs = crumbSegments.map((seg, i) => ({
             <button class="page__rail-action" data-open-palette aria-label="Пошук">
               Пошук <kbd>/</kbd>
             </button>
+            <RecentlyViewed />
           </div>
         </slot>
       </aside>

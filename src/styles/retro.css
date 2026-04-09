@@ -1,0 +1,75 @@
+/*
+ * Retro mode — query param ?theme=retro flips the whole site into a
+ * 1970s law office vibe: typewritten font, yellowed paper, carbon
+ * copy purple accents. Purely cosmetic, easter-egg tier.
+ */
+
+html[data-theme='retro'] {
+  --paper: #f3e9c6;
+  --paper-soft: #ede1ad;
+  --paper-deep: #e4d492;
+  --rule: #b9a86b;
+  --rule-soft: #cdb980;
+  --ink: #1a1508;
+  --ink-muted: #3d320e;
+  --ink-faint: #7a6a2a;
+  --lavender: #6b4ba8;
+  --lavender-dim: #4a3378;
+  --lavender-wash: #d9caec;
+  --peach: #b84a2a;
+  --peach-dim: #8a3418;
+  --peach-wash: #e8c2a8;
+  --font-serif: 'Courier New', 'American Typewriter', 'Courier', monospace;
+  --font-sans: 'Courier New', 'American Typewriter', 'Courier', monospace;
+  --fs-body: 17px;
+  --lh-body: 1.8;
+}
+
+html[data-theme='retro'] body {
+  background-image:
+    linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(160, 140, 50, 0.04) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0, 0, 0, 0.015) 3px, rgba(0, 0, 0, 0.015) 4px);
+}
+
+html[data-theme='retro'] .header__title,
+html[data-theme='retro'] h1,
+html[data-theme='retro'] h2,
+html[data-theme='retro'] h3 {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: normal;
+}
+
+html[data-theme='retro'] .wikilink {
+  border-bottom: 1px dashed var(--lavender-dim);
+  text-decoration: none;
+}
+
+html[data-theme='retro'] .page__rail nav a {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+html[data-theme='retro'] .btn {
+  border-radius: 0;
+  background: transparent;
+  border: 2px double var(--ink);
+  text-transform: uppercase;
+}
+
+html[data-theme='retro'] .btn--primary:hover {
+  background: var(--peach);
+}
+
+html[data-theme='retro'] .reading-tools {
+  background: var(--paper);
+  box-shadow: 4px 4px 0 0 var(--peach);
+}
+
+html[data-theme='retro'] .scroll-progress {
+  background: var(--peach);
+}
+
+html[data-theme='retro'] table th {
+  background: rgba(122, 106, 42, 0.15);
+}

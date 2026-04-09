@@ -80,7 +80,12 @@ const languages = variants.map((v: any) => v.data.lang);
     <LangToggle base={`/contracts/${baseId}`} languages={languages} current={currentLang} />
     <div class="header__actions">
       <span class="pill">повний контракт · готовий до підпису</span>
-      <a class="btn btn--primary" href={`/exports/contracts/${baseId}/contract.${currentLang}.docx`} download>
+      <a
+        class="btn btn--primary"
+        href={`/exports/contracts/${baseId}/contract.${currentLang}.docx`}
+        download
+        data-export-trigger
+      >
         .docx ({currentLang})
       </a>
       <a class="btn btn--ghost" href={`/exports/contracts/${baseId}/contract.${currentLang}.md`} download>
@@ -93,6 +98,33 @@ const languages = variants.map((v: any) => v.data.lang);
         Wiki-сторінка →
       </a>
     </div>
+    <script>
+      // Export animation: when the user clicks the .docx button,
+      // briefly highlight every .clause section in the body so they
+      // see what's being bundled.
+      function setupExportAnim() {
+        const trigger = document.querySelector<HTMLAnchorElement>('[data-export-trigger]');
+        if (!trigger) return;
+        trigger.addEventListener('click', () => {
+          const clauses = document.querySelectorAll<HTMLElement>('.contract-body .clause, .contract-body section, .contract-body h2');
+          clauses.forEach((el, i) => {
+            setTimeout(() => {
+              el.style.transition = 'background 220ms ease, outline 220ms ease';
+              el.style.background = 'color-mix(in srgb, var(--lavender) 22%, transparent)';
+              el.style.outline = '2px solid var(--lavender)';
+              el.style.outlineOffset = '4px';
+              setTimeout(() => {
+                el.style.background = '';
+                el.style.outline = '';
+                el.style.outlineOffset = '';
+              }, 420);
+            }, i * 60);
+          });
+        });
+      }
+      setupExportAnim();
+      document.addEventListener('astro:page-load', setupExportAnim);
+    </script>
   </slot>
 
   <Toc slot="margin" headings={headings} />

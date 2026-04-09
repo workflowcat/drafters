@@ -1,0 +1,357 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+import { pickTitle } from '~/lib/collection-helpers';
+import { buildBacklinks } from '~/lib/backlinks';
+
+const safeGet = async (name: any) => {
+  try { return await getCollection(name); } catch { return []; }
+};
+
+const contracts = await safeGet('contracts');
+const clauses = await safeGet('clauses');
+const documents = await safeGet('documents');
+const backlinks = await buildBacklinks();
+
+// Group contracts by baseId (pick uk preferred)
+const contractBases = new Map<string, any>();
+for (const c of contracts) {
+  const base = c.data.baseId || c.data.id;
+  if (!contractBases.has(base) || c.data.lang === 'uk') {
+    contractBases.set(base, c);
+  }
+}
+
+// For each contract, derive which clauses it uses from the associated document
+const docById = new Map();
+for (const d of documents) docById.set(d.data.id, d);
+
+type ContractStats = {
+  baseId: string;
+  title: string;
+  clauses: Set<string>;
+  pillar: 'people' | 'client-engagement' | 'other';
+};
+const stats: ContractStats[] = [];
+for (const [baseId, contract] of contractBases) {
+  const docId = contract.data.documentId;
+  const doc = docById.get(docId);
+  const clauseIds: string[] = doc?.data?.composedOf ?? [];
+  let pillar: ContractStats['pillar'] = 'other';
+  if (baseId.startsWith('subcontract-')) pillar = 'people';
+  else if (baseId.startsWith('services-') || baseId.startsWith('nda-')) pillar = 'client-engagement';
+  stats.push({
+    baseId,
+    title: pickTitle(contract.data.title),
+    clauses: new Set(clauseIds),
+    pillar,
+  });
+}
+
+// Similarity matrix: Jaccard similarity on the clause sets
+function jaccard(a: Set<string>, b: Set<string>): number {
+  if (a.size === 0 && b.size === 0) return 1;
+  let inter = 0;
+  for (const x of a) if (b.has(x)) inter++;
+  const union = a.size + b.size - inter;
+  return union === 0 ? 0 : inter / union;
+}
+
+const matrix: number[][] = stats.map((a) =>
+  stats.map((b) => (a.baseId === b.baseId ? 1 : jaccard(a.clauses, b.clauses)))
+);
+
+// Cross-pillar reuse: clauses used by BOTH pillars
+const peopleClauses = new Set<string>();
+const clientClauses = new Set<string>();
+for (const s of stats) {
+  if (s.pillar === 'people') for (const c of s.clauses) peopleClauses.add(c);
+  if (s.pillar === 'client-engagement') for (const c of s.clauses) clientClauses.add(c);
+}
+const crossPillarClauses: string[] = [];
+for (const c of peopleClauses) if (clientClauses.has(c)) crossPillarClauses.push(c);
+
+// Clause reuse distribution
+const clauseBases = new Map<string, number>();
+for (const c of clauses) {
+  const base = c.data.baseId || c.data.id;
+  if (!clauseBases.has(base)) {
+    clauseBases.set(base, (backlinks.get(`clauses/${base}`) || []).length);
+  }
+}
+const sorted = [...clauseBases.entries()].sort((a, b) => b[1] - a[1]);
+const avgReuse = [...clauseBases.values()].reduce((a, b) => a + b, 0) / clauseBases.size;
+
+// Clause title resolver
+const clauseTitles = new Map<string, string>();
+for (const c of clauses) {
+  const base = c.data.baseId || c.data.id;
+  if (!clauseTitles.has(base)) clauseTitles.set(base, pickTitle(c.data.title));
+}
+---
+
+<PageLayout title="Analytics" crumbSegments={['analytics']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Analytics</h1>
+    <p class="header__subtitle">
+      Як пункти живуть у бібліотеці. Що ділиться, що дублюється, що осиротіло.
+    </p>
+  </slot>
+
+  <p class="divider">Cross-pillar reuse</p>
+
+  <div class="metric-cards">
+    <div class="metric-card">
+      <p class="metric-card__label">Cross-pillar clauses</p>
+      <p class="metric-card__value">{crossPillarClauses.length}</p>
+      <p class="metric-card__detail">
+        пункти використовуються і в people, і в client-engagement пілларах
+      </p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-card__label">Average clause reuse</p>
+      <p class="metric-card__value">{avgReuse.toFixed(1)}×</p>
+      <p class="metric-card__detail">посилань на один пункт в середньому</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-card__label">Contracts tracked</p>
+      <p class="metric-card__value">{stats.length}</p>
+      <p class="metric-card__detail">у compiled бібліотеці</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-card__label">Unique clauses</p>
+      <p class="metric-card__value">{clauseBases.size}</p>
+      <p class="metric-card__detail">базових пунктів (без варіантів по мовах)</p>
+    </div>
+  </div>
+
+  {crossPillarClauses.length > 0 && (
+    <div class="cross-list">
+      <p class="label">Cross-pillar пункти:</p>
+      <ul>
+        {crossPillarClauses.map((c) => (
+          <li>
+            <a href={`/clauses/${c}`}>{clauseTitles.get(c) || c}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <p class="divider">Similarity matrix</p>
+  <p>
+    Коефіцієнт подібності Jaccard між контрактами: 1.0 означає
+    ідентичні множини пунктів, 0 означає повну відсутність спільних.
+    Чим темніша клітинка, тим більше спільних пунктів.
+  </p>
+
+  <div class="sim-table-wrap">
+    <table class="sim-table">
+      <thead>
+        <tr>
+          <th></th>
+          {stats.map((s) => (
+            <th>{s.baseId.replace(/-2026$/, '').replace(/-/g, '\u00AD')}</th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {stats.map((a, i) => (
+          <tr>
+            <th>{a.baseId.replace(/-2026$/, '')}</th>
+            {stats.map((b, j) => {
+              const v = matrix[i][j];
+              return (
+                <td
+                  class={i === j ? 'sim-diag' : ''}
+                  style={`--v: ${v}`}
+                  title={`${a.title} ↔ ${b.title}: ${(v * 100).toFixed(0)}%`}
+                >
+                  {v === 0 ? '—' : (v * 100).toFixed(0)}
+                </td>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+
+  <p class="divider">Clause usage distribution</p>
+
+  <div class="dist-chart">
+    {sorted.map(([id, count]) => (
+      <div class="dist-row">
+        <a class="dist-label" href={`/clauses/${id}`}>
+          {clauseTitles.get(id) || id}
+        </a>
+        <div class="dist-bar-wrap">
+          <div class="dist-bar" style={`width: ${(count / Math.max(...sorted.map((x) => x[1]), 1)) * 100}%`}></div>
+          <span class="dist-count">{count}</span>
+        </div>
+      </div>
+    ))}
+  </div>
+
+  <p class="divider">Дивись також</p>
+  <ul class="content-list">
+    <li><a href="/clauses/heat">Clause heat map</a><span class="pill">visual</span></li>
+    <li><a href="/graph">Граф зв'язків</a><span class="pill">visual</span></li>
+    <li><a href="/admin">Content health dashboard</a><span class="pill">editorial</span></li>
+  </ul>
+</PageLayout>
+
+<style>
+  .metric-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+    gap: 1rem;
+    margin: 1rem 0 2rem;
+    max-width: 100%;
+  }
+  .metric-card {
+    background: var(--paper-soft);
+    border: 1px solid var(--rule);
+    padding: 1rem 1.2rem;
+  }
+  .metric-card__label {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+    margin: 0 0 0.5rem;
+  }
+  .metric-card__value {
+    font-family: var(--font-serif);
+    font-size: 2.4rem;
+    font-weight: var(--fw-light);
+    margin: 0;
+    line-height: 1;
+    color: var(--ink);
+  }
+  .metric-card__detail {
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    font-style: italic;
+    color: var(--ink-muted);
+    margin: 0.4rem 0 0;
+  }
+
+  .cross-list {
+    background: var(--paper-soft);
+    border-left: 3px solid var(--lavender);
+    padding: 1rem 1.2rem;
+    margin: 1rem 0 2rem;
+    max-width: var(--measure);
+  }
+  .cross-list .label {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+    margin: 0 0 0.6rem;
+  }
+  .cross-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    columns: 2;
+  }
+  .cross-list li {
+    padding: 0.2rem 0;
+  }
+
+  .sim-table-wrap {
+    overflow-x: auto;
+    margin: 1rem 0 2rem;
+    max-width: 100%;
+  }
+  .sim-table {
+    border-collapse: collapse;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+  }
+  .sim-table th {
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-muted);
+    padding: 0.5rem 0.6rem;
+    text-align: center;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: bottom;
+    white-space: nowrap;
+    max-width: 6rem;
+    font-size: calc(var(--fs-meta) * 0.9);
+  }
+  .sim-table tbody th {
+    text-align: left;
+    padding-right: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+    border-right: 1px solid var(--rule);
+  }
+  .sim-table td {
+    padding: 0.4rem 0.5rem;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-weight: var(--fw-semibold);
+    color: var(--ink);
+    background: color-mix(in srgb, var(--lavender) calc(var(--v, 0) * 70%), var(--paper));
+    border: 1px solid var(--rule);
+    min-width: 2.8rem;
+  }
+  .sim-table td.sim-diag {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .dist-chart {
+    margin: 1rem 0 3rem;
+    max-width: var(--measure);
+  }
+  .dist-row {
+    display: grid;
+    grid-template-columns: 14rem 1fr;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 0.4rem;
+  }
+  .dist-label {
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    color: var(--ink);
+    text-decoration: none;
+    text-align: right;
+    border-bottom: 1px solid transparent;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dist-label:hover {
+    border-bottom-color: var(--lavender-dim);
+  }
+  .dist-bar-wrap {
+    position: relative;
+    height: 1.4rem;
+    background: var(--paper-soft);
+  }
+  .dist-bar {
+    height: 100%;
+    background: var(--lavender);
+    transition: width var(--t-slow);
+  }
+  .dist-count {
+    position: absolute;
+    right: 0.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    color: var(--ink);
+  }
+</style>

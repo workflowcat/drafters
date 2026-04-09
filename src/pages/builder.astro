@@ -1,0 +1,627 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+---
+
+<PageLayout title="Contract builder" crumbSegments={['builder']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Contract builder</h1>
+    <p class="header__subtitle">
+      Зберіть власний контракт з повторно використовуваних пунктів
+    </p>
+  </slot>
+
+  <p class="lead">
+    Виберіть пункти зліва, упорядкуйте справа, завантажте результат
+    як <code>.md</code>. Для <code>.docx</code> — починайте з
+    готового шаблону внизу сторінки і модифікуйте.
+  </p>
+
+  <div class="builder" data-builder>
+    <div class="builder__loading" data-builder-loading>
+      Завантаження пунктів…
+    </div>
+
+    <div class="builder__app" data-builder-app hidden>
+      <div class="builder__controls">
+        <label>
+          <span class="label">Мова</span>
+          <select data-b-lang>
+            <option value="uk">uk</option>
+            <option value="en">en</option>
+          </select>
+        </label>
+        <label>
+          <span class="label">Назва контракту</span>
+          <input type="text" data-b-title value="Custom Contract" />
+        </label>
+      </div>
+
+      <div class="builder__grid">
+        <section class="builder__library">
+          <header>
+            <span class="label">Бібліотека пунктів</span>
+            <input type="search" placeholder="Пошук…" data-b-search />
+          </header>
+          <div class="builder__tag-chips" data-b-tag-chips></div>
+          <ul class="builder__clause-list" data-b-library></ul>
+        </section>
+
+        <section class="builder__selection">
+          <header>
+            <span class="label" data-b-count>Ваш контракт (0)</span>
+            <button class="btn btn--ghost" data-b-clear>очистити</button>
+          </header>
+          <ol class="builder__selected-list" data-b-selected>
+            <li class="builder__empty">Клацніть пункт ліворуч, щоб додати</li>
+          </ol>
+          <div class="builder__actions">
+            <button class="btn btn--primary" data-b-download-md>
+              Завантажити .md
+            </button>
+            <button class="btn btn--ghost" data-b-copy-url>
+              Копіювати URL
+            </button>
+          </div>
+        </section>
+
+        <section class="builder__preview">
+          <header>
+            <span class="label">Попередній перегляд</span>
+          </header>
+          <div class="builder__preview-body" data-b-preview>
+            <p class="builder__empty">Попередній перегляд з'явиться тут</p>
+          </div>
+        </section>
+      </div>
+
+      <div class="builder__presets">
+        <p class="label">Починати з існуючого контракту? Відкрийте:</p>
+        <div class="builder__preset-links">
+          <a class="btn btn--ghost" href="/contracts/subcontract-dev-2026">Subcontract Dev</a>
+          <a class="btn btn--ghost" href="/contracts/subcontract-pm-2026">Subcontract PM</a>
+          <a class="btn btn--ghost" href="/contracts/subcontract-marketing-2026">Subcontract Marketing</a>
+          <a class="btn btn--ghost" href="/contracts/services-agreement-sloboda-2026">Services Agreement</a>
+          <a class="btn btn--ghost" href="/contracts/nda-general">NDA</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</PageLayout>
+
+<style>
+  .builder {
+    margin: 2rem 0;
+  }
+  .builder__loading {
+    padding: 3rem 1rem;
+    text-align: center;
+    font-family: var(--font-serif);
+    font-style: italic;
+    color: var(--ink-faint);
+  }
+
+  .builder__controls {
+    display: flex;
+    gap: 1.4rem;
+    margin-bottom: 1.4rem;
+    flex-wrap: wrap;
+  }
+  .builder__controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .builder__controls .label {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+  }
+  .builder__controls select,
+  .builder__controls input {
+    padding: 0.5rem 0.7rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    color: var(--ink);
+    min-width: 14rem;
+  }
+
+  .builder__grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1.1fr 1.3fr;
+    gap: 1rem;
+    min-height: 30rem;
+  }
+  @media (max-width: 1024px) {
+    .builder__grid { grid-template-columns: 1fr; }
+  }
+  .builder__grid section {
+    border: 1px solid var(--rule);
+    background: var(--paper-soft);
+    padding: 1rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 30rem;
+    max-height: 60rem;
+  }
+  .builder__grid header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+    margin-bottom: 0.8rem;
+  }
+  .builder__grid .label {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink);
+  }
+
+  .builder__library input[type='search'] {
+    flex: 0 0 8rem;
+    padding: 0.3rem 0.5rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    font-size: var(--fs-meta);
+  }
+  .builder__tag-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+    margin-bottom: 0.8rem;
+  }
+  .builder__tag-chips button {
+    padding: 0.2em 0.5em;
+    font-family: var(--font-sans);
+    font-size: calc(var(--fs-meta) * 0.95);
+    background: transparent;
+    border: 1px solid var(--rule);
+    color: var(--ink-muted);
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+  .builder__tag-chips button.is-active {
+    background: var(--lavender);
+    border-color: var(--lavender);
+    color: var(--ink);
+  }
+
+  .builder__clause-list,
+  .builder__selected-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .builder__clause-list li,
+  .builder__selected-list li {
+    padding: 0.6rem 0.6rem;
+    border-bottom: 1px dashed var(--rule);
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.6rem;
+    transition: background var(--t-base);
+  }
+  .builder__clause-list li:hover {
+    background: var(--lavender-wash);
+  }
+  .builder__clause-list li.is-selected {
+    background: color-mix(in srgb, var(--lavender) 15%, transparent);
+    color: var(--ink-muted);
+  }
+  .builder__clause-list li .b-tags {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+  .builder__selected-list {
+    counter-reset: sel;
+  }
+  .builder__selected-list li {
+    counter-increment: sel;
+  }
+  .builder__selected-list li::before {
+    content: counter(sel, decimal-leading-zero) '.';
+    font-family: var(--font-sans);
+    color: var(--lavender-dim);
+    font-weight: var(--fw-bold);
+    margin-right: 0.5rem;
+  }
+  .builder__selected-list li .b-ctrls {
+    display: flex;
+    gap: 0.2rem;
+  }
+  .builder__selected-list li .b-ctrls button {
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.1rem 0.4rem;
+    cursor: pointer;
+    color: var(--ink-muted);
+    font-size: var(--fs-meta);
+  }
+  .builder__selected-list li .b-ctrls button:hover {
+    color: var(--ink);
+    background: var(--lavender-wash);
+  }
+  .builder__empty {
+    padding: 1rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    text-align: center;
+  }
+
+  .builder__preview {
+    min-height: 30rem;
+  }
+  .builder__preview-body {
+    overflow-y: auto;
+    flex: 1;
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+    padding-right: 0.4rem;
+  }
+  .builder__preview-body h1 {
+    font-size: 1.4rem;
+  }
+  .builder__preview-body h2 {
+    font-size: 1.1rem;
+    margin-top: 1.2em;
+    padding-top: 0.6em;
+    border-top: 1px solid var(--rule);
+  }
+
+  .builder__actions {
+    display: flex;
+    gap: 0.6rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--rule);
+    margin-top: 0.8rem;
+  }
+
+  .builder__presets {
+    margin-top: 2rem;
+    padding: 1.2rem;
+    background: var(--paper-soft);
+    border: 1px solid var(--rule);
+  }
+  .builder__presets .label {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+    margin: 0 0 0.8rem;
+  }
+  .builder__preset-links {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+</style>
+
+<script>
+  interface ClauseEntry {
+    title: any;
+    tags: string[];
+    commentary: string | null;
+    variants: Record<string, string>;
+  }
+  type Manifest = Record<string, ClauseEntry>;
+
+  const LS_KEY = 'drafters:builder:v1';
+
+  function pickTitle(t: any, lang: string): string {
+    if (typeof t === 'string') return t;
+    return t?.[lang] || t?.uk || t?.en || '';
+  }
+
+  function stripClauseBody(text: string): string {
+    // Cut off editorial commentary heuristic (same as build-exports)
+    const cutoff = text.search(
+      /\n##\s+(На що звертати увагу|Things to watch|Notes|Practical|Практичні|Critical points|Why|Чому|When to use|Де використовується|Where used|When to|Де ще|Нотатки|Різниця|Difference|Що цей пункт НЕ|What this clause|Where else|Чому саме|How this works|How this clause|On watch)/i
+    );
+    if (cutoff !== -1) text = text.slice(0, cutoff);
+    // Strip wiki links
+    text = text.replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2');
+    text = text.replace(/\[\[([^\]]+)\]\]/g, '$1');
+    // Unescape
+    text = text.replace(/\\([_*])/g, '$1');
+    return text.trim();
+  }
+
+  function loadState(): { selected: string[]; lang: string; title: string } {
+    try {
+      const s = JSON.parse(localStorage.getItem(LS_KEY) || '{}');
+      return {
+        selected: Array.isArray(s.selected) ? s.selected : [],
+        lang: s.lang || 'uk',
+        title: s.title || 'Custom Contract',
+      };
+    } catch {
+      return { selected: [], lang: 'uk', title: 'Custom Contract' };
+    }
+  }
+  function saveState(state: { selected: string[]; lang: string; title: string }) {
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }
+
+  // Encode/decode state in URL hash for shareable links
+  function encodeHash(state: any): string {
+    return btoa(unescape(encodeURIComponent(JSON.stringify(state))));
+  }
+  function decodeHash(hash: string): any {
+    try {
+      return JSON.parse(decodeURIComponent(escape(atob(hash))));
+    } catch {
+      return null;
+    }
+  }
+
+  async function init() {
+    const app = document.querySelector<HTMLElement>('[data-builder-app]');
+    const loading = document.querySelector<HTMLElement>('[data-builder-loading]');
+    if (!app) return;
+
+    let manifest: Manifest = {};
+    try {
+      const resp = await fetch('/clauses.json');
+      manifest = await resp.json();
+    } catch (e) {
+      if (loading) loading.textContent = 'Не вдалось завантажити бібліотеку пунктів';
+      console.error(e);
+      return;
+    }
+
+    loading?.setAttribute('hidden', '');
+    app.removeAttribute('hidden');
+
+    // State
+    let state = loadState();
+    // Override with hash state if present
+    if (location.hash.startsWith('#s=')) {
+      const h = decodeHash(location.hash.slice(3));
+      if (h) state = { ...state, ...h };
+    }
+
+    const langSelect = app.querySelector<HTMLSelectElement>('[data-b-lang]')!;
+    const titleInput = app.querySelector<HTMLInputElement>('[data-b-title]')!;
+    const library = app.querySelector<HTMLElement>('[data-b-library]')!;
+    const selectedList = app.querySelector<HTMLElement>('[data-b-selected]')!;
+    const preview = app.querySelector<HTMLElement>('[data-b-preview]')!;
+    const count = app.querySelector<HTMLElement>('[data-b-count]')!;
+    const clearBtn = app.querySelector<HTMLButtonElement>('[data-b-clear]')!;
+    const downloadBtn = app.querySelector<HTMLButtonElement>('[data-b-download-md]')!;
+    const copyUrlBtn = app.querySelector<HTMLButtonElement>('[data-b-copy-url]')!;
+    const searchInput = app.querySelector<HTMLInputElement>('[data-b-search]')!;
+    const tagChips = app.querySelector<HTMLElement>('[data-b-tag-chips]')!;
+
+    langSelect.value = state.lang;
+    titleInput.value = state.title;
+
+    // Collect all unique tags
+    const allTags = new Set<string>();
+    for (const c of Object.values(manifest)) {
+      for (const t of c.tags) allTags.add(t);
+    }
+    let activeTag = 'all';
+    let searchQ = '';
+
+    function renderTagChips() {
+      const tags = ['all', ...Array.from(allTags).sort()];
+      tagChips.innerHTML = tags
+        .map(
+          (t) =>
+            `<button data-tag="${t}" class="${t === activeTag ? 'is-active' : ''}">${t}</button>`
+        )
+        .join('');
+      tagChips.querySelectorAll<HTMLButtonElement>('button').forEach((b) => {
+        b.addEventListener('click', () => {
+          activeTag = b.dataset.tag!;
+          renderTagChips();
+          renderLibrary();
+        });
+      });
+    }
+
+    function renderLibrary() {
+      const items = Object.entries(manifest)
+        .filter(([, c]) => activeTag === 'all' || c.tags.includes(activeTag))
+        .filter(([id, c]) => {
+          if (!searchQ) return true;
+          const t = pickTitle(c.title, state.lang).toLowerCase();
+          return t.includes(searchQ.toLowerCase()) || id.includes(searchQ.toLowerCase());
+        })
+        .sort(([, a], [, b]) =>
+          pickTitle(a.title, state.lang).localeCompare(pickTitle(b.title, state.lang))
+        );
+      library.innerHTML = items
+        .map(
+          ([id, c]) => `
+          <li data-id="${id}" class="${state.selected.includes(id) ? 'is-selected' : ''}">
+            <span>${pickTitle(c.title, state.lang)}</span>
+            <span class="b-tags">${c.tags.slice(0, 2).join(' · ')}</span>
+          </li>`
+        )
+        .join('');
+      library.querySelectorAll<HTMLElement>('li').forEach((li) => {
+        li.addEventListener('click', () => {
+          const id = li.dataset.id!;
+          if (state.selected.includes(id)) {
+            state.selected = state.selected.filter((x) => x !== id);
+          } else {
+            state.selected.push(id);
+          }
+          persist();
+          renderAll();
+        });
+      });
+    }
+
+    function renderSelected() {
+      count.textContent = `Ваш контракт (${state.selected.length})`;
+      if (state.selected.length === 0) {
+        selectedList.innerHTML = '<li class="builder__empty">Клацніть пункт ліворуч, щоб додати</li>';
+        return;
+      }
+      selectedList.innerHTML = state.selected
+        .map((id, i) => {
+          const c = manifest[id];
+          const title = c ? pickTitle(c.title, state.lang) : id;
+          return `
+          <li data-id="${id}">
+            <span>${title}</span>
+            <span class="b-ctrls">
+              <button data-up="${i}" ${i === 0 ? 'disabled' : ''}>↑</button>
+              <button data-down="${i}" ${i === state.selected.length - 1 ? 'disabled' : ''}>↓</button>
+              <button data-rem="${i}">×</button>
+            </span>
+          </li>`;
+        })
+        .join('');
+      selectedList.querySelectorAll<HTMLButtonElement>('[data-up]').forEach((b) => {
+        b.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const i = parseInt(b.dataset.up!, 10);
+          [state.selected[i - 1], state.selected[i]] = [state.selected[i], state.selected[i - 1]];
+          persist();
+          renderAll();
+        });
+      });
+      selectedList.querySelectorAll<HTMLButtonElement>('[data-down]').forEach((b) => {
+        b.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const i = parseInt(b.dataset.down!, 10);
+          [state.selected[i], state.selected[i + 1]] = [state.selected[i + 1], state.selected[i]];
+          persist();
+          renderAll();
+        });
+      });
+      selectedList.querySelectorAll<HTMLButtonElement>('[data-rem]').forEach((b) => {
+        b.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const i = parseInt(b.dataset.rem!, 10);
+          state.selected.splice(i, 1);
+          persist();
+          renderAll();
+        });
+      });
+    }
+
+    function buildMarkdown(): string {
+      const parts: string[] = [];
+      parts.push(`# ${state.title}\n`);
+      parts.push('_Generated with the Drafters contract builder._\n');
+      state.selected.forEach((id, i) => {
+        const c = manifest[id];
+        if (!c) return;
+        const body = c.variants[state.lang] || c.variants.uk || c.variants.en || '';
+        const title = pickTitle(c.title, state.lang);
+        parts.push(`\n## ${i + 1}. ${title}\n`);
+        parts.push(stripClauseBody(body) + '\n');
+      });
+      return parts.join('\n');
+    }
+
+    function renderPreview() {
+      if (state.selected.length === 0) {
+        preview.innerHTML = '<p class="builder__empty">Додайте хоча б один пункт для попереднього перегляду</p>';
+        return;
+      }
+      const md = buildMarkdown();
+      preview.innerHTML = mdToHtml(md);
+    }
+
+    function mdToHtml(md: string): string {
+      // Minimal markdown → HTML for preview
+      const esc = (s: string) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]!));
+      const lines = md.split('\n');
+      const out: string[] = [];
+      let inList = false;
+      for (const l of lines) {
+        if (l.startsWith('# ')) out.push(`<h1>${esc(l.slice(2))}</h1>`);
+        else if (l.startsWith('## ')) out.push(`<h2>${esc(l.slice(3))}</h2>`);
+        else if (l.startsWith('### ')) out.push(`<h3>${esc(l.slice(4))}</h3>`);
+        else if (/^[-*]\s+/.test(l)) {
+          if (!inList) { out.push('<ul>'); inList = true; }
+          out.push(`<li>${inlineMd(esc(l.replace(/^[-*]\s+/, '')))}</li>`);
+        } else {
+          if (inList) { out.push('</ul>'); inList = false; }
+          if (l.trim() === '') out.push('<br/>');
+          else out.push(`<p>${inlineMd(esc(l))}</p>`);
+        }
+      }
+      if (inList) out.push('</ul>');
+      return out.join('');
+    }
+    function inlineMd(s: string): string {
+      return s
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(/_([^_]+)_/g, '<em>$1</em>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>');
+    }
+
+    function persist() {
+      state.lang = langSelect.value;
+      state.title = titleInput.value;
+      saveState(state);
+      location.hash = `#s=${encodeHash(state)}`;
+    }
+
+    function renderAll() {
+      renderLibrary();
+      renderSelected();
+      renderPreview();
+    }
+
+    langSelect.addEventListener('change', () => { persist(); renderAll(); });
+    titleInput.addEventListener('input', () => { persist(); renderPreview(); });
+    searchInput.addEventListener('input', () => { searchQ = searchInput.value; renderLibrary(); });
+    clearBtn.addEventListener('click', () => { state.selected = []; persist(); renderAll(); });
+    downloadBtn.addEventListener('click', () => {
+      const md = buildMarkdown();
+      const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(state.title || 'custom-contract').replace(/\s+/g, '-').toLowerCase()}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+    copyUrlBtn.addEventListener('click', async () => {
+      persist();
+      try {
+        await navigator.clipboard.writeText(location.href);
+        const orig = copyUrlBtn.textContent;
+        copyUrlBtn.textContent = 'скопійовано ✓';
+        setTimeout(() => { copyUrlBtn.textContent = orig; }, 1200);
+      } catch {}
+    });
+
+    renderTagChips();
+    renderAll();
+  }
+
+  init();
+  document.addEventListener('astro:page-load', () => init());
+</script>

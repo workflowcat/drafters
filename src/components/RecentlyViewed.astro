@@ -1,0 +1,102 @@
+---
+// localStorage-backed "recently visited" widget for the nav rail.
+// Records the current page on every visit (client-side) and renders
+// the last N links below the main nav.
+---
+
+<div class="recent" data-recent-widget>
+  <p class="recent__label">Нещодавно</p>
+  <ul class="recent__list" data-recent-list>
+    <!-- populated client-side -->
+  </ul>
+</div>
+
+<style>
+  .recent {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+  }
+  .recent__label {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    margin: 0 0 0.6rem;
+  }
+  .recent__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+  }
+  .recent__list li {
+    padding: 0.2rem 0;
+  }
+  .recent__list a {
+    color: var(--ink-muted) !important;
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 12rem;
+  }
+  .recent__list a:hover {
+    color: var(--lavender-dim) !important;
+  }
+  .recent:empty,
+  .recent__list:empty + .recent__label {
+    display: none;
+  }
+</style>
+
+<script>
+  const KEY = 'drafters:recent:v1';
+  const MAX = 6;
+
+  function load(): Array<{ url: string; title: string; at: number }> {
+    try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
+  }
+  function save(list: any[]) {
+    localStorage.setItem(KEY, JSON.stringify(list.slice(0, MAX)));
+  }
+
+  function recordCurrent() {
+    if (location.pathname === '/' || location.pathname === '') return;
+    const title =
+      document.title.replace(' · Drafters', '').trim() || location.pathname;
+    const list = load();
+    // Drop existing entry with same URL
+    const filtered = list.filter((e) => e.url !== location.pathname);
+    filtered.unshift({ url: location.pathname, title, at: Date.now() });
+    save(filtered);
+    renderWidget();
+  }
+
+  function renderWidget() {
+    const list = document.querySelector<HTMLElement>('[data-recent-list]');
+    if (!list) return;
+    const entries = load().filter((e) => e.url !== location.pathname);
+    if (entries.length === 0) {
+      const wrap = document.querySelector<HTMLElement>('[data-recent-widget]');
+      if (wrap) wrap.style.display = 'none';
+      return;
+    }
+    const wrap = document.querySelector<HTMLElement>('[data-recent-widget]');
+    if (wrap) wrap.style.display = '';
+    list.innerHTML = entries
+      .map((e) => `<li><a href="${e.url}" title="${e.title.replace(/"/g, '&quot;')}">${e.title}</a></li>`)
+      .join('');
+  }
+
+  recordCurrent();
+  renderWidget();
+  document.addEventListener('astro:page-load', () => {
+    recordCurrent();
+    renderWidget();
+  });
+</script>

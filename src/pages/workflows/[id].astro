@@ -7,6 +7,7 @@ import BacklinksSection from '~/components/BacklinksSection.astro';
 import RelatedPanel from '~/components/RelatedPanel.astro';
 import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
+import ReadingTime from '~/components/ReadingTime.astro';
 
 export async function getStaticPaths() {
   const workflows = await getCollection('workflows');
@@ -66,12 +67,10 @@ function pickTitle(t: any): string {
       status={entry.data.status}
       updated={entry.data.updated}
     />
-    <ExportMenu workflowId={entry.data.id} />
-    <div class="header__walkthrough">
-      <a class="btn btn--secondary" href={`/workflows/${entry.data.id}/walkthrough`}>
-        Walkthrough-режим →
-      </a>
+    <div class="header__meta">
+      <ReadingTime body={entry.body ?? ''} lang={entry.data.primaryLanguage} />
     </div>
+    <ExportMenu workflowId={entry.data.id} />
   </slot>
 
   <Toc slot="margin" headings={headings} />

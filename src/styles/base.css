@@ -468,3 +468,37 @@ h4:hover .heading-anchor,
   color: var(--ink);
   font-variation-settings: 'SOFT' 50, 'WONK' 1, 'opsz' 144;
 }
+
+/* ── Paragraph anchors ──────────────────────────────────── */
+
+.has-para-anchor {
+  position: relative;
+}
+
+.has-para-anchor::before {
+  content: '¶';
+  position: absolute;
+  left: -1.4em;
+  top: 0;
+  color: var(--lavender);
+  opacity: 0;
+  cursor: pointer;
+  font-family: var(--font-serif);
+  transition: opacity var(--t-base);
+  user-select: none;
+}
+
+.has-para-anchor:hover::before {
+  opacity: 1;
+}
+
+/* ── Auto-glossary tokens ───────────────────────────────── */
+
+.glossary-token {
+  border-bottom: 1px dotted var(--lavender-dim);
+  cursor: help;
+  transition: background var(--t-base);
+}
+.glossary-token:hover {
+  background: var(--lavender-wash);
+}

@@ -8,6 +8,7 @@ import RelatedPanel from '~/components/RelatedPanel.astro';
 import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
 import LangToggle from '~/components/LangToggle.astro';
+import ReadingTime from '~/components/ReadingTime.astro';
 import { getClauseByBase } from '~/lib/clause-variants';
 
 export async function getStaticPaths() {
@@ -52,6 +53,9 @@ function pickTitle(t: any): string {
       status={entry.data.status}
       updated={entry.data.updated}
     />
+    <div class="header__meta">
+      <ReadingTime body={entry.body ?? ''} lang={currentLang as any} />
+    </div>
     <LangToggle base={`/documents/${entry.data.id}`} languages={docLangs} current={currentLang} />
     <ExportMenu documentId={entry.data.id} />
     <p class="header__contract-link">
