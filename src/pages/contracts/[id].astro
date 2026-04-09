@@ -1,0 +1,132 @@
+---
+import { getCollection, render } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+import LangToggle from '~/components/LangToggle.astro';
+import BacklinksSection from '~/components/BacklinksSection.astro';
+import PageFooter from '~/components/PageFooter.astro';
+import Toc from '~/components/Toc.astro';
+import Clause from '~/components/Clause.astro';
+import { pickTitle } from '~/lib/collection-helpers';
+
+const safeGet = async (name: any) => {
+  try { return await getCollection(name); } catch { return []; }
+};
+
+export async function getStaticPaths() {
+  try {
+    const all = await getCollection('contracts');
+    // Group by baseId
+    const bases = new Map<string, any[]>();
+    for (const c of all) {
+      const base = c.data.baseId || c.data.id;
+      if (!bases.has(base)) bases.set(base, []);
+      bases.get(base)!.push(c);
+    }
+    const paths: any[] = [];
+    for (const [baseId, variants] of bases) {
+      const preferred =
+        variants.find((v) => v.data.lang === 'uk') ||
+        variants.find((v) => v.data.lang === 'en') ||
+        variants[0];
+      paths.push({
+        params: { id: baseId },
+        props: { baseId, variants, lang: preferred.data.lang },
+      });
+    }
+    return paths;
+  } catch {
+    return [];
+  }
+}
+
+const { baseId, variants, lang } = Astro.props as {
+  baseId: string;
+  variants: any[];
+  lang: string;
+};
+
+const urlLang = Astro.url.searchParams.get('lang');
+const currentLang =
+  urlLang && variants.some((v) => v.data.lang === urlLang) ? urlLang : lang;
+const entry = variants.find((v) => v.data.lang === currentLang) || variants[0];
+
+const { Content, headings } = await render(entry);
+
+const title =
+  typeof entry.data.title === 'string'
+    ? entry.data.title
+    : entry.data.title[currentLang] ||
+      entry.data.title.uk ||
+      entry.data.title.en ||
+      baseId;
+
+const languages = variants.map((v: any) => v.data.lang);
+---
+
+<PageLayout
+  title={title}
+  crumbSegments={['contracts', baseId]}
+  lang={currentLang as any}
+>
+  <slot slot="header">
+    <h1 class="header__title">{title}</h1>
+    <MetaBlock
+      pillar="contract"
+      languages={languages}
+      status="active"
+      updated={entry.data.updated}
+    />
+    <LangToggle base={`/contracts/${baseId}`} languages={languages} current={currentLang} />
+    <div class="header__actions">
+      <span class="pill">повний контракт · готовий до підпису</span>
+      <a class="btn btn--primary" href={`/exports/contracts/${baseId}/contract.${currentLang}.docx`} download>
+        .docx ({currentLang})
+      </a>
+      <a class="btn btn--ghost" href={`/exports/contracts/${baseId}/contract.${currentLang}.md`} download>
+        .md
+      </a>
+      <a class="btn btn--ghost" href={`/exports/contracts/${baseId}/contract.zip`} download>
+        .zip (всі мови)
+      </a>
+      <a class="btn btn--ghost" href={`/documents/${entry.data.documentId}`}>
+        Wiki-сторінка →
+      </a>
+    </div>
+  </slot>
+
+  <Toc slot="margin" headings={headings} />
+
+  <div class="contract-body">
+    <Content components={{ Clause }} />
+  </div>
+
+  <BacklinksSection collection="contracts" id={baseId} />
+  <PageFooter editPath={`contracts/${entry.data.id}.mdx`} updated={entry.data.updated} />
+</PageLayout>
+
+<style>
+  .contract-body {
+    max-width: var(--measure);
+  }
+  .contract-body :global(h1) {
+    font-size: var(--fs-h1);
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.3em;
+    margin-bottom: 1em;
+  }
+  .contract-body :global(h2) {
+    font-size: var(--fs-h3);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    margin-top: 2.6em;
+    padding-top: 1em;
+    border-top: 1px solid var(--rule);
+  }
+  .contract-body :global(table) {
+    width: 100%;
+    max-width: 100%;
+  }
+</style>

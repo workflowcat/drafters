@@ -1,42 +1,61 @@
 ---
 /**
  * Export menu. Links to static files pre-generated at build time
- * by scripts/export/build-exports.mjs.
+ * by scripts/build-exports.mjs.
  *
- * Usage:
- *   <ExportMenu workflowId="..." />
- *   <ExportMenu documentId="..." />
- *   <ExportMenu clauseId="..." />
+ * For documents/workflows/clauses, shows the wiki-page export.
+ * For contracts, shows the compiled (signable) export.
  */
 export interface Props {
   workflowId?: string;
   documentId?: string;
+  contractId?: string;
   clauseId?: string;
+  languages?: string[];
 }
-const { workflowId, documentId, clauseId } = Astro.props;
+const { workflowId, documentId, contractId, clauseId, languages = ['uk'] } = Astro.props;
 
-type Link = { label: string; href: string; group?: string };
+type Link = { label: string; href: string; primary?: boolean };
 const links: Link[] = [];
 
+if (contractId) {
+  // Primary: the docx for each language
+  for (const lang of languages) {
+    links.push({
+      label: `.docx (${lang})`,
+      href: `/exports/contracts/${contractId}/contract.${lang}.docx`,
+      primary: true,
+    });
+  }
+  links.push({
+    label: '.zip (всі мови)',
+    href: `/exports/contracts/${contractId}/contract.zip`,
+  });
+}
+
 if (workflowId) {
-  links.push({ label: '.mdx (raw)', href: `/exports/workflows/${workflowId}/source.mdx`, group: 'source' });
-  links.push({ label: '.docx', href: `/exports/workflows/${workflowId}/workflow.docx`, group: 'document' });
-  links.push({ label: '.zip (bundle)', href: `/exports/workflows/${workflowId}/bundle.zip`, group: 'bundle' });
+  links.push({ label: '.mdx (raw)', href: `/exports/workflows/${workflowId}/source.mdx` });
+  links.push({ label: '.docx', href: `/exports/workflows/${workflowId}/workflow.docx` });
+  links.push({ label: '.zip (bundle)', href: `/exports/workflows/${workflowId}/bundle.zip` });
 }
+
 if (documentId) {
-  links.push({ label: '.mdx (raw)', href: `/exports/documents/${documentId}/source.mdx`, group: 'source' });
-  links.push({ label: '.docx', href: `/exports/documents/${documentId}/document.docx`, group: 'document' });
-  links.push({ label: '.zip (з контекстом)', href: `/exports/documents/${documentId}/with-context.zip`, group: 'bundle' });
+  links.push({ label: '.mdx (wiki)', href: `/exports/documents/${documentId}/source.mdx` });
+  links.push({ label: '.docx (wiki)', href: `/exports/documents/${documentId}/document.docx` });
+  links.push({ label: '.zip (wiki + context)', href: `/exports/documents/${documentId}/with-context.zip` });
 }
+
 if (clauseId) {
-  links.push({ label: '.mdx (raw)', href: `/exports/clauses/${clauseId}/source.mdx`, group: 'source' });
-  links.push({ label: '.docx', href: `/exports/clauses/${clauseId}/clause.docx`, group: 'document' });
+  links.push({ label: '.mdx', href: `/exports/clauses/${clauseId}/source.mdx` });
+  links.push({ label: '.docx', href: `/exports/clauses/${clauseId}/clause.docx` });
 }
 ---
 
 <div class="header__actions">
   <span class="pill">експорт</span>
   {links.map((l) => (
-    <a class="btn btn--ghost" href={l.href} download>{l.label}</a>
+    <a class={l.primary ? 'btn btn--primary' : 'btn btn--ghost'} href={l.href} download>
+      {l.label}
+    </a>
   ))}
 </div>

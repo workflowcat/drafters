@@ -54,6 +54,12 @@ function pickTitle(t: any): string {
     />
     <LangToggle base={`/documents/${entry.data.id}`} languages={docLangs} current={currentLang} />
     <ExportMenu documentId={entry.data.id} />
+    <p class="header__contract-link">
+      <strong>Готовий до підпису контракт:</strong>{' '}
+      <a class="btn btn--secondary" href={`/contracts/${entry.data.id}`}>
+        Відкрити компільований контракт →
+      </a>
+    </p>
   </slot>
 
   <Toc slot="margin" headings={headings} />

@@ -325,6 +325,44 @@ function loadCollection(name) {
   });
 }
 
+// ── <Clause> component inlining ───────────────────────────
+// When a contract MDX body contains <Clause baseId="X" lang="Y" />,
+// we resolve it at export time by pasting the clause's markdown body
+// in place. This turns the contract body into a single flat document.
+
+function inlineClauses(body, clausesByBase, defaultLang) {
+  // Self-closing and paired forms
+  const re = /<Clause\s+baseId=["']([^"']+)["'](?:\s+lang=["']([^"']+)["'])?\s*\/>/g;
+  return body.replace(re, (_match, baseId, lang) => {
+    const variants = clausesByBase.get(baseId) || [];
+    const targetLang = lang || defaultLang;
+    const hit =
+      variants.find((v) => v.data.lang === targetLang) ||
+      variants.find((v) => v.data.lang === 'uk') ||
+      variants.find((v) => v.data.lang === 'en') ||
+      variants[0];
+    if (!hit) {
+      return `\n\n> [missing clause: ${baseId}]\n\n`;
+    }
+    // Strip clause H1/H2 headings to avoid conflict with surrounding structure,
+    // and strip the "Commentary" / "When to use" sections that are wiki notes
+    // rather than legal text.
+    let text = hit.body;
+    // Remove sections like "## On watch out", "## Notes", "## Where used"
+    // that are editorial commentary, not contract text. We recognize them
+    // by being H2 sections after the main clause body.
+    // Simple heuristic: cut off everything at the first "## " that's
+    // clearly a commentary heading.
+    const commentaryCutoff = text.search(
+      /\n##\s+(На що звертати увагу|Things to watch|Notes|Practical|Практичні|Critical points|Why|Чому|When to use|Де використовується|Where used|When to|Де ще|Де це використовується|Нотатки|Різниця|Difference|Що цей пункт НЕ|What this clause|Де ще використовується|What's gone|What this)/i
+    );
+    if (commentaryCutoff !== -1) {
+      text = text.slice(0, commentaryCutoff);
+    }
+    return '\n\n' + text.trim() + '\n\n';
+  });
+}
+
 // ── README generators ─────────────────────────────────────
 
 function mkReadme({ title, lines, generated }) {
@@ -347,6 +385,7 @@ async function main() {
   const clauses = loadCollection('clauses');
   const terms = loadCollection('terms');
   const roles = loadCollection('roles');
+  const contracts = loadCollection('contracts');
 
   // Index clauses by baseId
   const clausesByBase = new Map();
@@ -354,6 +393,14 @@ async function main() {
     const base = c.data.baseId || c.data.id;
     if (!clausesByBase.has(base)) clausesByBase.set(base, []);
     clausesByBase.get(base).push(c);
+  }
+
+  // Index contracts by baseId
+  const contractsByBase = new Map();
+  for (const c of contracts) {
+    const base = c.data.baseId || c.data.id;
+    if (!contractsByBase.has(base)) contractsByBase.set(base, []);
+    contractsByBase.get(base).push(c);
   }
 
   let count = 0;
@@ -418,6 +465,53 @@ async function main() {
 
     await zipDir(bundleFiles, join(outDir, 'bundle.zip'));
     count++;
+  }
+
+  // ── Contracts (compiled, signable contract bodies) ───
+  // For each contract entry, inline its <Clause> components and
+  // write a proper .docx alongside the raw source.
+  for (const [baseId, variants] of contractsByBase) {
+    const outDir = join(EXPORT_ROOT, 'contracts', baseId);
+    ensureDir(outDir);
+    for (const v of variants) {
+      const lang = v.data.lang;
+      const title = pickTitle(v.data.title) || baseId;
+      // Inline clauses into the body text
+      const inlined = inlineClauses(v.body, clausesByBase, lang);
+      // Write raw mdx + compiled markdown + docx
+      writeFileSync(join(outDir, `contract.${lang}.mdx`), v.raw);
+      writeFileSync(join(outDir, `contract.${lang}.md`), inlined);
+      await writeDocx(inlined, title, join(outDir, `contract.${lang}.docx`));
+      count++;
+    }
+    // Bundle: zip all lang variants + README
+    const bundleFiles = [];
+    for (const v of variants) {
+      const lang = v.data.lang;
+      bundleFiles.push({
+        path: join(outDir, `contract.${lang}.docx`),
+        name: `contract.${lang}.docx`,
+      });
+      bundleFiles.push({
+        path: join(outDir, `contract.${lang}.md`),
+        name: `contract.${lang}.md`,
+      });
+    }
+    const readme = mkReadme({
+      title: pickTitle(variants[0].data.title) || baseId,
+      lines: [
+        `Compiled, signable contract exported from Drafters.`,
+        ``,
+        `Contains the full contract assembled from reusable clauses,`,
+        `in all available languages (${variants.map((v) => v.data.lang).join(', ')}).`,
+        ``,
+        `The .docx files are ready to print, redline, and sign.`,
+        `The .md files are the same content in plain markdown.`,
+      ],
+      generated: now,
+    });
+    bundleFiles.push({ content: readme, name: 'README.md' });
+    await zipDir(bundleFiles, join(outDir, 'contract.zip'));
   }
 
   // ── Documents ────────────────────────────

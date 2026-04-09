@@ -137,6 +137,28 @@ const cases = defineCollection({
   }),
 });
 
+// Contracts — compiled, signable contract bodies ---------------------------
+// Each entry is one language variant of one document's contract body.
+// The MDX body contains the actual contract text: preamble, key terms table,
+// clauses inlined via <Clause baseId="..." lang="..."/> components,
+// termination, liability, signatures, attachments. This is what the export
+// pipeline turns into a real .docx that you could print and sign.
+
+const contracts = defineCollection({
+  type: 'content',
+  schema: z.object({
+    id: z.string(),
+    baseId: z.string(),
+    documentId: z.string(),
+    lang: languageLiteral,
+    title: bilingualText,
+    contractor: z.string().optional(),
+    counterparty: z.string().optional(),
+    updated: z.string().optional(),
+    tags: tagList,
+  }),
+});
+
 export const collections = {
   terms,
   clauses,
@@ -144,4 +166,5 @@ export const collections = {
   roles,
   workflows,
   cases,
+  contracts,
 };

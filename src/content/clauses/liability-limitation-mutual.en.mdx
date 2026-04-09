@@ -1,0 +1,86 @@
+---
+id: liability-limitation-mutual.en
+baseId: liability-limitation-mutual
+lang: en
+title:
+  uk: Обмеження відповідальності та індемніфікація (взаємна)
+  en: Limitation of Liability and Indemnification (mutual)
+languages: [uk, en]
+aliases: [Limitation of liability, Liability limitation mutual, Mutual indemnification, Max liability]
+tags: [legal, cross-pillar, shared, liability]
+commentary: Genuine cross-pillar clause. Present in all 4 subcontract and client agreements. Mutual indemnification + mutual limit on liability + max liability cap = 12 months fees.
+source: https://docs.google.com/document/d/1TRxYrn756wIWfowyI2trJozgaFpz4R_ol72981DqfRg/edit
+---
+
+**Mutual Indemnification.** Each party (as an indemnifying
+party) shall indemnify the other (as an indemnified party)
+against all losses arising out of:
+
+- any proceeding brought by either a third party or an
+  indemnified party; and
+- the indemnifying party's wilful misconduct or gross
+  negligence.
+
+**Mutual Limit on Liability.** Neither party shall be liable
+for breach-of-contract damages suffered by the other party
+that are remote or that could not have reasonably been
+foreseen on entry into this agreement.
+
+**Maximum Liability.** The [[Subcontractor]]'s (or Contractor's
+in a client agreement) liability under this agreement shall
+not exceed the fees paid under this agreement during the
+**12 months** preceding the date upon which the related
+claim arose.
+
+## Why these three layers
+
+Three layers working together:
+
+1. **Mutual indemnification** — covers third-party suits (e.g.,
+   a client sues us over our software; we can flow the
+   indemnification through to the subcontractor if it was their
+   code that caused the problem).
+2. **Mutual limit** — excludes speculative damages (e.g., "we
+   lost a $10M contract because of your 2-day delay" — such
+   unforeseeable consequences aren't covered).
+3. **Max liability cap** — hard ceiling on any liability, tied
+   to the real money that moved between the parties.
+
+## Why 12 months
+
+This is industry standard in IT services. The argument:
+liability should be proportional to engagement size. If we
+paid a subcontractor $100k a year, their maximum liability
+is $100k. Not $1M, not $50k. Predictable and symmetric.
+
+Some clients try to reduce the cap to 3–6 months or a fixed
+amount. When they do, understand whether that reduction
+actually matches the risk profile of the specific project.
+
+## What this clause doesn't cover
+
+- **IP infringement.** If we shipped the client code with a
+  GPL dependency and they get sued by the Free Software
+  Foundation — our 12-month fee cap does **not** limit our
+  liability for IP infringement. That's a separate risk
+  category.
+- **Confidentiality breach.** Breach of [[Mutual Confidentiality]]
+  often escapes the mutual limit because damages are "remote
+  by definition" — the client can't exactly calculate what a
+  leak cost.
+- **Willful misconduct.** Intentional breach isn't capped.
+  This is mandatory in many jurisdictions and written into
+  the indemnification clause.
+
+## Where used
+
+Identical or near-identical clause in:
+
+- [[Subcontract Dev 2026]]
+- [[Subcontract PM 2026]]
+- [[Subcontract Marketing 2026]]
+- [[Services Agreement Sloboda 2026]]
+
+This is the second genuine cross-pillar clause (after
+[[Dispute Resolution UK]]). Changing the cap from 12 to 6
+months is one edit across four contracts.

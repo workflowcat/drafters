@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { pickTitle } from '~/lib/collection-helpers';
+
+const safeGet = async (name: any) => {
+  try { return await getCollection(name); } catch { return []; }
+};
+
+const contracts = await safeGet('contracts');
+
+// Group by baseId
+const bases = new Map<string, any[]>();
+for (const c of contracts) {
+  const base = c.data.baseId || c.data.id;
+  if (!bases.has(base)) bases.set(base, []);
+  bases.get(base)!.push(c);
+}
+
+const groups = [...bases.entries()].map(([baseId, variants]) => ({
+  baseId,
+  variants,
+  preferred:
+    variants.find((v: any) => v.data.lang === 'uk') ||
+    variants.find((v: any) => v.data.lang === 'en') ||
+    variants[0],
+  languages: variants.map((v: any) => v.data.lang),
+}));
+---
+
+<PageLayout title="Контракти" crumbSegments={['contracts']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Контракти</h1>
+    <p class="header__subtitle">{groups.length} контракт · скомпільовані, готові до підпису</p>
+  </slot>
+
+  <p class="lead">
+    <strong>Контракти</strong> — це скомпільовані, готові до підпису
+    документи. На відміну від
+    <a href="/documents">документів</a>, які є wiki-сторінками з
+    коментарями та поясненнями, контракти містять **реальний текст**
+    договору: преамбула, key terms, пункти (clauses) вставлені у
+    правильному порядку, підписи, додатки.
+  </p>
+
+  <p>
+    Кожен контракт доступний у кількох мовах і експортується як
+    <code>.docx</code>, <code>.md</code>, або <code>.zip</code> з
+    усіма мовами. Усі клаузули автоматично підтягуються з
+    бібліотеки <a href="/clauses">пунктів</a> — змінивши
+    один пункт, ви оновите усі контракти, що його використовують.
+  </p>
+
+  <ul class="content-list">
+    {groups.map((g) => (
+      <li>
+        <a href={`/contracts/${g.baseId}`}>{pickTitle(g.preferred.data.title)}</a>
+        <span class="pill">{g.languages.join(' · ')}</span>
+      </li>
+    ))}
+  </ul>
+</PageLayout>
