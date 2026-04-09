@@ -1,46 +1,104 @@
 ---
 import PageLayout from '~/layouts/PageLayout.astro';
 import { getCollection } from 'astro:content';
+import { listClauseBases } from '~/lib/clause-variants';
+
+const safeGet = async (name: any) => {
+  try { return await getCollection(name); } catch { return []; }
+};
 
 const workflows = await getCollection('workflows');
 const documents = await getCollection('documents');
-const clauses = await getCollection('clauses');
+const bases = await listClauseBases();
 const terms = await getCollection('terms');
 const roles = await getCollection('roles');
+const cases = await safeGet('cases');
 
 function pickTitle(title: any): string {
   if (typeof title === 'string') return title;
   return title?.uk || title?.en || title?.de || '';
 }
+
+// Split workflows by pillar
+const peopleWorkflows = workflows.filter((w) => w.data.pillar === 'people');
+const clientWorkflows = workflows.filter((w) => w.data.pillar === 'client-engagement');
+const otherWorkflows = workflows.filter((w) => !['people', 'client-engagement'].includes(w.data.pillar));
 ---
 
 <PageLayout title="Drafters" crumbSegments={[]}>
   <h1 class="display">Drafters<span class="display-cursor" aria-hidden="true"></span></h1>
   <p class="lead dropcap">
-    Робоча вікі для ІТ-сервісних компаній. Процеси, документи, шаблони —
-    організовані за робочими процесами, а не за теками. Кожен документ
-    складається з повторно використовуваних пунктів, кожен пункт
-    посилається на інші.
+    Робоча вікі для ІТ-сервісних компаній. Два піллари — клієнтський
+    engagement та people/hiring — сходяться у кейсах, які показують,
+    як реальна робота веде нас між ними. Кожен документ складається
+    з повторно використовуваних пунктів, кожен пункт посилається на
+    інші.
   </p>
 
   <div style="margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-    <a class="btn btn--primary" href="/workflows/subcontractor-onboarding">
-      Дивитись перший процес
+    <a class="btn btn--primary" href="/cases/new-eu-client-2026">
+      Дивитись кейс: новий клієнт з ЄС
     </a>
-    <a class="btn btn--secondary" href="https://github.com/workflowcat/drafters">
-      Вихідний код
+    <a class="btn btn--secondary" href="/graph">
+      Граф зв'язків
     </a>
   </div>
 
-  <p class="divider">Процеси</p>
-  <ul class="content-list">
-    {workflows.map((w) => (
-      <li>
-        <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
-        <span class="pill">{w.data.pillar}</span>
-      </li>
-    ))}
-  </ul>
+  {clientWorkflows.length > 0 && (
+    <>
+      <p class="divider">Піллар 1 — Client Engagement</p>
+      <ul class="content-list">
+        {clientWorkflows.map((w) => (
+          <li>
+            <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
+            <span class="pill pill--accent">{w.data.pillar}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  {peopleWorkflows.length > 0 && (
+    <>
+      <p class="divider">Піллар 2 — People / Hiring</p>
+      <ul class="content-list">
+        {peopleWorkflows.map((w) => (
+          <li>
+            <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
+            <span class="pill pill--active">{w.data.pillar}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  {otherWorkflows.length > 0 && (
+    <>
+      <p class="divider">Інші процеси</p>
+      <ul class="content-list">
+        {otherWorkflows.map((w) => (
+          <li>
+            <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
+            <span class="pill">{w.data.pillar}</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
+
+  {cases.length > 0 && (
+    <>
+      <p class="divider">Кейси — сценарні групи</p>
+      <ul class="content-list">
+        {cases.map((c: any) => (
+          <li>
+            <a href={`/cases/${c.data.id}`}>{pickTitle(c.data.title)}</a>
+            <span class="pill">{(c.data.workflows ?? []).length} процеси</span>
+          </li>
+        ))}
+      </ul>
+    </>
+  )}
 
   <p class="divider">Документи</p>
   <ul class="content-list">
@@ -54,10 +112,10 @@ function pickTitle(title: any): string {
 
   <p class="divider">Пункти (reusable clauses)</p>
   <ul class="content-list">
-    {clauses.map((c) => (
+    {bases.map((b) => (
       <li>
-        <a href={`/clauses/${c.data.id}`}>{pickTitle(c.data.title)}</a>
-        <span class="pill">{(c.data.languages ?? []).join(' · ')}</span>
+        <a href={`/clauses/${b.baseId}`}>{pickTitle(b.preferred.data.title)}</a>
+        <span class="pill">{b.languages.join(' · ')}</span>
       </li>
     ))}
   </ul>

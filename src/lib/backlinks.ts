@@ -115,7 +115,13 @@ export async function buildBacklinks(): Promise<BacklinkMap> {
     const declared: string[] = [];
     if (Array.isArray(d.composedOf)) declared.push(...d.composedOf.map((x: string) => `clauses/${x}`));
     if (Array.isArray(d.related)) declared.push(...d.related);
-    if (Array.isArray(d.workflows)) declared.push(...d.workflows.map((x: string) => `workflows/${x}`));
+    if (Array.isArray(d.workflows) && collection !== 'cases') {
+      declared.push(...d.workflows.map((x: string) => `workflows/${x}`));
+    }
+    // Cases: their `workflows` field is forward-refs
+    if (collection === 'cases' && Array.isArray(d.workflows)) {
+      declared.push(...d.workflows.map((x: string) => `workflows/${x}`));
+    }
     if (Array.isArray(d.steps)) {
       for (const step of d.steps) {
         if (Array.isArray(step.uses)) declared.push(...step.uses);

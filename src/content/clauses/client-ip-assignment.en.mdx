@@ -1,0 +1,58 @@
+---
+id: client-ip-assignment.en
+baseId: client-ip-assignment
+lang: en
+title:
+  uk: Передача прав ІВ клієнту
+  en: Client IP Assignment
+languages: [uk, en]
+tags: [ip, legal, msa, client]
+commentary: Mirror of the subcontract IP clause — here Contractor transfers rights to Customer. Keeps the extended copyleft warning because code ends up in the client's codebase.
+source: https://docs.google.com/document/d/1DKcUQLtgP-PtrqnLSHlyjwFEEqsz0dYywClT_dRIQRw/edit
+---
+
+**Final Works.** The [[Contractor]] transfers to the Customer all
+intellectual property rights (IP rights) in all materials developed
+for or provided to the Customer by the Contractor through the
+performance of Services ([[Deliverables]]), **as necessary payments
+are made** during the agreement. If the agreement is terminated, the
+Contractor shall transfer all finished and unfinished Deliverables
+previously paid for.
+
+**No copyleft licenses.** The Contractor warrants that it has not
+included or used, and will not include or use, any Open-Source
+Software or any libraries or code licensed under the General Public
+License, AGPL, or any similar copyleft license in the Software,
+where such license would require the Customer to license the
+Software onwards or otherwise make it available to others, without
+the Customer's prior written consent.
+
+## How this works in practice
+
+Three principled differences from the
+[[IP Assignment|subcontract version]]:
+
+| Aspect | Subcontract (Dev) | Services Agreement |
+| :---- | :---- | :---- |
+| Direction | Subcontractor → Sloboda | Sloboda → Customer |
+| Transfer timing | Exclusively after full payment of all fees | Rolling, as payments are made |
+| On termination | — | We transfer all paid-for work, including unfinished |
+
+**Rolling IP transfer** is the important change. The client gets
+rights **progressively as they pay**, not "all or nothing after the
+last invoice." This protects the client if we stop working mid-
+project for any reason — they retain rights to what they paid for
+and can continue development with another contractor.
+
+## Things to watch
+
+- **"Necessary payments are made"** is slightly awkward legal
+  phrasing. In practice it means: "after we invoice and the
+  customer pays."
+- **Unfinished Deliverables.** On termination we hand over even
+  incomplete code that was paid for. Honest, but it means our
+  repositories must be in a shippable state at all times.
+- **Copyleft warning** is identical to the dev-subcontract version,
+  and that's the point: if a subcontractor introduces a GPL
+  dependency into our code and we ship it to the client, we break
+  both agreements simultaneously.

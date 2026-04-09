@@ -47,6 +47,7 @@ const clauses = defineCollection({
     title: bilingualText,
     lang: languageLiteral.optional(),
     languages: z.array(languageLiteral).default(['uk']),
+    aliases: z.array(z.string()).default([]),
     tags: tagList,
     commentary: z.string().optional(),
     source: z.string().optional(), // upstream Drive doc

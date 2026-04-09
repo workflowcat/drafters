@@ -1,0 +1,102 @@
+---
+id: services-agreement-sloboda-2026
+title:
+  uk: Services Agreement — Sloboda Software GMBH (2026)
+  en: Services Agreement — Sloboda Software GMBH (2026)
+type: contract
+languages: [uk, en]
+status: active
+composedOf:
+  - payment-dispute-client
+  - late-payments-interest
+  - client-ip-assignment
+  - dispute-resolution-uk
+workflows:
+  - client-onboarding
+driveSource: https://docs.google.com/document/d/1DKcUQLtgP-PtrqnLSHlyjwFEEqsz0dYywClT_dRIQRw/edit
+aliases: [Services Agreement, Services Agreement Sloboda, Services Agreement Sloboda 2026, MSA, Client agreement, MSA Sloboda]
+tags: [msa, client, legal, client-engagement]
+updated: '2025-08-01'
+reviewedBy: Legal
+reviewedOn: '2025-08-01'
+reviewExpires: '2026-08-01'
+---
+
+**Services Agreement** — основний клієнтський договір Sloboda
+Software GMBH. Підписується з кожним новим клієнтом перед
+початком роботи. Цей документ визначає **рамки** співпраці:
+як ми працюємо, як виставляємо рахунки, хто володіє результатами
+і що відбувається при розірванні.
+
+Для операційних параметрів конкретного проекту (response time,
+support hours, acceptance criteria) — дивіться
+[[SLA Template Sloboda|SLA Template]], що прикладається
+до цього договору як окремий документ.
+
+## Структура документа
+
+Договір містить 9 пронумерованих розділів:
+
+1. **Key terms** — таблиця з послугами, платежами, овертаймом, rate increase (12% річних, вище ніж субпідрядний cap у 10%)
+2. **Payments** — містить [[Payment Dispute (client-facing)]] і [[Late Payments Interest]]
+3. **Non-solicitation** — 1 рік після завершення, Customer не переманює наших людей
+4. **Deliverables and IP** — див. [[Client IP Assignment]] з rolling-transfer логікою
+5. **Publicity** — ми можемо згадувати клієнта в кейсах з його письмової згоди
+6. **Effect of termination** — payment obligations, handover, survival
+7. **Limitation of liability and indemnification** — mutual structure
+8. **Dispute resolution** — див. [[Dispute Resolution UK]] (England and Wales, 60 днів)
+9. **Signatures** + Attachment A (Rate sheet у EUR)
+
+## Ключові параметри, у яких цей договір відрізняється від субпідрядних
+
+| Параметр | Services Agreement | [[Subcontract Dev 2026]] |
+| :---- | :---- | :---- |
+| Платіжний цикл | **Prepayment** (передоплата) | Post-payment |
+| Invoicing період | 15 днів на оплату | 21 день |
+| Rate increase cap | **12%** річних | 10% річних |
+| Overtime | 2× rate (з approval) | Без множника, тільки з approval |
+| Late payments | **0.5% / день** відсотки | — |
+| IP transfer timing | Rolling, під час оплат | Exclusively after full payment |
+| На розірвання | Передаємо all finished + unfinished paid | — |
+| Maximum liability | Fees за останні 6–12 міс. | Fees за останні 12 міс. |
+
+**Свідома differenceс у cap на rate increase** — 12% client-facing
+vs 10% subcontract. Це захист маржі: якщо ринок стрибає і ми
+піднімаємо клієнту на 12%, а субпідрядник просить собі 10% — у
+нас залишається 2% буфер.
+
+## Цей документ — частина workflow клієнтського онбордингу
+
+Підписання Services Agreement — це **крок 4** процесу
+[[workflows/client-onboarding|онбордингу клієнта]]. Попередні
+кроки:
+
+1. Кваліфікація ліда
+2. Discovery-сесія
+3. Підписання [[NDA General]]
+4. Узгодження SoW + підписання цього Services Agreement
+5. Kick-off meeting + team staffing
+
+## Що зазвичай обговорюється на переговорах
+
+Великі клієнти майже завжди просять:
+
+- **Більший cap на rate increase** — до 15%
+- **Довші payment terms** — 30 або 45 днів замість 15
+- **Нижчий late payments rate** — 0.25%/день замість 0.5%
+- **Прибрати Late Payments зовсім** — у великих ентерпрайзах це
+  "не наш процес"
+- **Rolling → milestone IP transfer** — поступовий transfer по
+  milestone, не по платежу
+- **Maximum liability cap** — фіксована сума (€50k, €100k), не %
+  від fees
+- **Non-solicitation geography** — географічне обмеження
+
+Переговори координуються через [[roles/account-manager|Account Manager]] і
+[[roles/legal|Legal]]. [[roles/head-of-delivery|Head of Delivery]]
+підтверджує delivery-capacity і team staffing.
+
+## Джерело
+
+[Services agreement for client — Sloboda Software GMBH](https://docs.google.com/document/d/1DKcUQLtgP-PtrqnLSHlyjwFEEqsz0dYywClT_dRIQRw/edit)
+(Aug 2025, reviewed by Legal).

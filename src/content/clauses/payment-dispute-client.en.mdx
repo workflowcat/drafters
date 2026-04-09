@@ -1,0 +1,41 @@
+---
+id: payment-dispute-client.en
+baseId: payment-dispute-client
+lang: en
+title:
+  uk: Розв'язання платіжних спорів (клієнт)
+  en: Payment Dispute (client-facing)
+languages: [uk, en]
+tags: [finance, legal, msa, client]
+commentary: Client-facing mirror of the subcontract payment-dispute clause. Same mechanic, flipped party.
+source: https://docs.google.com/document/d/1DKcUQLtgP-PtrqnLSHlyjwFEEqsz0dYywClT_dRIQRw/edit
+---
+
+**Payment Dispute.** If any amount claimed as payable is disputed
+in good faith, the **Customer** shall pay the undisputed portion
+and give a **5 business days** notice specifying the basis of the
+dispute in reasonable detail.
+
+Payments that are undisputed by the Customer within 5 business
+days of receipt are considered accepted.
+
+## Difference from [[Payment Dispute]] (subcontract version)
+
+Mechanically identical, different party:
+
+| Contract | Payer | Who disputes | Who has 5 days |
+| :---- | :---- | :---- | :---- |
+| Dev / PM / Marketing subcontract | Sloboda (Contractor) | Sloboda | Sloboda |
+| Services Agreement | Customer | Customer | Customer |
+
+Same silent-acceptance mechanism applied in opposite roles.
+
+## Things to watch
+
+- **5 business days** is short for client workflows too. Large
+  enterprises often run 10–15 day approval chains — negotiate if
+  needed.
+- "Considered accepted" works in our favor here: if the client
+  misses the window, we get paid.
+- This clause pairs with [[Late Payments Interest]]: 5-day
+  dispute window first, interest after that.

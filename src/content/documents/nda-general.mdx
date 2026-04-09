@@ -1,0 +1,96 @@
+---
+id: nda-general
+title:
+  uk: NDA — загальний шаблон
+  en: NDA — General Template
+type: contract
+languages: [uk, en]
+status: active
+composedOf:
+  - confidentiality-mutual
+workflows:
+  - client-onboarding
+driveSource: https://docs.google.com/document/d/1eZ1GVhmtZRfxwXUZiCrzG_8o30O6Sm1DxNtyeeVLS-s/edit
+aliases: [NDA, NDA General, Non-Disclosure Agreement, Договір конфіденційності]
+tags: [nda, legal, client-engagement, confidentiality]
+updated: '2025-09-08'
+reviewedBy: Legal
+---
+
+**Non-Disclosure Agreement (загальний)** — стандартний NDA
+Sloboda Software GMBH для використання на ранніх етапах
+обговорень з потенційними клієнтами, перед підписанням
+[[Services Agreement Sloboda 2026|повного Services Agreement]].
+
+Цей документ використовується коли:
+
+- Клієнт хоче поділитися детальною технічною інформацією про
+  свій продукт перед тим, як визначитися з підрядником.
+- Ми проводимо discovery-сесії, де можемо побачити їх кодову
+  базу, архітектуру, бізнес-метрики.
+- Ми робимо pitch, у якому наша методологія або proprietary
+  рішення стають видимими.
+- Будь-яка ситуація, де sensitive інформація рухається в будь-яку
+  сторону **до** підписання комерційного договору.
+
+## Структура документа
+
+NDA містить 6 розділів:
+
+1. **Confidentiality** — див. [[Mutual Confidentiality]] — ядро
+   документа, визначає що є Confidential Information
+2. **Use of Information** — як можна і не можна використовувати
+   (розгорнуто в тілі документа)
+3. **Non-solicitation** — 3 роки після закінчення (довше ніж у
+   Services Agreement!)
+4. **Permitted Hiring and Business** — винятки з non-solicitation
+5. **Remedies** — визнання, що грошові збитки недостатні,
+   можливість equitable remedies
+6. **General Provisions** — entire agreement, notices, severability,
+   assignment, governing law
+
+## Ключові параметри
+
+- **Термін конфіденційності (не-trade-secrets):** 3 роки з
+  Effective Date
+- **Термін конфіденційності (trade secrets):** доки залишається
+  trade secret
+- **Non-solicitation період:** 3 роки після завершення — це
+  **вдвічі довше** ніж у [[Services Agreement Sloboda 2026|MSA]]
+  (де 1 рік). NDA — це ранній етап, захист більш активний.
+- **Governing law:** залишається _____ у шаблоні; Legal заповнює
+  при підписанні залежно від клієнта (зазвичай англійське право
+  або право клієнта для enterprise)
+- **Return/Destruction:** обов'язкове при завершенні або на
+  вимогу розкриваючої сторони
+
+## Коли NDA — це окремий документ, а коли — частина MSA
+
+Є два підходи:
+
+1. **Окремий NDA перед MSA.** Коли клієнт хоче тестовий discovery
+   до підписання комерційного договору. NDA — "перший крок",
+   MSA — "другий крок". Це більш обачно з нашого боку.
+2. **NDA як розділ всередині MSA.** Коли клієнт готовий одразу
+   підписувати MSA і discovery не потрібна окремо. Менше
+   адміністрування, але втрачається гнучкість.
+
+Наш стандартний flow — підхід 1: спочатку NDA, потім MSA.
+Це дозволяє і нам, і клієнту вийти з розмови без ризиків, якщо
+в discovery щось стане зрозуміло.
+
+## Взаємодія з [[Services Agreement Sloboda 2026]]
+
+Якщо після NDA підписується MSA, **пункт конфіденційності NDA
+продовжує діяти** паралельно з положеннями MSA. NDA не "замінюється"
+MSA — вони накопичуються. Якщо щось у них суперечить (рідко),
+пріоритет має MSA як більш пізній документ.
+
+**Важливо:** Non-solicitation у NDA (3 роки) і в MSA (1 рік) —
+це різні строки з різними effective-dates. Якщо клієнт розірвав MSA,
+NDA non-solicit ще діє до 3 років з дати підписання NDA.
+
+## Джерело
+
+[NDA template General](https://docs.google.com/document/d/1eZ1GVhmtZRfxwXUZiCrzG_8o30O6Sm1DxNtyeeVLS-s/edit)
+(Sept 2025 review).

@@ -1,0 +1,65 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+import BacklinksSection from '~/components/BacklinksSection.astro';
+import RelatedPanel from '~/components/RelatedPanel.astro';
+import PageFooter from '~/components/PageFooter.astro';
+import Toc from '~/components/Toc.astro';
+
+export async function getStaticPaths() {
+  const cases = await getCollection('cases');
+  return cases.map((c) => ({ params: { id: c.data.id }, props: { entry: c } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const { Content, headings } = await render(entry);
+
+const title =
+  typeof entry.data.title === 'string'
+    ? entry.data.title
+    : entry.data.title.uk || entry.data.title.en || entry.data.id;
+
+// Hydrate the workflows referenced by this case
+const workflowIds: string[] = entry.data.workflows ?? [];
+const workflowEntries = await Promise.all(
+  workflowIds.map((wid: string) => getEntry('workflows', wid).catch(() => null))
+);
+
+function pickTitle(t: any): string {
+  if (typeof t === 'string') return t;
+  return t?.uk || t?.en || t?.de || '';
+}
+---
+
+<PageLayout title={title} crumbSegments={['cases', entry.data.id]}>
+  <slot slot="header">
+    <h1 class="header__title">{title}</h1>
+    <MetaBlock pillar="case" languages={['uk']} />
+  </slot>
+
+  <Toc slot="margin" headings={headings} />
+
+  <Content />
+
+  {workflowEntries.filter(Boolean).length > 0 && (
+    <div class="doc-card">
+      <p class="doc-card__title">Процеси у цьому кейсі</p>
+      <p class="doc-card__meta">
+        {workflowEntries.filter(Boolean).length} процеси, composed across both pillars
+      </p>
+      <ul class="doc-card__composition">
+        {workflowEntries.filter(Boolean).map((w: any) => (
+          <li>
+            <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>{' '}
+            <span class="pill">{w.data.pillar}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <RelatedPanel collection="cases" id={entry.data.id} tags={entry.data.tags ?? []} />
+  <BacklinksSection collection="cases" id={entry.data.id} />
+  <PageFooter editPath={`cases/${entry.data.id}.mdx`} />
+</PageLayout>
