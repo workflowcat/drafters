@@ -1,0 +1,56 @@
+---
+/**
+ * "Used in N places" pill shown under titles on clauses and terms.
+ */
+import { getBacklinks } from '~/lib/backlinks';
+
+export interface Props {
+  collection: string;
+  id: string;
+}
+const { collection, id } = Astro.props;
+const refs = await getBacklinks(collection, id);
+const count = refs.length;
+
+const groupCounts: Record<string, number> = {};
+for (const r of refs) {
+  groupCounts[r.collection] = (groupCounts[r.collection] ?? 0) + 1;
+}
+
+const LABELS: Record<string, string> = {
+  workflows: 'процес',
+  documents: 'документ',
+  clauses: 'пункт',
+  terms: 'термін',
+  roles: 'ролі',
+  cases: 'кейс',
+};
+
+const parts = Object.entries(groupCounts)
+  .map(([k, v]) => `${v} ${LABELS[k] ?? k}`)
+  .join(' · ');
+---
+
+{count > 0 && (
+  <p class="usage-counter">
+    <span class="pill pill--active">використовується в {count} місцях</span>
+    {parts && <span class="usage-counter__detail">{parts}</span>}
+  </p>
+)}
+
+<style>
+  .usage-counter {
+    margin: 0.8rem 0 1.4rem;
+    display: flex;
+    gap: 0.8rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .usage-counter__detail {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+</style>

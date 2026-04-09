@@ -1,0 +1,134 @@
+---
+// Mobile navigation: hamburger in top-right, slides in a drawer
+// with the same links as the desktop rail.
+---
+
+<div class="mobile-nav">
+  <button class="mobile-nav__toggle" aria-label="Меню" aria-expanded="false" data-mobile-toggle>
+    <span class="mobile-nav__line"></span>
+    <span class="mobile-nav__line"></span>
+    <span class="mobile-nav__line"></span>
+  </button>
+  <nav class="mobile-nav__drawer" aria-hidden="true">
+    <a href="/">Головна</a>
+    <a href="/workflows">Процеси</a>
+    <a href="/documents">Документи</a>
+    <a href="/clauses">Пункти</a>
+    <a href="/terms">Терміни</a>
+    <a href="/roles">Ролі</a>
+    <a href="/graph">Граф</a>
+    <a href="/changelog">Зміни</a>
+    <button class="mobile-nav__search" data-open-palette>
+      Пошук
+    </button>
+  </nav>
+</div>
+
+<style>
+  .mobile-nav {
+    display: none;
+  }
+
+  @media (max-width: 1023px) {
+    .mobile-nav {
+      display: block;
+      position: fixed;
+      top: 0;
+      right: 0;
+      z-index: 180;
+    }
+  }
+
+  .mobile-nav__toggle {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.2rem;
+    width: 2.6rem;
+    height: 2.6rem;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    z-index: 200;
+    padding: 0;
+  }
+
+  .mobile-nav__line {
+    width: 1.2rem;
+    height: 1.5px;
+    background: var(--ink);
+    transition: transform var(--t-base), opacity var(--t-base);
+  }
+
+  .mobile-nav__toggle[aria-expanded='true'] .mobile-nav__line:nth-child(1) {
+    transform: translateY(0.5rem) rotate(45deg);
+  }
+  .mobile-nav__toggle[aria-expanded='true'] .mobile-nav__line:nth-child(2) {
+    opacity: 0;
+  }
+  .mobile-nav__toggle[aria-expanded='true'] .mobile-nav__line:nth-child(3) {
+    transform: translateY(-0.5rem) rotate(-45deg);
+  }
+
+  .mobile-nav__drawer {
+    position: fixed;
+    inset: 0;
+    background: var(--paper);
+    padding: 5rem 2rem 2rem;
+    display: none;
+    flex-direction: column;
+    gap: 1.4rem;
+    z-index: 190;
+    opacity: 0;
+    transition: opacity var(--t-base);
+  }
+
+  .mobile-nav__drawer.is-open {
+    display: flex;
+    opacity: 1;
+  }
+
+  .mobile-nav__drawer a,
+  .mobile-nav__drawer button {
+    font-family: var(--font-serif);
+    font-size: 2rem;
+    font-weight: var(--fw-light);
+    color: var(--ink);
+    text-decoration: none;
+    padding: 0.4rem 0;
+    background: transparent;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    border-bottom: 1px solid var(--rule);
+    transition: color var(--t-base), border-color var(--t-base);
+  }
+  .mobile-nav__drawer a:hover,
+  .mobile-nav__drawer button:hover {
+    color: var(--lavender-dim);
+    border-bottom-color: var(--lavender-dim);
+  }
+</style>
+
+<script>
+  function setupMobileNav() {
+    const toggles = document.querySelectorAll<HTMLButtonElement>('[data-mobile-toggle]');
+    toggles.forEach((toggle) => {
+      const drawer = toggle.parentElement?.querySelector<HTMLElement>('.mobile-nav__drawer');
+      if (!drawer) return;
+      toggle.addEventListener('click', () => {
+        const expanded = toggle.getAttribute('aria-expanded') === 'true';
+        toggle.setAttribute('aria-expanded', (!expanded).toString());
+        drawer.setAttribute('aria-hidden', expanded.toString());
+        drawer.classList.toggle('is-open');
+        document.body.style.overflow = expanded ? '' : 'hidden';
+      });
+    });
+  }
+  setupMobileNav();
+  document.addEventListener('astro:page-load', setupMobileNav);
+</script>

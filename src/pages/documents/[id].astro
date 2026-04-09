@@ -4,6 +4,11 @@ import PageLayout from '~/layouts/PageLayout.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
 import ExportMenu from '~/components/ExportMenu.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
+import RelatedPanel from '~/components/RelatedPanel.astro';
+import PageFooter from '~/components/PageFooter.astro';
+import Toc from '~/components/Toc.astro';
+import LangToggle from '~/components/LangToggle.astro';
+import { getClauseByBase } from '~/lib/clause-variants';
 
 export async function getStaticPaths() {
   const documents = await getCollection('documents');
@@ -11,16 +16,25 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props as { entry: any };
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
+
+// Language from URL param, defaults to first available
+const docLangs: string[] = entry.data.languages ?? ['uk'];
+const urlLang = Astro.url.searchParams.get('lang');
+const currentLang = urlLang && docLangs.includes(urlLang) ? urlLang : docLangs[0];
 
 const title =
   typeof entry.data.title === 'string'
     ? entry.data.title
-    : entry.data.title.uk || entry.data.title.en || entry.data.id;
+    : entry.data.title[currentLang] || entry.data.title.uk || entry.data.title.en || entry.data.id;
 
 const composedOf = entry.data.composedOf ?? [];
+// Resolve clauses via their baseId + current language
 const clauseEntries = await Promise.all(
-  composedOf.map((id: string) => getEntry('clauses', id).catch(() => null))
+  composedOf.map(async (baseId: string) => {
+    const { entry: ce } = await getClauseByBase(baseId, currentLang);
+    return ce ? { baseId, entry: ce } : null;
+  })
 );
 
 function pickTitle(t: any): string {
@@ -29,7 +43,7 @@ function pickTitle(t: any): string {
 }
 ---
 
-<PageLayout title={title} crumbSegments={['documents', entry.data.id]}>
+<PageLayout title={title} crumbSegments={['documents', entry.data.id]} lang={currentLang as any}>
   <slot slot="header">
     <h1 class="header__title">{title}</h1>
     <MetaBlock
@@ -38,8 +52,11 @@ function pickTitle(t: any): string {
       status={entry.data.status}
       updated={entry.data.updated}
     />
-    <ExportMenu rawHref={`/raw/documents/${entry.data.id}.mdx`} />
+    <LangToggle base={`/documents/${entry.data.id}`} languages={docLangs} current={currentLang} />
+    <ExportMenu documentId={entry.data.id} />
   </slot>
+
+  <Toc slot="margin" headings={headings} />
 
   <Content />
 
@@ -47,12 +64,12 @@ function pickTitle(t: any): string {
     <div class="doc-card">
       <p class="doc-card__title">Composition</p>
       <p class="doc-card__meta">
-        {entry.data.languages?.join(',')} · composed of {composedOf.length} clauses
+        {currentLang} · composed of {composedOf.length} clauses
       </p>
       <ul class="doc-card__composition">
         {clauseEntries.filter(Boolean).map((c: any) => (
           <li>
-            <a href={`/clauses/${c.data.id}`}>{pickTitle(c.data.title)}</a>
+            <a href={`/clauses/${c.baseId}?lang=${currentLang}`}>{pickTitle(c.entry.data.title)}</a>
           </li>
         ))}
       </ul>
@@ -65,5 +82,7 @@ function pickTitle(t: any): string {
     </p>
   )}
 
+  <RelatedPanel collection="documents" id={entry.data.id} tags={entry.data.tags ?? []} />
   <BacklinksSection collection="documents" id={entry.data.id} />
+  <PageFooter editPath={`documents/${entry.data.id}.mdx`} updated={entry.data.updated} />
 </PageLayout>

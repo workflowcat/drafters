@@ -1,0 +1,43 @@
+---
+// 2px lavender bar at the top of viewport, width = scroll progress.
+---
+
+<div class="scroll-progress" aria-hidden="true"></div>
+
+<style>
+  .scroll-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 0;
+    background: var(--lavender);
+    z-index: 200;
+    transition: width 80ms linear;
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  function setupScrollProgress() {
+    const bar = document.querySelector<HTMLElement>('.scroll-progress');
+    if (!bar) return;
+    let ticking = false;
+    function update() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+      if (bar) bar.style.width = `${pct}%`;
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
+      }
+    }, { passive: true });
+    update();
+  }
+  setupScrollProgress();
+  document.addEventListener('astro:page-load', setupScrollProgress);
+</script>

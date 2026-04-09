@@ -43,11 +43,16 @@ const clauses = defineCollection({
   type: 'content',
   schema: z.object({
     id: z.string(),
+    baseId: z.string().optional(),
     title: bilingualText,
+    lang: languageLiteral.optional(),
     languages: z.array(languageLiteral).default(['uk']),
     tags: tagList,
     commentary: z.string().optional(),
     source: z.string().optional(), // upstream Drive doc
+    reviewedBy: z.string().optional(),
+    reviewedOn: z.string().optional(),
+    reviewExpires: z.string().optional(),
   }),
 });
 
@@ -68,6 +73,9 @@ const documents = defineCollection({
     aliases: z.array(z.string()).default([]),
     tags: tagList,
     updated: z.string().optional(), // ISO date
+    reviewedBy: z.string().optional(),
+    reviewedOn: z.string().optional(),
+    reviewExpires: z.string().optional(),
   }),
 });
 

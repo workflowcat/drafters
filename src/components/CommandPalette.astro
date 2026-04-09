@@ -1,0 +1,427 @@
+---
+// Command palette: cmd+k / ctrl+k / "/" opens a modal with
+// full-text search via Pagefind, plus a list of actions
+// (jump to section, export, etc.).
+//
+// The palette loads Pagefind lazily on first open so the 200KB
+// of worker code isn't shipped on page load.
+---
+
+<dialog class="cpal" id="cpal">
+  <div class="cpal__panel">
+    <header class="cpal__header">
+      <input
+        type="search"
+        class="cpal__input"
+        placeholder="Пошук або команда…"
+        aria-label="Пошук"
+        autocomplete="off"
+        spellcheck="false"
+        data-cpal-input
+      />
+      <button class="cpal__close" aria-label="Закрити" data-cpal-close>
+        <kbd>esc</kbd>
+      </button>
+    </header>
+    <div class="cpal__results" data-cpal-results>
+      <div class="cpal__hint">
+        Почніть вводити, щоб шукати по всіх процесах, документах, пунктах і
+        термінах. Стрілки ↑↓ для навігації, Enter — відкрити.
+      </div>
+    </div>
+    <footer class="cpal__footer">
+      <span><kbd>↑</kbd><kbd>↓</kbd> навігація</span>
+      <span><kbd>↵</kbd> відкрити</span>
+      <span><kbd>esc</kbd> закрити</span>
+    </footer>
+  </div>
+</dialog>
+
+<style is:global>
+  .cpal {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    margin: 0;
+  }
+  .cpal::backdrop {
+    background: rgba(20, 15, 8, 0.35);
+    backdrop-filter: blur(3px);
+  }
+  .cpal[open] {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+  }
+  .cpal__panel {
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    box-shadow: 8px 8px 0 0 var(--lavender);
+    width: min(42rem, 92vw);
+    max-height: 70vh;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-serif);
+  }
+  .cpal__header {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid var(--rule);
+    padding: 0.4rem 0.4rem 0.4rem 1.2rem;
+    gap: 0.6rem;
+  }
+  .cpal__input {
+    flex: 1;
+    border: 0;
+    background: transparent;
+    outline: none;
+    font-family: var(--font-serif);
+    font-size: var(--fs-lead);
+    color: var(--ink);
+    padding: 0.8rem 0;
+  }
+  .cpal__input::placeholder {
+    color: var(--ink-faint);
+    font-style: italic;
+  }
+  .cpal__close {
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.3rem 0.5rem;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    color: var(--ink-muted);
+  }
+  .cpal__results {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.6rem 0;
+  }
+  .cpal__hint {
+    padding: 2rem 1.4rem;
+    color: var(--ink-faint);
+    font-style: italic;
+    text-align: center;
+    font-size: var(--fs-small);
+  }
+  .cpal__result {
+    display: block;
+    padding: 0.8rem 1.4rem;
+    text-decoration: none;
+    color: var(--ink);
+    border-left: 3px solid transparent;
+    transition: background var(--t-base), border-color var(--t-base);
+  }
+  .cpal__result:hover,
+  .cpal__result.is-active {
+    background: var(--lavender-wash);
+    border-left-color: var(--lavender);
+  }
+  .cpal__result-type {
+    display: inline-block;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    margin-right: 0.8em;
+  }
+  .cpal__result-title {
+    font-family: var(--font-serif);
+    font-size: var(--fs-body);
+    color: var(--ink);
+  }
+  .cpal__result mark {
+    background: var(--peach-wash);
+    color: var(--ink);
+    padding: 0 0.1em;
+  }
+  .cpal__result-excerpt {
+    display: block;
+    font-size: var(--fs-small);
+    color: var(--ink-muted);
+    font-style: italic;
+    margin-top: 0.3rem;
+    line-height: 1.4;
+  }
+  .cpal__section-label {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+    padding: 0.8rem 1.4rem 0.3rem;
+  }
+  .cpal__footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 1.4rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .cpal__footer kbd {
+    margin-right: 0.3em;
+    margin-left: 0;
+  }
+</style>
+
+<script>
+  // Commands are actions you can run from the palette without having
+  // to search for a specific page. They surface first when the query
+  // starts with ">" or matches their keyword.
+  const COMMANDS = [
+    { id: 'home', label: 'Перейти: головна', hint: 'g h', url: '/' },
+    { id: 'workflows', label: 'Перейти: процеси', hint: 'g w', url: '/workflows' },
+    { id: 'documents', label: 'Перейти: документи', hint: 'g d', url: '/documents' },
+    { id: 'clauses', label: 'Перейти: пункти', hint: 'g c', url: '/clauses' },
+    { id: 'terms', label: 'Перейти: терміни', hint: 'g t', url: '/terms' },
+    { id: 'roles', label: 'Перейти: ролі', hint: 'g r', url: '/roles' },
+    { id: 'graph', label: 'Перейти: граф знань', hint: 'g g', url: '/graph' },
+    { id: 'changelog', label: 'Перейти: журнал змін', url: '/changelog' },
+    { id: 'admin', label: 'Перейти: стан контенту', url: '/admin' },
+    { id: 'github', label: 'Відкрити GitHub репо', url: 'https://github.com/workflowcat/drafters' },
+    { id: 'print', label: 'Друк / зберегти PDF', url: 'print:' },
+  ];
+
+  interface PfResult {
+    url: string;
+    meta: { title?: string };
+    excerpt: string;
+  }
+
+  let pagefind: any = null;
+  let loadingPf = false;
+  async function ensurePagefind() {
+    if (pagefind || loadingPf) return pagefind;
+    loadingPf = true;
+    try {
+      // Construct the URL dynamically so Vite doesn't try to statically
+      // resolve it at build time. The file is generated by pagefind
+      // after astro build and lives in dist/pagefind/pagefind.js.
+      const pfUrl = new URL('/pagefind/pagefind.js', window.location.href).toString();
+      pagefind = await import(/* @vite-ignore */ pfUrl);
+      if (pagefind.options) await pagefind.options({ highlightParam: 'q' });
+    } catch (e) {
+      console.warn('Pagefind not available yet:', e);
+    }
+    loadingPf = false;
+    return pagefind;
+  }
+
+  function getCollectionFromUrl(url: string): string {
+    const m = url.match(/\/(workflows|documents|clauses|terms|roles|cases)\//);
+    return m ? m[1] : 'page';
+  }
+
+  function setupPalette() {
+    const dialog = document.querySelector<HTMLDialogElement>('#cpal');
+    if (!dialog) return;
+    const input = dialog.querySelector<HTMLInputElement>('[data-cpal-input]')!;
+    const results = dialog.querySelector<HTMLElement>('[data-cpal-results]')!;
+    const closeBtn = dialog.querySelector<HTMLButtonElement>('[data-cpal-close]')!;
+
+    let activeIndex = 0;
+    let currentItems: Array<{ title: string; url: string; type: string; excerpt?: string }> = [];
+
+    function openPalette() {
+      dialog.showModal();
+      input.value = '';
+      input.focus();
+      renderInitial();
+    }
+    function closePalette() {
+      dialog.close();
+    }
+    closeBtn.addEventListener('click', closePalette);
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) closePalette();
+    });
+
+    document.querySelectorAll('[data-open-palette]').forEach((b) => {
+      b.addEventListener('click', openPalette);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      const mod = e.metaKey || e.ctrlKey;
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (mod && e.key === 'k') {
+        e.preventDefault();
+        if (dialog.open) closePalette();
+        else openPalette();
+      } else if (e.key === '/' && !['INPUT', 'TEXTAREA'].includes(tag)) {
+        e.preventDefault();
+        openPalette();
+      } else if (e.key === 'Escape' && dialog.open) {
+        closePalette();
+      }
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        activeIndex = Math.min(activeIndex + 1, currentItems.length - 1);
+        highlightActive();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        activeIndex = Math.max(activeIndex - 1, 0);
+        highlightActive();
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const item = currentItems[activeIndex];
+        if (item) navigate(item);
+      }
+    });
+
+    function highlightActive() {
+      results.querySelectorAll('.cpal__result').forEach((el, i) => {
+        el.classList.toggle('is-active', i === activeIndex);
+      });
+    }
+
+    function navigate(item: { url: string }) {
+      if (item.url === 'print:') {
+        closePalette();
+        window.print();
+      } else if (item.url.startsWith('http')) {
+        window.open(item.url, '_blank');
+        closePalette();
+      } else {
+        window.location.href = item.url;
+      }
+    }
+
+    function renderInitial() {
+      currentItems = COMMANDS.map((c) => ({
+        title: c.label,
+        url: c.url,
+        type: 'команда',
+      }));
+      activeIndex = 0;
+      const html =
+        `<div class="cpal__section-label">Команди</div>` +
+        COMMANDS.map(
+          (c, i) =>
+            `<a class="cpal__result ${i === 0 ? 'is-active' : ''}" href="${c.url}" data-cpal-url="${c.url}">
+              <span class="cpal__result-type">cmd</span>
+              <span class="cpal__result-title">${c.label}</span>
+            </a>`
+        ).join('');
+      results.innerHTML = html;
+      attachRowHandlers();
+    }
+
+    function attachRowHandlers() {
+      results.querySelectorAll<HTMLElement>('.cpal__result').forEach((el, i) => {
+        el.addEventListener('click', (e) => {
+          e.preventDefault();
+          activeIndex = i;
+          const item = currentItems[i];
+          if (item) navigate(item);
+        });
+        el.addEventListener('mouseenter', () => {
+          activeIndex = i;
+          highlightActive();
+        });
+      });
+    }
+
+    let debounceTimer: number | null = null;
+    input.addEventListener('input', () => {
+      const q = input.value.trim();
+      if (!q) {
+        renderInitial();
+        return;
+      }
+      if (debounceTimer) window.clearTimeout(debounceTimer);
+      debounceTimer = window.setTimeout(async () => {
+        await runQuery(q);
+      }, 120);
+    });
+
+    async function runQuery(q: string) {
+      // 1) filter commands by fuzzy substring
+      const cmdHits = COMMANDS.filter((c) =>
+        c.label.toLowerCase().includes(q.toLowerCase())
+      );
+
+      // 2) pagefind search
+      const pf = await ensurePagefind();
+      let searchHits: Array<{ title: string; url: string; type: string; excerpt: string }> = [];
+      if (pf) {
+        try {
+          const search = await pf.search(q);
+          const data = await Promise.all(
+            search.results.slice(0, 12).map((r: any) => r.data())
+          );
+          searchHits = data.map((d: PfResult) => ({
+            title: d.meta?.title || d.url,
+            url: d.url,
+            type: getCollectionFromUrl(d.url),
+            excerpt: d.excerpt,
+          }));
+        } catch (e) {
+          console.warn('Pagefind search failed:', e);
+        }
+      }
+
+      currentItems = [
+        ...cmdHits.map((c) => ({ title: c.label, url: c.url, type: 'команда' })),
+        ...searchHits,
+      ];
+      activeIndex = 0;
+
+      if (currentItems.length === 0) {
+        results.innerHTML = `<div class="cpal__hint">Нічого не знайдено для «${escapeHtml(q)}».</div>`;
+        return;
+      }
+
+      const sections: string[] = [];
+      if (cmdHits.length) {
+        sections.push(`<div class="cpal__section-label">Команди</div>`);
+        cmdHits.forEach((c, i) => {
+          sections.push(
+            `<a class="cpal__result ${i === 0 ? 'is-active' : ''}" href="${c.url}">
+              <span class="cpal__result-type">cmd</span>
+              <span class="cpal__result-title">${escapeHtml(c.label)}</span>
+            </a>`
+          );
+        });
+      }
+      if (searchHits.length) {
+        sections.push(`<div class="cpal__section-label">Зміст</div>`);
+        searchHits.forEach((h, i) => {
+          const idx = cmdHits.length + i;
+          sections.push(
+            `<a class="cpal__result ${idx === 0 && !cmdHits.length ? 'is-active' : ''}" href="${h.url}">
+              <span class="cpal__result-type">${h.type}</span>
+              <span class="cpal__result-title">${h.title}</span>
+              <span class="cpal__result-excerpt">${h.excerpt}</span>
+            </a>`
+          );
+        });
+      }
+      results.innerHTML = sections.join('');
+      attachRowHandlers();
+    }
+
+    function escapeHtml(s: string): string {
+      return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+    }
+  }
+
+  setupPalette();
+  document.addEventListener('astro:page-load', setupPalette);
+</script>

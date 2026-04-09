@@ -1,0 +1,50 @@
+---
+/**
+ * Page footer with "suggest edit on GitHub" link.
+ * Takes the content-collection path for this page.
+ */
+export interface Props {
+  editPath?: string; // e.g. "workflows/subcontractor-onboarding.mdx"
+  updated?: string;
+}
+const { editPath, updated } = Astro.props;
+const REPO = 'workflowcat/drafters';
+const BRANCH = 'main';
+const editUrl = editPath
+  ? `https://github.com/${REPO}/edit/${BRANCH}/src/content/${editPath}`
+  : null;
+const viewUrl = editPath
+  ? `https://github.com/${REPO}/blob/${BRANCH}/src/content/${editPath}`
+  : null;
+---
+
+<footer class="page-footer">
+  <div class="page-footer__row">
+    {updated && <span class="pill">оновлено {updated}</span>}
+    {editUrl && (
+      <a class="btn btn--ghost" href={editUrl} target="_blank" rel="noopener">
+        Редагувати на GitHub
+      </a>
+    )}
+    {viewUrl && (
+      <a class="btn btn--ghost" href={viewUrl} target="_blank" rel="noopener">
+        Переглянути джерело
+      </a>
+    )}
+  </div>
+</footer>
+
+<style>
+  .page-footer {
+    margin-top: 5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+  .page-footer__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 1.4rem;
+    align-items: center;
+  }
+</style>

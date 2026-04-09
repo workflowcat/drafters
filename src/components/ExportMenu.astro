@@ -1,18 +1,42 @@
 ---
 /**
- * Placeholder export menu. Phase 1 ships with a raw .mdx link only;
- * docx/pdf/zip builders land in Phase 2.
+ * Export menu. Links to static files pre-generated at build time
+ * by scripts/export/build-exports.mjs.
+ *
+ * Usage:
+ *   <ExportMenu workflowId="..." />
+ *   <ExportMenu documentId="..." />
+ *   <ExportMenu clauseId="..." />
  */
 export interface Props {
-  rawHref?: string;
+  workflowId?: string;
+  documentId?: string;
+  clauseId?: string;
 }
-const { rawHref } = Astro.props;
+const { workflowId, documentId, clauseId } = Astro.props;
+
+type Link = { label: string; href: string; group?: string };
+const links: Link[] = [];
+
+if (workflowId) {
+  links.push({ label: '.mdx (raw)', href: `/exports/workflows/${workflowId}/source.mdx`, group: 'source' });
+  links.push({ label: '.docx', href: `/exports/workflows/${workflowId}/workflow.docx`, group: 'document' });
+  links.push({ label: '.zip (bundle)', href: `/exports/workflows/${workflowId}/bundle.zip`, group: 'bundle' });
+}
+if (documentId) {
+  links.push({ label: '.mdx (raw)', href: `/exports/documents/${documentId}/source.mdx`, group: 'source' });
+  links.push({ label: '.docx', href: `/exports/documents/${documentId}/document.docx`, group: 'document' });
+  links.push({ label: '.zip (з контекстом)', href: `/exports/documents/${documentId}/with-context.zip`, group: 'bundle' });
+}
+if (clauseId) {
+  links.push({ label: '.mdx (raw)', href: `/exports/clauses/${clauseId}/source.mdx`, group: 'source' });
+  links.push({ label: '.docx', href: `/exports/clauses/${clauseId}/clause.docx`, group: 'document' });
+}
 ---
+
 <div class="header__actions">
-  {rawHref && (
-    <a class="btn btn--ghost" href={rawHref} download>
-      Експорт .mdx
-    </a>
-  )}
-  <span class="pill">docx / pdf / zip — phase 2</span>
+  <span class="pill">експорт</span>
+  {links.map((l) => (
+    <a class="btn btn--ghost" href={l.href} download>{l.label}</a>
+  ))}
 </div>

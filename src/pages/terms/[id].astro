@@ -3,6 +3,9 @@ import { getCollection, render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
+import UsageCounter from '~/components/UsageCounter.astro';
+import RelatedPanel from '~/components/RelatedPanel.astro';
+import PageFooter from '~/components/PageFooter.astro';
 
 export async function getStaticPaths() {
   const terms = await getCollection('terms');
@@ -28,10 +31,14 @@ const shortEn = entry.data.short?.en;
     <MetaBlock pillar="term" />
   </slot>
 
-  {shortUk && <p style="font-style: italic; color: var(--ink-muted);">{shortUk}</p>}
+  <UsageCounter collection="terms" id={entry.data.id} />
+
+  {shortUk && <p class="lead">{shortUk}</p>}
   {shortEn && shortEn !== shortUk && <p style="font-style: italic; color: var(--ink-faint); font-size: var(--fs-small);">{shortEn}</p>}
 
   <Content />
 
+  <RelatedPanel collection="terms" id={entry.data.id} tags={entry.data.tags ?? []} />
   <BacklinksSection collection="terms" id={entry.data.id} />
+  <PageFooter editPath={`terms/${entry.data.id}.mdx`} />
 </PageLayout>

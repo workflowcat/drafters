@@ -3,6 +3,7 @@ import { getCollection, render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
+import PageFooter from '~/components/PageFooter.astro';
 
 export async function getStaticPaths() {
   const roles = await getCollection('roles');
@@ -27,4 +28,5 @@ const title =
   <Content />
 
   <BacklinksSection collection="roles" id={entry.data.id} />
+  <PageFooter editPath={`roles/${entry.data.id}.mdx`} />
 </PageLayout>

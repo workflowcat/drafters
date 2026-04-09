@@ -1,45 +1,43 @@
 ---
 /**
- * Inline a clause by id, in a requested language.
+ * Inline a clause by baseId, in a requested language.
  *
  * Usage (inside MDX):
- *   <Clause id="payment-dispute" lang="uk" />
+ *   <Clause baseId="payment-dispute" lang="uk" />
  *
  * If the requested language isn't present, falls back to the first
- * available and shows a small "[fallback: en]" pill above the body.
+ * available variant and shows a small "[fallback]" indicator.
  */
-import { getEntry, render } from 'astro:content';
+import { render } from 'astro:content';
+import { getClauseByBase } from '~/lib/clause-variants';
 
 export interface Props {
-  id: string;
+  baseId: string;
   lang?: 'uk' | 'en' | 'de';
   showCommentary?: boolean;
 }
 
-const { id, lang = 'uk', showCommentary = false } = Astro.props;
-
-const entry = await getEntry('clauses', id);
+const { baseId, lang = 'uk', showCommentary = false } = Astro.props;
+const { entry, lang: resolvedLang, fallback } = await getClauseByBase(baseId, lang);
 
 if (!entry) {
-  throw new Error(`<Clause>: unknown clause id "${id}"`);
+  throw new Error(`<Clause>: no variant found for baseId "${baseId}"`);
 }
-
-const availableLangs: string[] = entry.data.languages ?? ['uk'];
-const chosen = availableLangs.includes(lang) ? lang : availableLangs[0];
-const isFallback = chosen !== lang;
 
 const title =
   typeof entry.data.title === 'string'
     ? entry.data.title
-    : (entry.data.title as any)[chosen] ?? (entry.data.title as any).uk ?? id;
+    : (entry.data.title as any)[resolvedLang ?? lang] ??
+      (entry.data.title as any).uk ??
+      baseId;
 
 const { Content } = await render(entry);
 ---
-<section class="clause" data-clause-id={id} data-lang={chosen}>
+<section class="clause" data-clause-base={baseId} data-lang={resolvedLang}>
   <header class="clause__header">
-    clause / {id}
-    {isFallback && (
-      <span class="clause__lang-fallback">[fallback: {chosen}]</span>
+    clause / {baseId}
+    {fallback && (
+      <span class="clause__lang-fallback">[fallback: {resolvedLang}]</span>
     )}
   </header>
   <h3>{title}</h3>

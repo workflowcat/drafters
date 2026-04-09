@@ -121,13 +121,21 @@ export function buildIndex() {
   for (const collection of COLLECTION_TYPES) {
     const dir = join(CONTENT_ROOT, collection);
     const files = walk(dir);
+    const seenBaseIds = new Set();
     for (const file of files) {
       const source = readFileSync(file, 'utf8');
       const fm = parseFrontmatter(source);
       if (!fm || !fm.id) continue;
 
-      const id = fm.id;
-      const route = `${ROUTE_PREFIX[collection]}/${id}`;
+      // For clauses, collapse language variants to their baseId
+      let entryKey = fm.id;
+      if (collection === 'clauses' && fm.baseId) {
+        if (seenBaseIds.has(fm.baseId)) continue; // only first variant wins
+        seenBaseIds.add(fm.baseId);
+        entryKey = fm.baseId;
+      }
+      const route = `${ROUTE_PREFIX[collection]}/${entryKey}`;
+      const id = entryKey;
 
       // Bilingual title handling
       const titles = [];

@@ -1,0 +1,93 @@
+---
+import { getCollection } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { pickTitle, pickShort } from '~/lib/collection-helpers';
+import { buildBacklinks } from '~/lib/backlinks';
+
+const terms = await getCollection('terms');
+const backlinks = await buildBacklinks();
+
+function usageCount(id: string): number {
+  return (backlinks.get(`terms/${id}`) || []).length;
+}
+
+// Sort alphabetically by UA title
+const sorted = [...terms].sort((a, b) =>
+  pickTitle(a.data.title).localeCompare(pickTitle(b.data.title), 'uk')
+);
+
+const allTags = new Set<string>();
+for (const t of terms) (t.data.tags ?? []).forEach((x: string) => allTags.add(x));
+---
+
+<PageLayout title="Терміни" crumbSegments={['terms']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Терміни</h1>
+    <p class="header__subtitle">{terms.length} терміни · словник для тултипів</p>
+  </slot>
+
+  <p class="lead">
+    Словник понять, які з'являються всюди у текстах. Кожен термін
+    має коротку підказку, яку показує тултип при наведенні, і повну
+    статтю з контекстом.
+  </p>
+
+  {allTags.size > 0 && (
+    <div class="filter-bar" data-filter-target="tag">
+      <span class="filter-bar__label">Теги:</span>
+      <button class="filter-bar__chip is-active" data-filter-value="all">усі</button>
+      {[...allTags].map((t) => (
+        <button class="filter-bar__chip" data-filter-value={t}>{t}</button>
+      ))}
+    </div>
+  )}
+
+  <dl class="term-list" data-filter-list>
+    {sorted.map((t) => (
+      <div data-tags={(t.data.tags ?? []).join(',')}>
+        <dt>
+          <a href={`/terms/${t.data.id}`}>{pickTitle(t.data.title)}</a>
+          <span class="pill">використовується в {usageCount(t.data.id)}</span>
+        </dt>
+        <dd>{pickShort(t.data.short)}</dd>
+      </div>
+    ))}
+  </dl>
+</PageLayout>
+
+<style>
+  .term-list {
+    margin: 1rem 0 2rem;
+    max-width: var(--measure);
+  }
+  .term-list > div {
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .term-list > div:last-child { border-bottom: 0; }
+  .term-list dt {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+  .term-list dt a {
+    font-family: var(--font-serif);
+    font-size: var(--fs-lead);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--lavender) 55%, transparent);
+    transition: color var(--t-base), border-color var(--t-base);
+  }
+  .term-list dt a:hover {
+    color: var(--lavender-dim);
+    border-bottom-color: var(--lavender-dim);
+  }
+  .term-list dd {
+    margin: 0.3rem 0 0;
+    color: var(--ink-muted);
+    font-style: italic;
+    font-size: var(--fs-small);
+    max-width: 48rem;
+  }
+</style>

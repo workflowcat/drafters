@@ -1,0 +1,121 @@
+---
+/**
+ * Related-by-tag panel. Finds other content in the same collection(s)
+ * that shares at least one tag with the current entry.
+ */
+import { getCollection } from 'astro:content';
+
+export interface Props {
+  collection: string;
+  id: string;
+  tags?: string[];
+  limit?: number;
+}
+
+const { collection, id, tags = [], limit = 6 } = Astro.props;
+
+if (tags.length === 0) {
+  // nothing to render
+}
+
+function pickTitle(title: any): string {
+  if (typeof title === 'string') return title;
+  return title?.uk || title?.en || title?.de || '';
+}
+
+const PREFIX: Record<string, string> = {
+  workflows: '/workflows',
+  documents: '/documents',
+  clauses: '/clauses',
+  terms: '/terms',
+  roles: '/roles',
+  cases: '/cases',
+};
+
+const safeGet = async (name: any) => {
+  try {
+    return await getCollection(name);
+  } catch {
+    return [];
+  }
+};
+
+// Search across all collections, prefer same-collection matches
+const allPools = await Promise.all([
+  safeGet('workflows'),
+  safeGet('documents'),
+  safeGet('clauses'),
+  safeGet('terms'),
+  safeGet('roles'),
+]);
+
+const pools: Array<{ col: string; entry: any }> = [];
+const colNames = ['workflows', 'documents', 'clauses', 'terms', 'roles'];
+allPools.forEach((arr, i) => {
+  for (const e of arr) {
+    if (e.data.id === id && colNames[i] === collection) continue;
+    pools.push({ col: colNames[i], entry: e });
+  }
+});
+
+// Score by number of overlapping tags, favor same-collection
+const tagSet = new Set(tags.map((t) => t.toLowerCase()));
+const scored = pools
+  .map((p) => {
+    const otherTags: string[] = p.entry.data.tags ?? [];
+    let overlap = 0;
+    for (const t of otherTags) if (tagSet.has(t.toLowerCase())) overlap++;
+    const bonus = p.col === collection ? 0.5 : 0;
+    return { ...p, score: overlap + bonus };
+  })
+  .filter((p) => p.score > 0)
+  .sort((a, b) => b.score - a.score)
+  .slice(0, limit);
+---
+
+{scored.length > 0 && tags.length > 0 && (
+  <section class="related" aria-label="Пов'язане за тегами">
+    <p class="divider">Пов'язане</p>
+    <ul class="related__list">
+      {scored.map((r) => (
+        <li>
+          <a href={`${PREFIX[r.col]}/${r.entry.data.id}`}>{pickTitle(r.entry.data.title)}</a>
+          <span class="pill">{r.col}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+)}
+
+<style>
+  .related {
+    margin-top: 3rem;
+    max-width: var(--measure);
+  }
+  .related__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .related__list li {
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+  }
+  .related__list li:last-child { border-bottom: 0; }
+  .related__list a {
+    font-family: var(--font-serif);
+    font-size: var(--fs-body);
+    color: var(--ink);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--lavender) 55%, transparent);
+    transition: color var(--t-base), border-color var(--t-base);
+  }
+  .related__list a:hover {
+    color: var(--lavender-dim);
+    border-bottom-color: var(--lavender-dim);
+  }
+</style>

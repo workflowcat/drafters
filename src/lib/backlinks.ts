@@ -73,13 +73,16 @@ export async function buildBacklinks(): Promise<BacklinkMap> {
     ...cases.map((e) => ({ collection: 'cases', entry: e })),
   ];
 
-  // Build a quick "title/id → {collection, id}" resolver
+  // Build a quick "title/id → {collection, id}" resolver.
+  // For clauses, collapse language variants to their baseId so that
+  // [[Payment Dispute]] resolves to a single baseId regardless of
+  // which variant file gets hit first.
   const resolver = new Map<string, { collection: string; id: string }>();
   for (const { collection, entry } of all) {
-    const id = entry.data.id;
+    const id = collection === 'clauses' ? entry.data.baseId || entry.data.id : entry.data.id;
     const title = pickTitle(entry.data.title);
     const aliases: string[] = entry.data.aliases || [];
-    const keys = [id, title, ...aliases].filter(Boolean);
+    const keys = [id, entry.data.id, title, ...aliases].filter(Boolean);
     for (const k of keys) {
       resolver.set(String(k).toLowerCase(), { collection, id });
     }
@@ -94,12 +97,15 @@ export async function buildBacklinks(): Promise<BacklinkMap> {
     map.set(targetKey, list);
   };
 
-  const asRef = (collection: string, entry: any): Ref => ({
-    collection,
-    id: entry.data.id,
-    title: pickTitle(entry.data.title) || entry.data.id,
-    route: `${ROUTE_PREFIX[collection]}/${entry.data.id}`,
-  });
+  const asRef = (collection: string, entry: any): Ref => {
+    const id = collection === 'clauses' ? entry.data.baseId || entry.data.id : entry.data.id;
+    return {
+      collection,
+      id,
+      title: pickTitle(entry.data.title) || id,
+      route: `${ROUTE_PREFIX[collection]}/${id}`,
+    };
+  };
 
   // Pass 1: frontmatter-declared references
   for (const { collection, entry } of all) {

@@ -1,0 +1,223 @@
+---
+import { getCollection } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { buildBacklinks } from '~/lib/backlinks';
+import { pickTitle } from '~/lib/collection-helpers';
+
+const safeGet = async (name: any) => {
+  try {
+    return await getCollection(name);
+  } catch {
+    return [];
+  }
+};
+
+const [workflows, documents, clauses, terms, roles] = await Promise.all([
+  safeGet('workflows'),
+  safeGet('documents'),
+  safeGet('clauses'),
+  safeGet('terms'),
+  safeGet('roles'),
+]);
+
+const backlinks = await buildBacklinks();
+
+type Entry = { col: string; id: string; title: string; data: any; body: string };
+const all: Entry[] = [];
+for (const w of workflows) all.push({ col: 'workflows', id: w.data.id, title: pickTitle(w.data.title), data: w.data, body: (w as any).body ?? '' });
+for (const d of documents) all.push({ col: 'documents', id: d.data.id, title: pickTitle(d.data.title), data: d.data, body: (d as any).body ?? '' });
+for (const c of clauses) all.push({ col: 'clauses', id: c.data.id, title: pickTitle(c.data.title), data: c.data, body: (c as any).body ?? '' });
+for (const t of terms) all.push({ col: 'terms', id: t.data.id, title: pickTitle(t.data.title), data: t.data, body: (t as any).body ?? '' });
+for (const r of roles) all.push({ col: 'roles', id: r.data.id, title: pickTitle(r.data.title), data: r.data, body: (r as any).body ?? '' });
+
+// Broken wikilinks — scan body text for [[...]] that don't resolve
+// Reuse content-index.
+import { resolve as resolveWikiTarget } from '~/lib/content-index.mjs';
+const WIKILINK_RE = /\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g;
+type BrokenLink = { from: Entry; target: string };
+const broken: BrokenLink[] = [];
+for (const e of all) {
+  if (!e.body || !e.body.includes('[[')) continue;
+  const seen = new Set<string>();
+  let m;
+  WIKILINK_RE.lastIndex = 0;
+  while ((m = WIKILINK_RE.exec(e.body))) {
+    const target = m[1].trim();
+    if (seen.has(target.toLowerCase())) continue;
+    seen.add(target.toLowerCase());
+    if (!resolveWikiTarget(target)) {
+      broken.push({ from: e, target });
+    }
+  }
+}
+
+// Orphans — content with zero references both in and out
+const orphans: Entry[] = [];
+for (const e of all) {
+  const inbound = (backlinks.get(`${e.col}/${e.id}`) || []).length;
+  const hasBodyLinks = e.body && e.body.includes('[[');
+  const hasFrontmatterRefs =
+    (e.data.composedOf?.length ?? 0) > 0 ||
+    (e.data.related?.length ?? 0) > 0 ||
+    (e.data.workflows?.length ?? 0) > 0 ||
+    (e.data.steps?.length ?? 0) > 0;
+  if (inbound === 0 && !hasBodyLinks && !hasFrontmatterRefs) orphans.push(e);
+}
+
+// Drafts
+const drafts = all.filter((e) => e.data.status === 'draft');
+
+// Missing updated timestamp
+const missingUpdated = all.filter(
+  (e) => (e.col === 'workflows' || e.col === 'documents') && !e.data.updated
+);
+
+// Language coverage
+const clauseCoverage = clauses.map((c) => ({
+  id: c.data.id,
+  title: pickTitle(c.data.title),
+  languages: c.data.languages ?? ['uk'],
+}));
+const missingEn = clauseCoverage.filter((c) => !c.languages.includes('en'));
+
+// Review expiry (if any)
+const now = new Date();
+const reviewExpired = all.filter((e) => {
+  if (!e.data.reviewExpires) return false;
+  return new Date(e.data.reviewExpires) < now;
+});
+---
+
+<PageLayout title="Admin / стан контенту" crumbSegments={['admin']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Admin</h1>
+    <p class="header__subtitle">Редакційний дашборд · стан контенту</p>
+  </slot>
+
+  <p class="lead">
+    Публічна сторінка, бо сайт публічний. Показує, що зламано або
+    потребує уваги. Оновлюється при кожній збірці.
+  </p>
+
+  <section class="admin-section">
+    <h2>Ламані wikilinks</h2>
+    <p class="label">{broken.length} знайдено</p>
+    {broken.length === 0 ? (
+      <p>Усі посилання резолвляться. Чисто.</p>
+    ) : (
+      <ul>
+        {broken.map((b) => (
+          <li>
+            <strong>[[{b.target}]]</strong> — у{' '}
+            <a href={`/${b.from.col}/${b.from.id}`}>{b.from.title}</a>{' '}
+            <span class="pill">{b.from.col}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section class="admin-section">
+    <h2>Orphans (не посилається ні на що, і ніщо не посилається на нього)</h2>
+    <p class="label">{orphans.length} знайдено</p>
+    {orphans.length === 0 ? (
+      <p>Немає сиріт.</p>
+    ) : (
+      <ul>
+        {orphans.map((o) => (
+          <li>
+            <a href={`/${o.col}/${o.id}`}>{o.title}</a>{' '}
+            <span class="pill">{o.col}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section class="admin-section">
+    <h2>Чернетки (status: draft)</h2>
+    <p class="label">{drafts.length} знайдено</p>
+    {drafts.length === 0 ? (
+      <p>Немає чернеток.</p>
+    ) : (
+      <ul>
+        {drafts.map((d) => (
+          <li>
+            <a href={`/${d.col}/${d.id}`}>{d.title}</a>{' '}
+            <span class="pill pill--accent">draft</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section class="admin-section">
+    <h2>Без updated-мітки</h2>
+    <p class="label">{missingUpdated.length} знайдено</p>
+    {missingUpdated.length === 0 ? (
+      <p>Усі датовані.</p>
+    ) : (
+      <ul>
+        {missingUpdated.map((e) => (
+          <li>
+            <a href={`/${e.col}/${e.id}`}>{e.title}</a>{' '}
+            <span class="pill">{e.col}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section class="admin-section">
+    <h2>Пункти без EN-варіанту</h2>
+    <p class="label">{missingEn.length} з {clauseCoverage.length}</p>
+    {missingEn.length === 0 ? (
+      <p>Усі пункти мають EN.</p>
+    ) : (
+      <ul>
+        {missingEn.map((c) => (
+          <li>
+            <a href={`/clauses/${c.id}`}>{c.title}</a>{' '}
+            <span class="pill">{c.languages.join(',')}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+
+  <section class="admin-section">
+    <h2>Прострочений review</h2>
+    <p class="label">{reviewExpired.length} знайдено</p>
+    {reviewExpired.length === 0 ? (
+      <p>Немає прострочених перевірок.</p>
+    ) : (
+      <ul>
+        {reviewExpired.map((e) => (
+          <li>
+            <a href={`/${e.col}/${e.id}`}>{e.title}</a>{' '}
+            <span class="pill pill--accent">review due</span>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
+</PageLayout>
+
+<style>
+  .admin-section {
+    margin: 3rem 0;
+    max-width: var(--measure);
+  }
+  .admin-section h2 {
+    margin-top: 0;
+  }
+  .admin-section ul {
+    list-style: none;
+    padding: 0;
+  }
+  .admin-section li {
+    padding: 0.5rem 0;
+    border-bottom: 1px dashed var(--rule);
+  }
+  .admin-section li:last-child { border-bottom: 0; }
+</style>

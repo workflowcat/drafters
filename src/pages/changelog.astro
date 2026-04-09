@@ -1,0 +1,105 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import { readGitLog, affectedContent } from '~/lib/git-log';
+
+const commits = readGitLog(40);
+---
+
+<PageLayout title="Журнал змін" crumbSegments={['changelog']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Зміни</h1>
+    <p class="header__subtitle">{commits.length} останніх комітів · з git log</p>
+  </slot>
+
+  <p class="lead">
+    Кожен коміт автоматично з'являється тут при збірці. Зміни у файлах
+    контенту перетворюються на посилання на відповідні сторінки.
+  </p>
+
+  <ol class="changelog">
+    {commits.map((c) => {
+      const affected = affectedContent(c.files);
+      return (
+        <li class="changelog__entry">
+          <header>
+            <span class="changelog__date">{c.date}</span>
+            <a class="changelog__hash" href={`https://github.com/workflowcat/drafters/commit/${c.hash}`} target="_blank" rel="noopener">
+              {c.shortHash}
+            </a>
+            <span class="changelog__author">{c.author}</span>
+          </header>
+          <p class="changelog__subject">{c.subject}</p>
+          {affected.length > 0 && (
+            <ul class="changelog__files">
+              {affected.map((f) => (
+                <li>
+                  <a href={`/${f}`}>{f}</a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</PageLayout>
+
+<style>
+  .changelog {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0;
+    max-width: var(--measure);
+  }
+  .changelog__entry {
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  .changelog__entry header {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+    flex-wrap: wrap;
+  }
+  .changelog__hash {
+    font-weight: var(--fw-bold);
+    color: var(--lavender-dim);
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+  }
+  .changelog__hash:hover {
+    border-bottom-color: var(--lavender-dim);
+  }
+  .changelog__subject {
+    font-family: var(--font-serif);
+    font-size: var(--fs-body);
+    color: var(--ink);
+    margin: 0 0 0.4rem;
+    max-width: none;
+  }
+  .changelog__files {
+    list-style: none;
+    padding: 0;
+    margin: 0.4rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.8rem;
+  }
+  .changelog__files li {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+  }
+  .changelog__files a {
+    color: var(--ink-muted);
+    text-decoration: none;
+    border-bottom: 1px solid color-mix(in srgb, var(--lavender) 55%, transparent);
+  }
+  .changelog__files a:hover {
+    color: var(--lavender-dim);
+  }
+</style>

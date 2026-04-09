@@ -358,3 +358,113 @@ kbd {
   outline-offset: 3px;
   border-radius: 1px;
 }
+
+/* ── Heading anchor links (rehype-autolink-headings) ────── */
+
+h2, h3, h4 {
+  position: relative;
+}
+
+.heading-anchor {
+  position: absolute;
+  left: -1.4em;
+  top: 0.05em;
+  opacity: 0;
+  text-decoration: none;
+  color: var(--lavender);
+  font-family: var(--font-serif);
+  font-weight: var(--fw-light);
+  transition: opacity var(--t-base), color var(--t-base);
+}
+
+h2:hover .heading-anchor,
+h3:hover .heading-anchor,
+h4:hover .heading-anchor,
+.heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+.heading-anchor:hover {
+  color: var(--lavender-dim);
+}
+
+.heading-anchor__symbol {
+  display: inline-block;
+}
+
+/* ── Filter bar (collection index chips) ────────────────── */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.8rem;
+  align-items: center;
+  margin: 1.6rem 0 1rem;
+  max-width: var(--measure);
+}
+
+.filter-bar__label {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-meta);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  color: var(--ink-faint);
+  margin-right: 0.2rem;
+}
+
+.filter-bar__chip {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-meta);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  background: transparent;
+  color: var(--ink-muted);
+  border: 1px solid var(--rule);
+  padding: 0.35em 0.8em;
+  border-radius: 0;
+  cursor: pointer;
+  transition: background var(--t-base), color var(--t-base), border-color var(--t-base);
+}
+
+.filter-bar__chip:hover {
+  color: var(--ink);
+  border-color: var(--ink);
+}
+
+.filter-bar__chip.is-active {
+  background: var(--lavender);
+  color: var(--ink);
+  border-color: var(--lavender);
+}
+
+/* ── Display heading cursor blink ───────────────────────── */
+
+.display-cursor {
+  display: inline-block;
+  width: 0.08em;
+  height: 0.8em;
+  background: var(--lavender);
+  margin-left: 0.08em;
+  vertical-align: -0.05em;
+  animation: display-blink 1.1s steps(1) infinite;
+}
+
+@keyframes display-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* ── Dropcap ────────────────────────────────────────────── */
+
+.dropcap::first-letter {
+  font-family: var(--font-serif);
+  font-weight: var(--fw-light);
+  font-size: 4.6em;
+  float: left;
+  line-height: 0.85;
+  padding: 0.08em 0.12em 0 0;
+  color: var(--ink);
+  font-variation-settings: 'SOFT' 50, 'WONK' 1, 'opsz' 144;
+}

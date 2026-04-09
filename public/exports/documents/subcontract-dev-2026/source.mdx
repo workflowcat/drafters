@@ -1,0 +1,91 @@
+---
+id: subcontract-dev-2026
+title:
+  uk: Договір субпідряду — Developer (2026)
+  en: Subcontractor Agreement — Developer (2026)
+type: contract
+languages: [uk, en]
+status: active
+composedOf:
+  - payment-dispute
+  - rate-increase
+  - ip-assignment
+  - non-solicitation
+  - non-compete
+workflows:
+  - subcontractor-onboarding
+driveSource: https://docs.google.com/document/d/1TRxYrn756wIWfowyI2trJozgaFpz4R_ol72981DqfRg/edit
+aliases: [Subcontract Dev 2026, Subcontract Developer, Договір субпідряду, Subcontractor Agreement Developer]
+tags: [subcontract, developer, legal]
+updated: '2026-02-16'
+---
+
+**Договір субпідряду для розробника (Developer)** — стандартний шаблон
+Sloboda Software GMBH, який ми використовуємо при залученні зовнішніх
+розробників до проектів. Цей документ складено під юрисдикцією Німеччини,
+з форумом у England and Wales для спорів.
+
+## Структура документа
+
+Договір складається з декількох блоків. Сірим фоном нижче — блоки, які
+**багаторазово використовуються** в інших договорах (PM, Marketing):
+
+1. **Дата, сторони.** [[Contractor|Sloboda Software GMBH]] → субпідрядник (найчастіше [[FOP|ФОП]]).
+2. **Key terms** — таблиця: послуги, інвойсинг, валюта, овертайм, перегляд ставки.
+3. **Payments for services** — містить пункт [[Payment Dispute]].
+4. **[[Non-solicitation]]** — 1 рік після завершення.
+5. **[[Non-compete]]** — 1 рік, стосується лише відомих субпідряднику клієнтів.
+6. **Deliverables and IP** — містить пункт [[IP Assignment]] та open-source застереження.
+7. **Publicity** — дозвіл на згадку у маркетингових цілях.
+8. **Term and Termination** — 1 день протягом перших 3 місяців, далі 14 днів.
+9. **Limitation of liability** — мак. liability обмежено сумою винагороди за попередні 12 місяців.
+10. **Dispute resolution** — 60 днів на переговори, потім England and Wales.
+11. **Signatures + Attachment A (Rate sheet).**
+
+## Coli це застосовувати
+
+Цей конкретний шаблон — **тільки для Developer-ів**. Для інших ролей
+є паралельні версії:
+
+- `subcontract-pm-2026` — для Project Managers (інший scope послуг)
+- `subcontract-marketing-2026` — для маркетингових спеціалістів
+
+Усі три варіанти ділять **однакові пункти**
+([[Payment Dispute]], [[Rate Increase]], [[IP Assignment]], [[Non-solicitation]],
+[[Non-compete]]). Це означає: якщо ми оновлюємо один з пунктів — оновлення
+застосовується одразу до всіх трьох договорів, бо вони композовані з
+одних і тих самих clauses.
+
+## Ключові терміни
+
+- **Payments**: post-payment згідно з time-sheet субпідрядника
+- **Invoicing**: щомісячно, 21 календарний день на сплату
+- **Overtime**: тільки з письмового погодження
+- **Rate increase**: не частіше раз на 12 місяців, не більше 10% річних
+- **Termination (перші 3 міс.)**: 1 день письмового попередження від контрактора
+- **Termination (після 3 міс.)**: 14 днів попередження з обох сторін
+- **Survival**: IP, Confidentiality, Non-solicitation, Non-compete — переживають розірвання
+- **Max liability**: сума винагороди за останні 12 місяців
+- **Forum**: суди England and Wales після 60 днів переговорів
+
+## Attachment A — Rate sheet
+
+Кожен підписаний договір має додаток A — таблицю ролей та
+[[Rate|ставок]] в USD за годину. Це єдина частина, яка змінюється
+від субпідрядника до субпідрядника.
+
+| Роль                | Hourly USD |
+| :------------------ | :--------- |
+| (заповнюється)      |            |
+
+## Що зазвичай обговорюється
+
+Стандартні пункти, які кандидати просять змінити:
+
+- **Rate increase cap** — дехто просить 12–15% замість 10%
+- **Termination notice** — дехто просить 30 днів замість 14
+- **Non-compete geography** — просять обмежити географічно
+- **Max liability** — просять зменшити до 6 місяців
+
+Усі ці переговори координуються через [[roles/pm|PM]] та
+[[roles/legal|Legal]].

@@ -1,0 +1,51 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import { pickTitle } from '~/lib/collection-helpers';
+import { listClauseBases } from '~/lib/clause-variants';
+import { buildBacklinks } from '~/lib/backlinks';
+
+const bases = await listClauseBases();
+const backlinks = await buildBacklinks();
+
+function usageCount(baseId: string): number {
+  return (backlinks.get(`clauses/${baseId}`) || []).length;
+}
+
+const allTags = new Set<string>();
+for (const b of bases) (b.preferred.data.tags ?? []).forEach((t: string) => allTags.add(t));
+---
+
+<PageLayout title="Пункти" crumbSegments={['clauses']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Пункти</h1>
+    <p class="header__subtitle">{bases.length} пункт · повторно використовувані фрагменти</p>
+  </slot>
+
+  <p class="lead">
+    Пункти — це багаторазові юридичні фрагменти, з яких складаються
+    документи. Одна зміна в пункті — оновлення у всіх документах,
+    що його використовують. Жодного копіпасту.
+  </p>
+
+  {allTags.size > 0 && (
+    <div class="filter-bar" data-filter-target="tag">
+      <span class="filter-bar__label">Теги:</span>
+      <button class="filter-bar__chip is-active" data-filter-value="all">усі</button>
+      {[...allTags].map((t) => (
+        <button class="filter-bar__chip" data-filter-value={t}>{t}</button>
+      ))}
+    </div>
+  )}
+
+  <ul class="content-list" data-filter-list>
+    {bases.map((b) => (
+      <li data-tags={(b.preferred.data.tags ?? []).join(',')}>
+        <a href={`/clauses/${b.baseId}`}>{pickTitle(b.preferred.data.title)}</a>
+        <span>
+          <span class="pill">{b.languages.join(' · ')}</span>
+          <span class="pill pill--active">використовується в {usageCount(b.baseId)}</span>
+        </span>
+      </li>
+    ))}
+  </ul>
+</PageLayout>

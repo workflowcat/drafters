@@ -1,0 +1,77 @@
+---
+import { getCollection } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import { pickTitle } from '~/lib/collection-helpers';
+
+const workflows = await getCollection('workflows');
+
+// Collect all tags for filtering
+const allTags = new Set<string>();
+const allPillars = new Set<string>();
+for (const w of workflows) {
+  (w.data.tags ?? []).forEach((t: string) => allTags.add(t));
+  if (w.data.pillar) allPillars.add(w.data.pillar);
+}
+---
+
+<PageLayout title="Процеси" crumbSegments={['workflows']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Процеси</h1>
+    <p class="header__subtitle">{workflows.length} процес · усі активні</p>
+  </slot>
+
+  <p class="lead">
+    Кожен процес — це розказана історія роботи: хто, що робить, у якому
+    порядку, з якими документами. Процеси — це основна одиниця роботи
+    вікі. Усе інше (документи, пункти, терміни) існує, щоб
+    підтримувати процеси.
+  </p>
+
+  {allPillars.size > 0 && (
+    <div class="filter-bar" data-filter-target="pillar">
+      <span class="filter-bar__label">Стовп:</span>
+      <button class="filter-bar__chip is-active" data-filter-value="all">усі</button>
+      {[...allPillars].map((p) => (
+        <button class="filter-bar__chip" data-filter-value={p}>{p}</button>
+      ))}
+    </div>
+  )}
+
+  <ul class="content-list" data-filter-list>
+    {workflows.map((w) => (
+      <li data-pillar={w.data.pillar} data-tags={(w.data.tags ?? []).join(',')}>
+        <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
+        <span class="pill">{w.data.pillar}</span>
+      </li>
+    ))}
+  </ul>
+</PageLayout>
+
+<script>
+  // Simple tag-filter behavior, re-hydrates on view transition.
+  function setupFilters() {
+    const bars = document.querySelectorAll<HTMLElement>('[data-filter-target]');
+    for (const bar of bars) {
+      const target = bar.dataset.filterTarget!;
+      const chips = bar.querySelectorAll<HTMLButtonElement>('.filter-bar__chip');
+      const list = document.querySelector<HTMLElement>('[data-filter-list]');
+      if (!list) continue;
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          chips.forEach((c) => c.classList.remove('is-active'));
+          chip.classList.add('is-active');
+          const value = chip.dataset.filterValue!;
+          const items = list.querySelectorAll<HTMLElement>('li');
+          items.forEach((li) => {
+            if (value === 'all') li.style.display = '';
+            else if (target === 'pillar' && li.dataset.pillar === value) li.style.display = '';
+            else if (target === 'tag' && (li.dataset.tags ?? '').split(',').includes(value)) li.style.display = '';
+            else li.style.display = 'none';
+          });
+        });
+      });
+    }
+  }
+  setupFilters();
+  document.addEventListener('astro:page-load', setupFilters);
+</script>

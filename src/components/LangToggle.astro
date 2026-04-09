@@ -1,0 +1,62 @@
+---
+/**
+ * Language toggle for clause and document pages.
+ *
+ * Renders as a small chip group like [uk] [en] — the current
+ * language is highlighted and non-clickable.
+ */
+export interface Props {
+  base: string; // e.g. "/clauses/payment-dispute"
+  languages: string[]; // e.g. ["uk", "en"]
+  current: string;
+}
+const { base, languages, current } = Astro.props;
+---
+
+{languages.length > 1 && (
+  <div class="lang-toggle" role="group" aria-label="Мова">
+    {languages.map((l) => (
+      <a
+        href={l === current ? '#' : `${base}?lang=${l}`}
+        class:list={['lang-toggle__chip', { 'is-active': l === current }]}
+        aria-current={l === current ? 'true' : undefined}
+      >
+        {l}
+      </a>
+    ))}
+  </div>
+)}
+
+<style>
+  .lang-toggle {
+    display: inline-flex;
+    gap: 0;
+    border: 1px solid var(--rule);
+    margin: 0.6rem 0;
+  }
+  .lang-toggle__chip {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-muted);
+    text-decoration: none;
+    padding: 0.4rem 0.9rem;
+    background: transparent;
+    border-right: 1px solid var(--rule);
+    transition: background var(--t-base), color var(--t-base);
+  }
+  .lang-toggle__chip:last-child {
+    border-right: 0;
+  }
+  .lang-toggle__chip:hover {
+    background: var(--lavender-wash);
+    color: var(--ink);
+  }
+  .lang-toggle__chip.is-active {
+    background: var(--lavender);
+    color: var(--ink);
+    pointer-events: none;
+  }
+</style>

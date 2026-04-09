@@ -1,33 +1,66 @@
 ---
-import { getCollection, render } from 'astro:content';
+import { render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
 import ExportMenu from '~/components/ExportMenu.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
+import UsageCounter from '~/components/UsageCounter.astro';
+import RelatedPanel from '~/components/RelatedPanel.astro';
+import PageFooter from '~/components/PageFooter.astro';
+import Toc from '~/components/Toc.astro';
+import LangToggle from '~/components/LangToggle.astro';
+import { listClauseBases, getClauseByBase } from '~/lib/clause-variants';
 
 export async function getStaticPaths() {
-  const clauses = await getCollection('clauses');
-  return clauses.map((c) => ({ params: { id: c.data.id }, props: { entry: c } }));
+  const bases = await listClauseBases();
+  const paths: any[] = [];
+  for (const { baseId, languages, preferred } of bases) {
+    // Default entry under the bare baseId, plus one path per language suffix
+    paths.push({
+      params: { id: baseId },
+      props: { baseId, languages, lang: preferred.data.lang ?? 'uk' },
+    });
+  }
+  return paths;
 }
 
-const { entry } = Astro.props as { entry: any };
-const { Content } = await render(entry);
+const { baseId, languages, lang } = Astro.props as {
+  baseId: string;
+  languages: string[];
+  lang: string;
+};
+
+// Allow ?lang=en to override via URL param at runtime by picking at build time
+const urlLang = Astro.url.searchParams.get('lang');
+const resolveLang = urlLang && languages.includes(urlLang) ? urlLang : lang;
+const { entry } = await getClauseByBase(baseId, resolveLang);
+
+if (!entry) {
+  throw new Error(`No clause found for baseId=${baseId}`);
+}
+
+const { Content, headings } = await render(entry);
 
 const title =
   typeof entry.data.title === 'string'
     ? entry.data.title
-    : entry.data.title.uk || entry.data.title.en || entry.data.id;
+    : entry.data.title[resolveLang as 'uk' | 'en' | 'de'] ||
+      entry.data.title.uk ||
+      entry.data.title.en ||
+      baseId;
 ---
 
-<PageLayout title={title} crumbSegments={['clauses', entry.data.id]}>
+<PageLayout title={title} crumbSegments={['clauses', baseId]} lang={resolveLang as any}>
   <slot slot="header">
     <h1 class="header__title">{title}</h1>
-    <MetaBlock
-      pillar="clause"
-      languages={entry.data.languages}
-    />
-    <ExportMenu rawHref={`/raw/clauses/${entry.data.id}.mdx`} />
+    <MetaBlock pillar="clause" languages={languages} />
+    <LangToggle base={`/clauses/${baseId}`} languages={languages} current={resolveLang} />
+    <ExportMenu clauseId={baseId} />
   </slot>
+
+  <Toc slot="margin" headings={headings} />
+
+  <UsageCounter collection="clauses" id={baseId} />
 
   <Content />
 
@@ -38,5 +71,7 @@ const title =
     </>
   )}
 
-  <BacklinksSection collection="clauses" id={entry.data.id} />
+  <RelatedPanel collection="clauses" id={baseId} tags={entry.data.tags ?? []} />
+  <BacklinksSection collection="clauses" id={baseId} />
+  <PageFooter editPath={`clauses/${entry.data.id}.mdx`} />
 </PageLayout>

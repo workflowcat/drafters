@@ -4,6 +4,9 @@ import PageLayout from '~/layouts/PageLayout.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
 import ExportMenu from '~/components/ExportMenu.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
+import RelatedPanel from '~/components/RelatedPanel.astro';
+import PageFooter from '~/components/PageFooter.astro';
+import Toc from '~/components/Toc.astro';
 
 export async function getStaticPaths() {
   const workflows = await getCollection('workflows');
@@ -11,7 +14,7 @@ export async function getStaticPaths() {
 }
 
 const { entry } = Astro.props as { entry: any };
-const { Content } = await render(entry);
+const { Content, headings } = await render(entry);
 
 const title =
   typeof entry.data.title === 'string'
@@ -63,8 +66,15 @@ function pickTitle(t: any): string {
       status={entry.data.status}
       updated={entry.data.updated}
     />
-    <ExportMenu rawHref={`/raw/workflows/${entry.data.id}.mdx`} />
+    <ExportMenu workflowId={entry.data.id} />
+    <div class="header__walkthrough">
+      <a class="btn btn--secondary" href={`/workflows/${entry.data.id}/walkthrough`}>
+        Walkthrough-режим →
+      </a>
+    </div>
   </slot>
+
+  <Toc slot="margin" headings={headings} />
 
   <Content />
 
@@ -95,5 +105,7 @@ function pickTitle(t: any): string {
     </>
   )}
 
+  <RelatedPanel collection="workflows" id={entry.data.id} tags={entry.data.tags ?? []} />
   <BacklinksSection collection="workflows" id={entry.data.id} />
+  <PageFooter editPath={`workflows/${entry.data.id}.mdx`} updated={entry.data.updated} />
 </PageLayout>

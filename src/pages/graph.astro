@@ -1,0 +1,251 @@
+---
+/**
+ * Graph view — a simple SVG diagram of the content model.
+ * Nodes are entries; edges are wikilinks + composedOf + steps.uses.
+ *
+ * Layout: category-grouped radial clusters (workflows at center,
+ * documents nearby, clauses/terms/roles at the outer rings).
+ * Not force-directed — just geometric. Good enough at this scale.
+ */
+import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+import { buildBacklinks } from '~/lib/backlinks';
+import { pickTitle } from '~/lib/collection-helpers';
+
+const safeGet = async (name: any) => {
+  try {
+    return await getCollection(name);
+  } catch {
+    return [];
+  }
+};
+const [workflows, documents, clauses, terms, roles] = await Promise.all([
+  safeGet('workflows'),
+  safeGet('documents'),
+  safeGet('clauses'),
+  safeGet('terms'),
+  safeGet('roles'),
+]);
+
+type Node = {
+  id: string;
+  key: string;
+  collection: string;
+  title: string;
+  x: number;
+  y: number;
+  r: number;
+};
+
+// Dedupe clauses by baseId
+const uniqueClauses = new Map<string, any>();
+for (const c of clauses) {
+  const key = c.data.baseId || c.data.id;
+  if (!uniqueClauses.has(key)) uniqueClauses.set(key, c);
+}
+
+// Geometric layout — concentric rings per collection
+const W = 1000;
+const H = 700;
+const cx = W / 2;
+const cy = H / 2;
+
+function distribute(items: any[], collection: string, radius: number, startAngle = 0): Node[] {
+  return items.map((e, i) => {
+    const id = collection === 'clauses' ? e.data.baseId || e.data.id : e.data.id;
+    const angle = startAngle + (i / items.length) * Math.PI * 2;
+    return {
+      id,
+      key: `${collection}/${id}`,
+      collection,
+      title: pickTitle(e.data.title) || id,
+      x: cx + radius * Math.cos(angle),
+      y: cy + radius * Math.sin(angle),
+      r: collection === 'workflows' ? 10 : collection === 'documents' ? 8 : 6,
+    };
+  });
+}
+
+const nodes: Node[] = [
+  ...distribute(workflows, 'workflows', 60, -Math.PI / 2),
+  ...distribute(documents, 'documents', 140, -Math.PI / 2 + 0.3),
+  ...distribute([...uniqueClauses.values()], 'clauses', 230, 0),
+  ...distribute(terms, 'terms', 300, Math.PI / 4),
+  ...distribute(roles, 'roles', 330, Math.PI),
+];
+
+const nodeByKey = new Map<string, Node>();
+for (const n of nodes) nodeByKey.set(n.key, n);
+
+// Edges — collect references from backlinks
+const backlinks = await buildBacklinks();
+type Edge = { from: Node; to: Node };
+const edges: Edge[] = [];
+for (const [targetKey, refs] of backlinks.entries()) {
+  const target = nodeByKey.get(targetKey);
+  if (!target) continue;
+  for (const ref of refs) {
+    const source = nodeByKey.get(`${ref.collection}/${ref.id}`);
+    if (source && source !== target) {
+      edges.push({ from: source, to: target });
+    }
+  }
+}
+
+const COLORS: Record<string, string> = {
+  workflows: '#B8660A', // will be recolored in CSS
+  documents: '#000000',
+  clauses: '#B8C2F5',
+  terms: '#F3B190',
+  roles: '#8A8578',
+};
+---
+
+<PageLayout title="Граф знань" crumbSegments={['graph']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Граф знань</h1>
+    <p class="header__subtitle">{nodes.length} вузлів · {edges.length} зв'язків</p>
+  </slot>
+
+  <p class="lead">
+    Кожен вузол — це сторінка. Кожна лінія — посилання з однієї сторінки
+    на іншу. У центрі — процеси, довкола — документи, ще далі — пункти,
+    терміни й ролі.
+  </p>
+
+  <div class="graph-legend">
+    <span class="graph-legend__item"><span class="graph-dot" data-col="workflows"></span> процеси</span>
+    <span class="graph-legend__item"><span class="graph-dot" data-col="documents"></span> документи</span>
+    <span class="graph-legend__item"><span class="graph-dot" data-col="clauses"></span> пункти</span>
+    <span class="graph-legend__item"><span class="graph-dot" data-col="terms"></span> терміни</span>
+    <span class="graph-legend__item"><span class="graph-dot" data-col="roles"></span> ролі</span>
+  </div>
+
+  <svg class="graph-svg" viewBox={`0 0 ${W} ${H}`} xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Граф зв'язків">
+    <g class="graph-edges">
+      {edges.map((e) => (
+        <line
+          x1={e.from.x}
+          y1={e.from.y}
+          x2={e.to.x}
+          y2={e.to.y}
+          data-from={e.from.key}
+          data-to={e.to.key}
+        />
+      ))}
+    </g>
+    <g class="graph-nodes">
+      {nodes.map((n) => (
+        <g class="graph-node" data-key={n.key} data-col={n.collection}>
+          <a href={`/${n.collection}/${n.id}`}>
+            <circle cx={n.x} cy={n.y} r={n.r} />
+            <text x={n.x + n.r + 4} y={n.y + 4}>{n.title}</text>
+          </a>
+        </g>
+      ))}
+    </g>
+  </svg>
+</PageLayout>
+
+<style>
+  .graph-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.4rem;
+    margin: 1.5rem 0;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-muted);
+  }
+  .graph-legend__item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .graph-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+  .graph-dot[data-col='workflows'] { background: var(--ink); }
+  .graph-dot[data-col='documents'] { background: var(--lavender); border: 1px solid var(--ink); }
+  .graph-dot[data-col='clauses'] { background: var(--lavender-wash); border: 1px solid var(--lavender-dim); }
+  .graph-dot[data-col='terms'] { background: var(--peach); }
+  .graph-dot[data-col='roles'] { background: var(--paper-soft); border: 1px solid var(--ink-faint); }
+
+  .graph-svg {
+    width: 100%;
+    max-width: 72rem;
+    height: auto;
+    margin: 1.5rem 0 3rem;
+    background: var(--paper-soft);
+    border: 1px solid var(--rule);
+  }
+
+  .graph-edges line {
+    stroke: var(--rule);
+    stroke-width: 1;
+    transition: stroke var(--t-base), stroke-width var(--t-base);
+  }
+
+  .graph-nodes circle {
+    transition: r var(--t-base);
+    cursor: pointer;
+  }
+
+  .graph-node[data-col='workflows'] circle { fill: var(--ink); }
+  .graph-node[data-col='documents'] circle { fill: var(--lavender); stroke: var(--ink); stroke-width: 1; }
+  .graph-node[data-col='clauses'] circle { fill: var(--lavender-wash); stroke: var(--lavender-dim); stroke-width: 1; }
+  .graph-node[data-col='terms'] circle { fill: var(--peach); }
+  .graph-node[data-col='roles'] circle { fill: var(--paper); stroke: var(--ink-faint); stroke-width: 1; }
+
+  .graph-nodes text {
+    font-family: var(--font-sans);
+    font-size: 10px;
+    fill: var(--ink-muted);
+    pointer-events: none;
+    transition: fill var(--t-base), font-weight var(--t-base);
+  }
+
+  .graph-node a {
+    text-decoration: none;
+  }
+
+  .graph-node:hover circle {
+    r: 12;
+  }
+  .graph-node:hover text {
+    fill: var(--ink);
+    font-weight: 700;
+  }
+
+  .graph-edges line.is-active {
+    stroke: var(--lavender-dim);
+    stroke-width: 2;
+  }
+</style>
+
+<script>
+  function setupGraph() {
+    const nodes = document.querySelectorAll<SVGGElement>('.graph-node');
+    const edges = document.querySelectorAll<SVGLineElement>('.graph-edges line');
+    nodes.forEach((node) => {
+      const key = node.dataset.key;
+      node.addEventListener('mouseenter', () => {
+        edges.forEach((e) => {
+          if (e.dataset.from === key || e.dataset.to === key) {
+            e.classList.add('is-active');
+          }
+        });
+      });
+      node.addEventListener('mouseleave', () => {
+        edges.forEach((e) => e.classList.remove('is-active'));
+      });
+    });
+  }
+  setupGraph();
+  document.addEventListener('astro:page-load', setupGraph);
+</script>
