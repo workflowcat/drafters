@@ -1,0 +1,77 @@
+---
+id: subcontract-pm-2026
+title:
+  uk: Договір субпідряду — Project Manager (2026)
+  en: Subcontractor Agreement — Project Manager (2026)
+type: contract
+languages: [uk, en]
+status: active
+composedOf:
+  - payment-dispute
+  - rate-increase
+  - ip-assignment-services
+  - non-solicitation
+  - non-compete
+workflows:
+  - subcontractor-onboarding-pm
+driveSource: https://docs.google.com/document/d/1EWjXk0nqeC4Ze1ZvcGHlsVRKR6-nCs6K8A-p-PeQfiQ/edit
+aliases: [Subcontract PM 2026, Subcontract Project Manager, Договір субпідряду PM, Subcontractor Agreement PM]
+tags: [subcontract, pm, legal]
+updated: '2026-02-16'
+---
+
+**Договір субпідряду для Project Manager-а** — шаблон Sloboda
+Software GMBH 2026 року для залучення зовнішніх PM-ів на проекти.
+Юрисдикція — Німеччина, форум спорів — England and Wales.
+
+## Структура документа
+
+Цей договір — структурний близнюк
+[[Subcontract Dev 2026|договору для розробників]]. Більшість
+пунктів ідентичні. Відмінність лише в двох місцях:
+
+1. **Services** — "Project management and IT consulting" замість
+   "Software consulting and development"
+2. **IP-пункт** — використовує [[IP Assignment (services)|спрощений варіант]]
+   без розгорнутого copyleft-застереження (бо PM не пишуть код)
+
+Усі інші пункти — **дослівно однакові** з Dev-версією:
+[[Payment Dispute]], [[Rate Increase]], [[Non-solicitation]],
+[[Non-compete]]. Це не збіг — це композиційна модель: одні й ті самі
+пункти вставляються у різні договори через `composedOf` у frontmatter.
+
+## Ключові терміни
+
+- **Services**: project management та IT consulting
+- **Payments**: post-payment згідно з time-sheet
+- **Invoicing**: щомісяця, 21 календарний день на оплату
+- **Overtime**: тільки з письмового погодження
+- **Rate increase**: максимум 10% раз на 12 місяців
+- **Termination (перші 3 міс.)**: 1 день повідомлення з боку контрактора
+- **Termination (після 3 міс.)**: 14 днів з обох сторін
+- **Forum**: England and Wales після 60 днів переговорів
+- **Max liability**: сума винагороди за останні 12 місяців
+
+## Чим PM відрізняється від Dev для нас як залучаючої сторони
+
+- **Ставка вища.** PM senior рівня зазвичай дорожче за senior-дева
+  на 10–20%, бо позиція рідкісніша і гірше масштабується.
+- **Метрики інші.** PM вимірюємо не годинами code review, а
+  регулярністю standup-ів, здоров'ям беклогу, SLA на комунікацію.
+- **Замінність складніша.** Якщо PM йде посеред проекту, заміна
+  потребує 2-4 тижні knowledge transfer. Тому в реальному
+  контракті важливо акцентувати [[Non-solicitation]].
+- **Скоуп overtime.** PM майже завжди працює overtime "за контекстом",
+  і це складніше контролювати ніж у девів з код-ревʼю. Обговорюйте
+  явно на старті.
+
+## Що зазвичай обговорюється
+
+Кандидати часто просять:
+
+- Збільшити rate cap до 12–15% річних
+- Зменшити termination notice з 14 до 7 днів
+- Обмежити non-compete географічно (скажімо, тільки Europe/NA)
+- Додати retainer — мінімум X годин/місяць незалежно від навантаження
+
+Обговорюйте з [[roles/pm|PM]] (наш внутрішній) і [[roles/legal|Legal]].
