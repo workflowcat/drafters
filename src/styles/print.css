@@ -1,9 +1,8 @@
 /*
  * Drafters — print / PDF stylesheet.
  *
- * Used for both the browser's print dialog and for build-time PDF
- * generation. Collapses chrome, inlines sidenotes, keeps the body
- * readable and the typography serious.
+ * Strips chrome, collapses layout, keeps only the body prose.
+ * Shared by browser print and the future build-time PDF generator.
  */
 
 @media print {
@@ -12,14 +11,16 @@
     --paper-soft: #ffffff;
     --ink: #000000;
     --ink-muted: #333333;
-    --amber: #000000;
-    --amber-dim: #000000;
-    --rule: #cccccc;
+    --ink-faint: #666666;
+    --lavender: #000000;
+    --lavender-dim: #000000;
+    --peach: #000000;
+    --rule: #bbbbbb;
   }
 
   html {
     font-size: 11pt;
-    line-height: 1.45;
+    line-height: 1.5;
     background: white;
     color: black;
   }
@@ -33,34 +34,22 @@
   .page__rail,
   .page__margin,
   .header__actions,
-  .header__crumb .cursor,
   .backlinks {
     display: none;
   }
 
-  .header__crumb {
-    font-size: 9pt;
-    color: #666;
-  }
+  h1, h2, h3 { page-break-after: avoid; }
+  p, li { page-break-inside: avoid; }
 
-  h1, h2, h3 {
-    page-break-after: avoid;
-  }
-
-  p, li {
-    page-break-inside: avoid;
-  }
-
-  .wikilink::before,
-  .wikilink::after {
-    content: '';
+  a {
+    color: black;
+    text-decoration: none;
   }
 
   .wikilink {
     color: black;
-    border-bottom: none;
-    font-family: inherit;
-    font-size: inherit;
+    text-decoration: none;
+    border: 0;
   }
 
   .pill {
@@ -71,15 +60,12 @@
     display: block;
     float: none;
     width: auto;
-    margin: 0.4em 0 0.4em 1.5em;
-    font-size: 9pt;
+    margin: 0.5em 0 0.5em 1.5em;
+    font-size: 9.5pt;
     color: #444;
-    border-left: 2px solid #ccc;
+    border-left: 2px solid #bbb;
+    border-top: 0;
     padding-left: 0.8em;
-  }
-
-  a {
-    color: black;
-    text-decoration: none;
+    padding-top: 0;
   }
 }

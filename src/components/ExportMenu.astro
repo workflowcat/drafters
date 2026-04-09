@@ -10,9 +10,9 @@ const { rawHref } = Astro.props;
 ---
 <div class="header__actions">
   {rawHref && (
-    <>
-      <a href={rawHref} download>export .mdx <kbd>e</kbd></a>
-    </>
+    <a class="btn btn--ghost" href={rawHref} download>
+      Експорт .mdx
+    </a>
   )}
-  <span style="color: var(--ink-faint);">exports · docx/pdf/zip coming in phase 2</span>
+  <span class="pill">docx / pdf / zip — phase 2</span>
 </div>

@@ -6,6 +6,7 @@ const workflows = await getCollection('workflows');
 const documents = await getCollection('documents');
 const clauses = await getCollection('clauses');
 const terms = await getCollection('terms');
+const roles = await getCollection('roles');
 
 function pickTitle(title: any): string {
   if (typeof title === 'string') return title;
@@ -14,44 +15,55 @@ function pickTitle(title: any): string {
 ---
 
 <PageLayout title="Drafters" crumbSegments={[]}>
-  <h1>Drafters</h1>
-  <p style="color: var(--ink-muted); max-width: var(--measure); font-size: 1.05em;">
+  <h1 class="display">Drafters</h1>
+  <p class="lead">
     Робоча вікі для ІТ-сервісних компаній. Процеси, документи, шаблони —
-    організовані за робочими процесами, а не за теками.
+    організовані за робочими процесами, а не за теками. Кожен документ
+    складається з повторно використовуваних пунктів, кожен пункт
+    посилається на інші.
   </p>
 
+  <div style="margin-top: 3rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+    <a class="btn btn--primary" href="/workflows/subcontractor-onboarding">
+      Дивитись перший процес
+    </a>
+    <a class="btn btn--secondary" href="https://github.com/workflowcat/drafters">
+      Вихідний код
+    </a>
+  </div>
+
   <p class="divider">Процеси</p>
-  <ul>
+  <ul class="content-list">
     {workflows.map((w) => (
       <li>
         <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
-        <span class="pill" style="margin-left: 0.8em;">{w.data.pillar}</span>
+        <span class="pill">{w.data.pillar}</span>
       </li>
     ))}
   </ul>
 
   <p class="divider">Документи</p>
-  <ul>
+  <ul class="content-list">
     {documents.map((d) => (
       <li>
         <a href={`/documents/${d.data.id}`}>{pickTitle(d.data.title)}</a>
-        <span class="pill" style="margin-left: 0.8em;">{d.data.type}</span>
+        <span class="pill">{d.data.type}</span>
       </li>
     ))}
   </ul>
 
   <p class="divider">Пункти (reusable clauses)</p>
-  <ul>
+  <ul class="content-list">
     {clauses.map((c) => (
       <li>
         <a href={`/clauses/${c.data.id}`}>{pickTitle(c.data.title)}</a>
-        <span class="pill" style="margin-left: 0.8em;">{(c.data.languages ?? []).join(',')}</span>
+        <span class="pill">{(c.data.languages ?? []).join(' · ')}</span>
       </li>
     ))}
   </ul>
 
   <p class="divider">Терміни</p>
-  <ul>
+  <ul class="content-list">
     {terms.map((t) => (
       <li>
         <a href={`/terms/${t.data.id}`}>{pickTitle(t.data.title)}</a>
@@ -59,16 +71,22 @@ function pickTitle(title: any): string {
     ))}
   </ul>
 
-  <section class="backlinks">
-    <p class="divider">Про проєкт</p>
-    <p style="font-size: var(--fs-small); color: var(--ink-muted); max-width: var(--measure);">
-      Drafters — це експеримент із побудови модульної, бі- та
-      мультилінгвальної вікі для ІТ-сервісів. Кожен робочий процес
-      (<code>workflow</code>) посилається на документи, а документи
-      складаються з повторно використовуваних пунктів
-      (<code>clauses</code>). Терміни з'являються скрізь і мають
-      спливаючі підказки. Усе — статичні файли, задеплоєно з
-      GitHub на Vercel.
-    </p>
-  </section>
+  <p class="divider">Ролі</p>
+  <ul class="content-list">
+    {roles.map((r) => (
+      <li>
+        <a href={`/roles/${r.data.id}`}>{pickTitle(r.data.title)}</a>
+      </li>
+    ))}
+  </ul>
+
+  <p class="divider">Про проєкт</p>
+  <p>
+    Drafters — експеримент із модульної, бі- та мультилінгвальної вікі
+    для ІТ-сервісів. Кожен робочий процес посилається на документи, а
+    документи складаються з повторно використовуваних пунктів. Терміни
+    з'являються скрізь і мають спливаючі підказки. Усе — статичні файли,
+    задеплоєно з GitHub на Vercel. Вихідні тексти — MDX, можна легко
+    експортувати назад у Word або PDF (у фазі 2).
+  </p>
 </PageLayout>

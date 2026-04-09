@@ -17,6 +17,14 @@ for (const r of refs) {
 }
 
 const order = ['workflows', 'cases', 'documents', 'clauses', 'terms', 'roles'];
+const labels: Record<string, string> = {
+  workflows: 'процеси',
+  cases: 'кейси',
+  documents: 'документи',
+  clauses: 'пункти',
+  terms: 'терміни',
+  roles: 'ролі',
+};
 const groups = order
   .filter((k) => grouped.has(k))
   .map((k) => ({ key: k, items: grouped.get(k)! }));
@@ -27,10 +35,12 @@ const groups = order
     <p class="divider">Посилання на цю сторінку</p>
     {groups.map((g) => (
       <div class="backlinks__group">
-        <span class="backlinks__group-label">{g.key}/</span>
-        {g.items.map((r) => (
-          <a href={r.route}>{r.title}</a>
-        ))}
+        <span class="backlinks__group-label">{labels[g.key] ?? g.key}</span>
+        <span>
+          {g.items.map((r) => (
+            <a href={r.route}>{r.title}</a>
+          ))}
+        </span>
       </div>
     ))}
   </section>

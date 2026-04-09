@@ -1,12 +1,16 @@
 /*
  * Drafters — base styles.
  *
- * Tiny reset, body typography, and the core inline voice
- * (wikilinks, mono chrome, status pills, dividers).
+ * Editorial minimal: Fraunces for everything visible as prose,
+ * Raleway for chrome (breadcrumbs, buttons, metadata, pills, labels).
+ * Links and wikilinks share a single interaction pattern:
+ * soft underline at rest, lavender + solid underline on hover.
  */
 
-@import '@fontsource-variable/source-serif-4';
-@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/fraunces/index.css';
+@import '@fontsource/raleway/400.css';
+@import '@fontsource/raleway/600.css';
+@import '@fontsource/raleway/700.css';
 @import './tokens.css';
 
 *,
@@ -19,12 +23,14 @@ html {
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-serif);
-  font-size: var(--fs-base);
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  font-optical-sizing: auto;
+  font-variation-settings: 'SOFT' 30, 'WONK' 0;
   line-height: var(--lh-body);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  font-feature-settings: 'kern', 'liga', 'calt';
-  scroll-behavior: auto;
+  font-feature-settings: 'kern', 'liga', 'calt', 'onum';
 }
 
 body {
@@ -32,76 +38,78 @@ body {
   min-height: 100vh;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+/* ── Headings (Fraunces) ────────────────────────────────── */
+
+h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
-  font-weight: 600;
   color: var(--ink);
-  line-height: var(--lh-tight);
-  margin: 0 0 0.6em;
+  margin: 0 0 0.5em;
+  text-wrap: balance;
 }
 
 h1 {
   font-size: var(--fs-h1);
-  font-weight: 700;
-  line-height: var(--lh-display);
-  margin-bottom: 0.4em;
+  font-weight: var(--fw-light);
+  line-height: var(--lh-tight);
+  letter-spacing: -0.015em;
+  font-variation-settings: 'SOFT' 30, 'WONK' 0, 'opsz' 144;
+  margin-bottom: 0.8rem;
 }
 
 h2 {
   font-size: var(--fs-h2);
-  margin-top: 2em;
-  padding-top: 0.4em;
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-heading);
+  letter-spacing: -0.01em;
+  margin-top: 2.6em;
 }
 
 h3 {
   font-size: var(--fs-h3);
-  margin-top: 1.8em;
+  font-weight: var(--fw-semibold);
+  line-height: var(--lh-heading);
+  margin-top: 2em;
 }
+
+.display {
+  font-size: var(--fs-display);
+  font-weight: var(--fw-light);
+  line-height: var(--lh-display);
+  letter-spacing: -0.025em;
+  font-variation-settings: 'SOFT' 40, 'WONK' 0, 'opsz' 144;
+  text-wrap: balance;
+  margin: 0 0 0.6em;
+}
+
+/* ── Body prose ─────────────────────────────────────────── */
 
 p {
-  margin: 0 0 1.1em;
-}
-
-p,
-ul,
-ol,
-blockquote {
+  margin: 0 0 1.2em;
   max-width: var(--measure);
 }
 
-ul,
-ol {
+.lead {
+  font-size: var(--fs-lead);
+  font-weight: var(--fw-regular);
+  line-height: 1.45;
+  color: var(--ink-muted);
+  margin-bottom: 1.8em;
+  max-width: var(--measure);
+  font-style: italic;
+}
+
+ul, ol {
   padding-left: 1.4em;
-  margin: 0 0 1.1em;
+  margin: 0 0 1.2em;
+  max-width: var(--measure);
 }
 
 li + li {
-  margin-top: 0.3em;
-}
-
-a {
-  color: var(--amber);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
-  transition: color var(--t-fast);
-}
-
-a:hover {
-  color: var(--amber-dim);
-}
-
-a:visited {
-  color: var(--amber-dim);
+  margin-top: 0.35em;
 }
 
 strong {
-  font-weight: 600;
+  font-weight: var(--fw-semibold);
   color: var(--ink);
 }
 
@@ -109,178 +117,244 @@ em {
   font-style: italic;
 }
 
-code,
-kbd,
-samp {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
+blockquote {
+  margin: 1.4em 0;
+  padding: 0.2em 0 0.2em 1.4em;
+  border-left: 2px solid var(--lavender);
+  color: var(--ink-muted);
+  font-style: italic;
+  max-width: var(--measure);
 }
 
 hr {
   border: 0;
   border-top: 1px solid var(--rule);
-  margin: 2em 0;
-}
-
-blockquote {
-  margin: 1.2em 0;
-  padding-left: 1.2em;
-  border-left: 2px solid var(--rule);
-  color: var(--ink-muted);
-  font-style: italic;
+  margin: 3em 0;
 }
 
 table {
   border-collapse: collapse;
-  margin: 1.2em 0;
+  margin: 1.6em 0;
   font-size: var(--fs-small);
   width: 100%;
   max-width: var(--measure);
 }
 
-th,
-td {
+th, td {
   text-align: left;
-  padding: 0.5em 0.8em;
+  padding: 0.65em 0.9em;
   border-bottom: 1px solid var(--rule);
   vertical-align: top;
 }
 
 th {
-  font-weight: 600;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+  font-size: var(--fs-meta);
   color: var(--ink);
-  border-bottom: 1px solid var(--ink-faint);
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 0.8em;
+}
+
+code, kbd, samp {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: 0.92em;
+  background: var(--paper-soft);
+  padding: 0.08em 0.38em;
+  border-radius: 2px;
+  letter-spacing: 0.01em;
+}
+
+/* ── Links (body prose) ────────────────────────────────── */
+/*
+ * Hover-reveal pattern:
+ *   at rest: black text with a half-opacity lavender underline,
+ *            so links are still scannable but quiet
+ *   on hover: text turns lavender, underline fills to 100%
+ *   transition: 180ms color + text-decoration-color
+ */
+
+a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--lavender) 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--t-base), text-decoration-color var(--t-base),
+    text-decoration-thickness var(--t-base);
+}
+
+a:hover {
+  color: var(--lavender-dim);
+  text-decoration-color: var(--lavender-dim);
+  text-decoration-thickness: 1.5px;
+}
+
+a:visited {
+  color: var(--ink-muted);
+}
+
+a:visited:hover {
+  color: var(--lavender-dim);
 }
 
 /* ── Wikilinks ──────────────────────────────────────────── */
+/*
+ * Same interaction pattern as regular links, but with a subtle
+ * distinction: wikilinks are serif (not that they had another choice
+ * since body is serif) and type-tagged via data attributes so the
+ * tooltip can show what they point to. No brackets.
+ */
 
 .wikilink {
-  font-family: var(--font-mono);
-  font-size: 0.92em;
-  color: var(--amber);
-  text-decoration: none;
-  border-bottom: 1px dashed var(--amber-dim);
-  padding: 0 1px;
-  transition: background var(--t-fast), color var(--t-fast);
-}
-
-.wikilink::before {
-  content: '[[';
-  color: var(--ink-faint);
-  font-weight: 400;
-}
-
-.wikilink::after {
-  content: ']]';
-  color: var(--ink-faint);
-  font-weight: 400;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--lavender) 55%, transparent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  font-weight: var(--fw-regular);
+  transition: color var(--t-base), text-decoration-color var(--t-base),
+    text-decoration-thickness var(--t-base);
 }
 
 .wikilink:hover {
-  background: color-mix(in srgb, var(--amber) 12%, transparent);
-  color: var(--amber-dim);
+  color: var(--lavender-dim);
+  text-decoration-color: var(--lavender-dim);
+  text-decoration-thickness: 1.5px;
 }
 
 .wikilink--broken {
-  color: var(--warn);
-  border-bottom-color: var(--warn);
+  color: var(--peach-dim);
+  text-decoration-color: color-mix(in srgb, var(--peach) 60%, transparent);
   cursor: help;
 }
 
-.wikilink--broken::before,
-.wikilink--broken::after {
-  color: var(--warn);
-  opacity: 0.6;
+.wikilink--broken:hover {
+  color: var(--peach-dim);
+  text-decoration-color: var(--peach-dim);
 }
 
-/* ── Status pills (inline mono) ─────────────────────────── */
+/* ── Chrome: labels, pills, dividers ────────────────────── */
 
+.label,
 .pill {
-  display: inline-block;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
   font-size: var(--fs-meta);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
   color: var(--ink-muted);
-  letter-spacing: 0.02em;
   white-space: nowrap;
+  line-height: 1;
 }
 
-.pill::before {
-  content: '[';
+.pill + .pill::before {
+  content: ' · ';
+  display: inline;
   color: var(--ink-faint);
+  margin: 0 0.4em;
+  letter-spacing: 0;
 }
 
-.pill::after {
-  content: ']';
-  color: var(--ink-faint);
-}
-
-.pill--active {
-  color: var(--ok);
-}
-
+.pill--active { color: var(--lavender-dim); }
+.pill--accent { color: var(--peach-dim); }
 .pill--deprecated,
 .pill--archived {
-  color: var(--warn);
+  color: var(--ink-faint);
+  text-decoration: line-through;
+  text-decoration-color: var(--peach-dim);
 }
-
-.pill--accent {
-  color: var(--amber);
-}
-
-.pill + .pill {
-  margin-left: 0.6em;
-}
-
-/* ── ASCII dividers ─────────────────────────────────────── */
 
 .divider {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-meta);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
   color: var(--ink-faint);
-  font-size: var(--fs-small);
-  margin: 2.2em 0 1.2em;
-  letter-spacing: 0.05em;
+  margin: 3.5rem 0 1.2rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
 }
 
-.divider::before {
-  content: '── ';
+/* ── Buttons (the hover-choreography system) ────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0.8em 1.6em;
+  font-family: var(--font-sans);
+  font-weight: var(--fw-bold);
+  font-size: var(--fs-chrome);
+  letter-spacing: var(--tracking-button);
+  text-transform: none;
+  text-decoration: none;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  cursor: pointer;
+  transition: background var(--t-base), color var(--t-base),
+    border-color var(--t-base);
 }
 
-.divider::after {
-  content: ' ──';
+/* Primary: white → peach */
+.btn--primary { background: var(--paper); color: var(--ink); border-color: var(--ink); }
+.btn--primary:hover { background: var(--peach); color: var(--ink); border-color: var(--peach); }
+
+/* Secondary: lavender → white + border */
+.btn--secondary { background: var(--lavender); color: var(--ink); border-color: var(--lavender); }
+.btn--secondary:hover { background: var(--paper); color: var(--ink); border-color: var(--ink); }
+
+/* Ghost (text-only action): underline draws in */
+.btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  padding: 0.2em 0;
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--lavender) 55%, transparent);
+  text-underline-offset: 3px;
+}
+.btn--ghost:hover {
+  background: transparent;
+  color: var(--lavender-dim);
+  text-decoration-color: var(--lavender-dim);
 }
 
-/* ── Mono blocks for metadata ───────────────────────────── */
-
-.mono-block {
-  font-family: var(--font-mono);
-  font-size: var(--fs-small);
-  color: var(--ink-muted);
-  line-height: 1.55;
+/* Icon button */
+.btn--icon {
+  padding: 0.55em 0.85em;
+  min-width: 2.2em;
 }
-
-/* ── Keyboard hints ─────────────────────────────────────── */
 
 kbd {
-  font-family: var(--font-mono);
-  font-size: 0.85em;
-  color: var(--amber);
-  padding: 0 0.3em;
+  font-family: var(--font-sans);
+  font-size: 0.78em;
+  font-weight: var(--fw-semibold);
+  color: var(--ink-muted);
+  padding: 0.1em 0.5em;
   border: 1px solid var(--rule);
   border-radius: 2px;
-  background: var(--paper-soft);
+  background: var(--paper);
+  margin-left: 0.4em;
 }
 
-/* ── Selection ──────────────────────────────────────────── */
+/* ── Selection + focus ──────────────────────────────────── */
 
 ::selection {
-  background: color-mix(in srgb, var(--amber) 30%, transparent);
+  background: var(--lavender);
   color: var(--ink);
 }
 
-/* ── Focus ──────────────────────────────────────────────── */
-
 :focus-visible {
-  outline: 2px solid var(--amber);
-  outline-offset: 2px;
-  border-radius: 2px;
+  outline: 2px solid var(--lavender-dim);
+  outline-offset: 3px;
+  border-radius: 1px;
 }

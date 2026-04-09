@@ -1,7 +1,7 @@
 ---
 /**
- * Terminal-style metadata block shown just below the page title.
- * Renders as monospace pills + small text.
+ * Metadata strip below page titles.
+ * Small uppercase Raleway pills separated by middots.
  */
 import StatusPill from './StatusPill.astro';
 
@@ -16,12 +16,12 @@ const { pillar, languages, status, updated } = Astro.props;
 ---
 <div class="header__meta">
   {pillar && <StatusPill label={pillar} />}
-  {languages && languages.length > 0 && <StatusPill label={languages.join(',')} />}
+  {languages && languages.length > 0 && <StatusPill label={languages.join(' · ')} />}
   {status && (
     <StatusPill
       label={status}
       kind={status === 'active' ? 'active' : status === 'deprecated' || status === 'archived' ? 'deprecated' : 'default'}
     />
   )}
-  {updated && <StatusPill label={`updated ${updated}`} />}
+  {updated && <StatusPill label={`оновлено ${updated}`} />}
 </div>
