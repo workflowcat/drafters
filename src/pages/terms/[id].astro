@@ -1,0 +1,37 @@
+---
+import { getCollection, render } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import BacklinksSection from '~/components/BacklinksSection.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+
+export async function getStaticPaths() {
+  const terms = await getCollection('terms');
+  return terms.map((t) => ({ params: { id: t.data.id }, props: { entry: t } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const { Content } = await render(entry);
+
+const title = entry.data.title?.uk || entry.data.title?.en || entry.data.id;
+const shortUk = entry.data.short?.uk;
+const shortEn = entry.data.short?.en;
+---
+
+<PageLayout title={title} crumbSegments={['terms', entry.data.id]}>
+  <slot slot="header">
+    <h1 class="header__title">{title}</h1>
+    {entry.data.title?.en && entry.data.title.en !== title && (
+      <p style="font-family: var(--font-mono); color: var(--ink-muted); font-size: var(--fs-small); margin: 0 0 1rem;">
+        {entry.data.title.en}
+      </p>
+    )}
+    <MetaBlock pillar="term" />
+  </slot>
+
+  {shortUk && <p style="font-style: italic; color: var(--ink-muted);">{shortUk}</p>}
+  {shortEn && shortEn !== shortUk && <p style="font-style: italic; color: var(--ink-faint); font-size: var(--fs-small);">{shortEn}</p>}
+
+  <Content />
+
+  <BacklinksSection collection="terms" id={entry.data.id} />
+</PageLayout>

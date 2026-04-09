@@ -1,0 +1,302 @@
+/*
+ * Drafters — page layout.
+ *
+ * A three-column grid:
+ *   [left nav / breadcrumb]  [body, measure-capped]  [marginalia]
+ *
+ * Collapses to single column below 1024px; marginalia inlines,
+ * breadcrumb stays at the top.
+ */
+
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-height: 100vh;
+  padding: 2.5rem 1.5rem 4rem;
+}
+
+@media (min-width: 1024px) {
+  .page {
+    grid-template-columns: 14rem minmax(0, var(--measure)) minmax(0, 1fr);
+    gap: var(--gap-lg);
+    padding: 3rem 2.5rem 6rem;
+    justify-content: center;
+    max-width: calc(14rem + var(--measure) + 22rem + var(--gap-lg) * 2);
+    margin: 0 auto;
+  }
+}
+
+.page__rail {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+}
+
+.page__rail a {
+  color: var(--ink-muted);
+  text-decoration: none;
+  display: block;
+  padding: 0.2em 0;
+}
+
+.page__rail a:hover {
+  color: var(--amber);
+}
+
+.page__body {
+  min-width: 0;
+}
+
+.page__margin {
+  font-family: var(--font-serif);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+  line-height: 1.55;
+}
+
+@media (max-width: 1023px) {
+  .page__rail,
+  .page__margin {
+    display: none;
+  }
+}
+
+/* ── Header region ──────────────────────────────────────── */
+
+.header {
+  margin-bottom: 2.2rem;
+}
+
+.header__crumb {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+  margin-bottom: 1.6rem;
+}
+
+.header__crumb a {
+  color: var(--amber);
+  text-decoration: none;
+}
+
+.header__crumb a:hover {
+  color: var(--amber-dim);
+  text-decoration: underline;
+}
+
+.header__crumb .cursor {
+  display: inline-block;
+  width: 0.5ch;
+  background: var(--amber);
+  color: var(--amber);
+  animation: blink 1s step-end infinite;
+  margin-left: 0.1ch;
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.header__title {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  line-height: var(--lh-display);
+  margin: 0 0 0.8rem;
+  max-width: var(--measure);
+}
+
+.header__meta {
+  margin: 0.6rem 0;
+}
+
+.header__actions {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-faint);
+  margin-top: 1rem;
+}
+
+.header__actions a,
+.header__actions button {
+  color: var(--ink-muted);
+  text-decoration: none;
+  background: none;
+  border: none;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.header__actions a + a,
+.header__actions button + a,
+.header__actions a + button,
+.header__actions button + button {
+  margin-left: 1.2em;
+}
+
+.header__actions a:hover,
+.header__actions button:hover {
+  color: var(--amber);
+}
+
+/* ── Document card ──────────────────────────────────────── */
+
+.doc-card {
+  margin: 1.5rem 0;
+  padding: 1.2rem 1.4rem;
+  background: var(--paper-soft);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  max-width: var(--measure);
+}
+
+.doc-card__title {
+  font-family: var(--font-serif);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  margin: 0 0 0.4rem;
+}
+
+.doc-card__meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--ink-muted);
+  margin: 0 0 1rem;
+}
+
+.doc-card__composition {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-small);
+}
+
+.doc-card__composition li {
+  padding: 0.2rem 0;
+  border-bottom: 1px dashed var(--rule-soft);
+}
+
+.doc-card__composition li:last-child {
+  border-bottom: 0;
+}
+
+.doc-card__composition li::before {
+  content: '▸ ';
+  color: var(--ink-faint);
+}
+
+/* ── Steps list ─────────────────────────────────────────── */
+
+.steps {
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+  max-width: var(--measure);
+}
+
+.steps > li {
+  counter-increment: step;
+  padding: 0.5rem 0 0.5rem 2.4rem;
+  position: relative;
+  border-bottom: 1px dashed var(--rule-soft);
+}
+
+.steps > li::before {
+  content: counter(step) '.';
+  position: absolute;
+  left: 0;
+  font-family: var(--font-mono);
+  color: var(--amber);
+  font-size: var(--fs-small);
+  top: 0.7rem;
+}
+
+.steps .step__role {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--ink-faint);
+  margin-left: 0.8em;
+}
+
+/* ── Backlinks section ──────────────────────────────────── */
+
+.backlinks {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+  max-width: var(--measure);
+}
+
+.backlinks__group {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+  margin: 0.4rem 0;
+}
+
+.backlinks__group-label {
+  display: inline-block;
+  width: 12ch;
+  color: var(--ink-faint);
+}
+
+.backlinks a {
+  color: var(--amber);
+  text-decoration: none;
+}
+
+.backlinks a:hover {
+  text-decoration: underline;
+}
+
+.backlinks a + a::before {
+  content: ' · ';
+  color: var(--ink-faint);
+}
+
+/* ── Sidenotes (marginalia on desktop) ──────────────────── */
+
+.sidenote {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin: 0.6rem 0;
+}
+
+@media (min-width: 1024px) {
+  .sidenote {
+    float: right;
+    clear: right;
+    width: var(--margin-note-width);
+    margin-right: calc(-1 * var(--margin-note-width) - 1.5rem);
+    margin-top: 0.2rem;
+    font-size: var(--fs-meta);
+  }
+}
+
+.sidenote::before {
+  content: '▌ ';
+  color: var(--amber);
+}
+
+/* ── Clause render ──────────────────────────────────────── */
+
+.clause {
+  margin: 1.2rem 0;
+  max-width: var(--measure);
+}
+
+.clause__header {
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--ink-faint);
+  margin-bottom: 0.4rem;
+}
+
+.clause__lang-fallback {
+  color: var(--warn);
+  margin-left: 0.5em;
+}

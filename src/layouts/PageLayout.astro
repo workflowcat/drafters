@@ -1,0 +1,138 @@
+---
+/**
+ * Base layout for every content page.
+ *
+ * Props:
+ *   title         — string shown in the <title> and as the h1
+ *   description   — meta description
+ *   crumbSegments — array for the breadcrumb, e.g. ["workflows", "subcontractor-onboarding"]
+ */
+import '~/styles/base.css';
+import '~/styles/layout.css';
+import '~/styles/print.css';
+
+export interface Props {
+  title: string;
+  description?: string;
+  crumbSegments: string[];
+  lang?: 'uk' | 'en' | 'de';
+}
+
+const { title, description, crumbSegments, lang = 'uk' } = Astro.props;
+const pageTitle = `${title} · Drafters`;
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description ?? 'Drafters — workflow wiki for IT services companies.'} />
+    <meta name="color-scheme" content="light dark" />
+    <title>{pageTitle}</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <div class="page">
+      <aside class="page__rail" aria-label="Навігація">
+        <slot name="rail">
+          <nav>
+            <a href="/">▸ головна</a>
+            <a href="/workflows">▸ процеси</a>
+            <a href="/documents">▸ документи</a>
+            <a href="/clauses">▸ пункти</a>
+            <a href="/terms">▸ терміни</a>
+            <a href="/roles">▸ ролі</a>
+          </nav>
+        </slot>
+      </aside>
+
+      <main class="page__body">
+        <header class="header">
+          <nav class="header__crumb" aria-label="Breadcrumb">
+            <a href="/">drafters</a>{crumbSegments.map((seg) => (
+              <>
+                <span>/</span>
+                <a href={`/${crumbSegments.slice(0, crumbSegments.indexOf(seg) + 1).join('/')}`}>{seg}</a>
+              </>
+            ))}<span class="cursor">_</span>
+          </nav>
+          <slot name="header" />
+        </header>
+
+        <article>
+          <slot />
+        </article>
+      </main>
+
+      <aside class="page__margin" aria-label="Нотатки">
+        <slot name="margin" />
+      </aside>
+    </div>
+
+    <script>
+      // Hydrate wikilink tooltips. Pure DOM, no framework.
+      const links = document.querySelectorAll<HTMLAnchorElement>('.wikilink:not(.wikilink--broken)');
+      let popover: HTMLDivElement | null = null;
+
+      function showPopover(link: HTMLAnchorElement) {
+        const short = link.dataset.wikiShort;
+        const type = link.dataset.wikiType;
+        if (!short && type !== 'terms') return;
+        if (!popover) {
+          popover = document.createElement('div');
+          popover.className = 'wikilink-popover';
+          popover.setAttribute('role', 'tooltip');
+          document.body.appendChild(popover);
+        }
+        const parts: string[] = [];
+        if (type) parts.push(`<span class="wp-type">${type}</span>`);
+        if (short) parts.push(`<span class="wp-short">${short}</span>`);
+        popover.innerHTML = parts.join('');
+        popover.style.display = 'block';
+        const rect = link.getBoundingClientRect();
+        popover.style.left = `${rect.left + window.scrollX}px`;
+        popover.style.top = `${rect.bottom + window.scrollY + 6}px`;
+      }
+
+      function hidePopover() {
+        if (popover) popover.style.display = 'none';
+      }
+
+      for (const link of links) {
+        link.addEventListener('mouseenter', () => showPopover(link));
+        link.addEventListener('focus', () => showPopover(link));
+        link.addEventListener('mouseleave', hidePopover);
+        link.addEventListener('blur', hidePopover);
+      }
+    </script>
+    <style is:global>
+      .wikilink-popover {
+        position: absolute;
+        display: none;
+        max-width: 28rem;
+        padding: 0.7rem 0.9rem;
+        background: var(--paper-soft);
+        border: 1px solid var(--rule);
+        border-radius: 2px;
+        font-family: var(--font-serif);
+        font-size: var(--fs-small);
+        color: var(--ink);
+        line-height: 1.5;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        z-index: 100;
+        pointer-events: none;
+      }
+      .wikilink-popover .wp-type {
+        display: block;
+        font-family: var(--font-mono);
+        font-size: var(--fs-meta);
+        color: var(--ink-faint);
+        margin-bottom: 0.3rem;
+        letter-spacing: 0.02em;
+      }
+      .wikilink-popover .wp-type::before { content: '['; color: var(--ink-faint); }
+      .wikilink-popover .wp-type::after { content: ']'; color: var(--ink-faint); }
+    </style>
+  </body>
+</html>

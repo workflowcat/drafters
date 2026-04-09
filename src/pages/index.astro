@@ -1,0 +1,74 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+import { getCollection } from 'astro:content';
+
+const workflows = await getCollection('workflows');
+const documents = await getCollection('documents');
+const clauses = await getCollection('clauses');
+const terms = await getCollection('terms');
+
+function pickTitle(title: any): string {
+  if (typeof title === 'string') return title;
+  return title?.uk || title?.en || title?.de || '';
+}
+---
+
+<PageLayout title="Drafters" crumbSegments={[]}>
+  <h1>Drafters</h1>
+  <p style="color: var(--ink-muted); max-width: var(--measure); font-size: 1.05em;">
+    Робоча вікі для ІТ-сервісних компаній. Процеси, документи, шаблони —
+    організовані за робочими процесами, а не за теками.
+  </p>
+
+  <p class="divider">Процеси</p>
+  <ul>
+    {workflows.map((w) => (
+      <li>
+        <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
+        <span class="pill" style="margin-left: 0.8em;">{w.data.pillar}</span>
+      </li>
+    ))}
+  </ul>
+
+  <p class="divider">Документи</p>
+  <ul>
+    {documents.map((d) => (
+      <li>
+        <a href={`/documents/${d.data.id}`}>{pickTitle(d.data.title)}</a>
+        <span class="pill" style="margin-left: 0.8em;">{d.data.type}</span>
+      </li>
+    ))}
+  </ul>
+
+  <p class="divider">Пункти (reusable clauses)</p>
+  <ul>
+    {clauses.map((c) => (
+      <li>
+        <a href={`/clauses/${c.data.id}`}>{pickTitle(c.data.title)}</a>
+        <span class="pill" style="margin-left: 0.8em;">{(c.data.languages ?? []).join(',')}</span>
+      </li>
+    ))}
+  </ul>
+
+  <p class="divider">Терміни</p>
+  <ul>
+    {terms.map((t) => (
+      <li>
+        <a href={`/terms/${t.data.id}`}>{pickTitle(t.data.title)}</a>
+      </li>
+    ))}
+  </ul>
+
+  <section class="backlinks">
+    <p class="divider">Про проєкт</p>
+    <p style="font-size: var(--fs-small); color: var(--ink-muted); max-width: var(--measure);">
+      Drafters — це експеримент із побудови модульної, бі- та
+      мультилінгвальної вікі для ІТ-сервісів. Кожен робочий процес
+      (<code>workflow</code>) посилається на документи, а документи
+      складаються з повторно використовуваних пунктів
+      (<code>clauses</code>). Терміни з'являються скрізь і мають
+      спливаючі підказки. Усе — статичні файли, задеплоєно з
+      GitHub на Vercel.
+    </p>
+  </section>
+</PageLayout>

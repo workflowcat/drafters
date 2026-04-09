@@ -1,0 +1,99 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+import ExportMenu from '~/components/ExportMenu.astro';
+import BacklinksSection from '~/components/BacklinksSection.astro';
+
+export async function getStaticPaths() {
+  const workflows = await getCollection('workflows');
+  return workflows.map((w) => ({ params: { id: w.data.id }, props: { entry: w } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const { Content } = await render(entry);
+
+const title =
+  typeof entry.data.title === 'string'
+    ? entry.data.title
+    : entry.data.title.uk || entry.data.title.en || entry.data.id;
+
+// Resolve step roles and uses into link-ready shapes
+const steps = entry.data.steps ?? [];
+const stepRows: Array<{ title: string; role?: any; uses: any[] }> = [];
+for (const step of steps) {
+  let role: any = null;
+  if (step.role) {
+    role = await getEntry('roles', step.role).catch(() => null);
+  }
+  const uses: any[] = [];
+  for (const useId of step.uses ?? []) {
+    // Try document, then clause
+    const doc = await getEntry('documents', useId).catch(() => null);
+    if (doc) {
+      uses.push({ type: 'document', entry: doc });
+      continue;
+    }
+    const clause = await getEntry('clauses', useId).catch(() => null);
+    if (clause) uses.push({ type: 'clause', entry: clause });
+  }
+  const stepTitle =
+    typeof step.title === 'string'
+      ? step.title
+      : step.title?.uk || step.title?.en || '';
+  stepRows.push({ title: stepTitle, role, uses });
+}
+
+function pickTitle(t: any): string {
+  if (typeof t === 'string') return t;
+  return t?.uk || t?.en || t?.de || '';
+}
+---
+
+<PageLayout
+  title={title}
+  crumbSegments={['workflows', entry.data.id]}
+  lang={entry.data.primaryLanguage}
+>
+  <slot slot="header">
+    <h1 class="header__title">{title}</h1>
+    <MetaBlock
+      pillar={entry.data.pillar}
+      languages={[entry.data.primaryLanguage]}
+      status={entry.data.status}
+      updated={entry.data.updated}
+    />
+    <ExportMenu rawHref={`/raw/workflows/${entry.data.id}.mdx`} />
+  </slot>
+
+  <Content />
+
+  {stepRows.length > 0 && (
+    <>
+      <p class="divider">Кроки</p>
+      <ol class="steps">
+        {stepRows.map((s) => (
+          <li>
+            {s.title}
+            {s.role && (
+              <span class="step__role">
+                · <a href={`/roles/${s.role.data.id}`}>{pickTitle(s.role.data.title)}</a>
+              </span>
+            )}
+            {s.uses.length > 0 && (
+              <div style="margin-top: 0.4em; font-size: var(--fs-small);">
+                {s.uses.map((u) => (
+                  <>
+                    ↳ <a href={`/${u.type}s/${u.entry.data.id}`}>{pickTitle(u.entry.data.title)}</a>{' '}
+                  </>
+                ))}
+              </div>
+            )}
+          </li>
+        ))}
+      </ol>
+    </>
+  )}
+
+  <BacklinksSection collection="workflows" id={entry.data.id} />
+</PageLayout>

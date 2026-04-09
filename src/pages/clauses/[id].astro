@@ -1,0 +1,42 @@
+---
+import { getCollection, render } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+import ExportMenu from '~/components/ExportMenu.astro';
+import BacklinksSection from '~/components/BacklinksSection.astro';
+
+export async function getStaticPaths() {
+  const clauses = await getCollection('clauses');
+  return clauses.map((c) => ({ params: { id: c.data.id }, props: { entry: c } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const { Content } = await render(entry);
+
+const title =
+  typeof entry.data.title === 'string'
+    ? entry.data.title
+    : entry.data.title.uk || entry.data.title.en || entry.data.id;
+---
+
+<PageLayout title={title} crumbSegments={['clauses', entry.data.id]}>
+  <slot slot="header">
+    <h1 class="header__title">{title}</h1>
+    <MetaBlock
+      pillar="clause"
+      languages={entry.data.languages}
+    />
+    <ExportMenu rawHref={`/raw/clauses/${entry.data.id}.mdx`} />
+  </slot>
+
+  <Content />
+
+  {entry.data.commentary && (
+    <>
+      <p class="divider">Коментар</p>
+      <p style="color: var(--ink-muted); max-width: var(--measure);">{entry.data.commentary}</p>
+    </>
+  )}
+
+  <BacklinksSection collection="clauses" id={entry.data.id} />
+</PageLayout>

@@ -1,0 +1,52 @@
+---
+/**
+ * Inline a clause by id, in a requested language.
+ *
+ * Usage (inside MDX):
+ *   <Clause id="payment-dispute" lang="uk" />
+ *
+ * If the requested language isn't present, falls back to the first
+ * available and shows a small "[fallback: en]" pill above the body.
+ */
+import { getEntry, render } from 'astro:content';
+
+export interface Props {
+  id: string;
+  lang?: 'uk' | 'en' | 'de';
+  showCommentary?: boolean;
+}
+
+const { id, lang = 'uk', showCommentary = false } = Astro.props;
+
+const entry = await getEntry('clauses', id);
+
+if (!entry) {
+  throw new Error(`<Clause>: unknown clause id "${id}"`);
+}
+
+const availableLangs: string[] = entry.data.languages ?? ['uk'];
+const chosen = availableLangs.includes(lang) ? lang : availableLangs[0];
+const isFallback = chosen !== lang;
+
+const title =
+  typeof entry.data.title === 'string'
+    ? entry.data.title
+    : (entry.data.title as any)[chosen] ?? (entry.data.title as any).uk ?? id;
+
+const { Content } = await render(entry);
+---
+<section class="clause" data-clause-id={id} data-lang={chosen}>
+  <header class="clause__header">
+    clause / {id}
+    {isFallback && (
+      <span class="clause__lang-fallback">[fallback: {chosen}]</span>
+    )}
+  </header>
+  <h3>{title}</h3>
+  <Content />
+  {showCommentary && entry.data.commentary && (
+    <aside class="clause__commentary">
+      <strong>Коментар.</strong> {entry.data.commentary}
+    </aside>
+  )}
+</section>

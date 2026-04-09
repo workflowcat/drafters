@@ -1,0 +1,99 @@
+/*
+ * Drafters — design tokens.
+ *
+ * Two-temperature palette: warm cream + ink brown by default,
+ * warm dark + cream ink in dark mode. Amber is the only accent.
+ */
+
+:root {
+  /* Paper (light) */
+  --paper: #f5efe0;
+  --paper-soft: #efe7d2;
+  --paper-deep: #e9dfc5;
+  --rule: #d9cfb8;
+  --rule-soft: #e5dcc4;
+
+  /* Ink (light) */
+  --ink: #1f1b16;
+  --ink-muted: #6b5e4e;
+  --ink-faint: #a89a82;
+
+  /* Accents (shared) */
+  --amber: #b8660a;
+  --amber-dim: #7a4608;
+  --ok: #3f6b30;
+  --warn: #9b2d20;
+
+  /* Type */
+  --font-serif: 'Source Serif 4 Variable', 'Source Serif 4', Georgia, Cambria, serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* Scale (modular, 1.25) */
+  --fs-base: 18px;
+  --fs-small: 14px;
+  --fs-meta: 12px;
+  --fs-h3: 22px;
+  --fs-h2: 28px;
+  --fs-h1: 35px;
+  --fs-display: 44px;
+
+  /* Rhythm */
+  --lh-body: 1.65;
+  --lh-tight: 1.35;
+  --lh-display: 1.2;
+
+  /* Layout */
+  --measure: 68ch;
+  --margin-note-width: 16ch;
+  --gap: 1.5rem;
+  --gap-lg: 2.5rem;
+
+  /* Transitions */
+  --t-fast: 120ms ease;
+  --t-base: 200ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #17130d;
+    --paper-soft: #1f1a12;
+    --paper-deep: #241e15;
+    --rule: #322a1c;
+    --rule-soft: #2a2418;
+
+    --ink: #e8dfc7;
+    --ink-muted: #9a8c72;
+    --ink-faint: #5a5142;
+
+    --amber: #d98a2b;
+    --amber-dim: #a06517;
+    --ok: #7fae5c;
+    --warn: #d45c47;
+  }
+}
+
+[data-theme='light'] {
+  --paper: #f5efe0;
+  --paper-soft: #efe7d2;
+  --paper-deep: #e9dfc5;
+  --rule: #d9cfb8;
+  --rule-soft: #e5dcc4;
+  --ink: #1f1b16;
+  --ink-muted: #6b5e4e;
+  --ink-faint: #a89a82;
+  --amber: #b8660a;
+  --amber-dim: #7a4608;
+}
+
+[data-theme='dark'] {
+  --paper: #17130d;
+  --paper-soft: #1f1a12;
+  --paper-deep: #241e15;
+  --rule: #322a1c;
+  --rule-soft: #2a2418;
+  --ink: #e8dfc7;
+  --ink-muted: #9a8c72;
+  --ink-faint: #5a5142;
+  --amber: #d98a2b;
+  --amber-dim: #a06517;
+}

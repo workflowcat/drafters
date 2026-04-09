@@ -1,0 +1,37 @@
+---
+import { getBacklinks } from '~/lib/backlinks';
+
+export interface Props {
+  collection: string;
+  id: string;
+}
+
+const { collection, id } = Astro.props;
+const refs = await getBacklinks(collection, id);
+
+// Group by collection
+const grouped = new Map<string, typeof refs>();
+for (const r of refs) {
+  if (!grouped.has(r.collection)) grouped.set(r.collection, []);
+  grouped.get(r.collection)!.push(r);
+}
+
+const order = ['workflows', 'cases', 'documents', 'clauses', 'terms', 'roles'];
+const groups = order
+  .filter((k) => grouped.has(k))
+  .map((k) => ({ key: k, items: grouped.get(k)! }));
+---
+
+{refs.length > 0 && (
+  <section class="backlinks" aria-label="Посилання на цю сторінку">
+    <p class="divider">Посилання на цю сторінку</p>
+    {groups.map((g) => (
+      <div class="backlinks__group">
+        <span class="backlinks__group-label">{g.key}/</span>
+        {g.items.map((r) => (
+          <a href={r.route}>{r.title}</a>
+        ))}
+      </div>
+    ))}
+  </section>
+)}

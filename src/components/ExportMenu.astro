@@ -1,0 +1,18 @@
+---
+/**
+ * Placeholder export menu. Phase 1 ships with a raw .mdx link only;
+ * docx/pdf/zip builders land in Phase 2.
+ */
+export interface Props {
+  rawHref?: string;
+}
+const { rawHref } = Astro.props;
+---
+<div class="header__actions">
+  {rawHref && (
+    <>
+      <a href={rawHref} download>export .mdx <kbd>e</kbd></a>
+    </>
+  )}
+  <span style="color: var(--ink-faint);">exports · docx/pdf/zip coming in phase 2</span>
+</div>

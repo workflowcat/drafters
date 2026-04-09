@@ -1,0 +1,9 @@
+---
+export interface Props {
+  label: string;
+  kind?: 'default' | 'active' | 'deprecated' | 'archived' | 'accent';
+}
+const { label, kind = 'default' } = Astro.props;
+const cls = kind === 'default' ? 'pill' : `pill pill--${kind}`;
+---
+<span class={cls}>{label}</span>

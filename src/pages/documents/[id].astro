@@ -1,0 +1,69 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+import ExportMenu from '~/components/ExportMenu.astro';
+import BacklinksSection from '~/components/BacklinksSection.astro';
+
+export async function getStaticPaths() {
+  const documents = await getCollection('documents');
+  return documents.map((d) => ({ params: { id: d.data.id }, props: { entry: d } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const { Content } = await render(entry);
+
+const title =
+  typeof entry.data.title === 'string'
+    ? entry.data.title
+    : entry.data.title.uk || entry.data.title.en || entry.data.id;
+
+const composedOf = entry.data.composedOf ?? [];
+const clauseEntries = await Promise.all(
+  composedOf.map((id: string) => getEntry('clauses', id).catch(() => null))
+);
+
+function pickTitle(t: any): string {
+  if (typeof t === 'string') return t;
+  return t?.uk || t?.en || t?.de || '';
+}
+---
+
+<PageLayout title={title} crumbSegments={['documents', entry.data.id]}>
+  <slot slot="header">
+    <h1 class="header__title">{title}</h1>
+    <MetaBlock
+      pillar={entry.data.type}
+      languages={entry.data.languages}
+      status={entry.data.status}
+      updated={entry.data.updated}
+    />
+    <ExportMenu rawHref={`/raw/documents/${entry.data.id}.mdx`} />
+  </slot>
+
+  <Content />
+
+  {composedOf.length > 0 && (
+    <div class="doc-card">
+      <p class="doc-card__title">Composition</p>
+      <p class="doc-card__meta">
+        {entry.data.languages?.join(',')} · composed of {composedOf.length} clauses
+      </p>
+      <ul class="doc-card__composition">
+        {clauseEntries.filter(Boolean).map((c: any) => (
+          <li>
+            <a href={`/clauses/${c.data.id}`}>{pickTitle(c.data.title)}</a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {entry.data.driveSource && (
+    <p style="font-size: var(--fs-small); color: var(--ink-muted);">
+      Джерело в Drive: <a href={entry.data.driveSource}>{entry.data.driveSource}</a>
+    </p>
+  )}
+
+  <BacklinksSection collection="documents" id={entry.data.id} />
+</PageLayout>

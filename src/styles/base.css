@@ -1,0 +1,286 @@
+/*
+ * Drafters — base styles.
+ *
+ * Tiny reset, body typography, and the core inline voice
+ * (wikilinks, mono chrome, status pills, dividers).
+ */
+
+@import '@fontsource-variable/source-serif-4';
+@import '@fontsource-variable/jetbrains-mono';
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'kern', 'liga', 'calt';
+  scroll-behavior: auto;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: var(--lh-tight);
+  margin: 0 0 0.6em;
+}
+
+h1 {
+  font-size: var(--fs-h1);
+  font-weight: 700;
+  line-height: var(--lh-display);
+  margin-bottom: 0.4em;
+}
+
+h2 {
+  font-size: var(--fs-h2);
+  margin-top: 2em;
+  padding-top: 0.4em;
+}
+
+h3 {
+  font-size: var(--fs-h3);
+  margin-top: 1.8em;
+}
+
+p {
+  margin: 0 0 1.1em;
+}
+
+p,
+ul,
+ol,
+blockquote {
+  max-width: var(--measure);
+}
+
+ul,
+ol {
+  padding-left: 1.4em;
+  margin: 0 0 1.1em;
+}
+
+li + li {
+  margin-top: 0.3em;
+}
+
+a {
+  color: var(--amber);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  transition: color var(--t-fast);
+}
+
+a:hover {
+  color: var(--amber-dim);
+}
+
+a:visited {
+  color: var(--amber-dim);
+}
+
+strong {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+em {
+  font-style: italic;
+}
+
+code,
+kbd,
+samp {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 2em 0;
+}
+
+blockquote {
+  margin: 1.2em 0;
+  padding-left: 1.2em;
+  border-left: 2px solid var(--rule);
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 1.2em 0;
+  font-size: var(--fs-small);
+  width: 100%;
+  max-width: var(--measure);
+}
+
+th,
+td {
+  text-align: left;
+  padding: 0.5em 0.8em;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: top;
+}
+
+th {
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 1px solid var(--ink-faint);
+}
+
+/* ── Wikilinks ──────────────────────────────────────────── */
+
+.wikilink {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  color: var(--amber);
+  text-decoration: none;
+  border-bottom: 1px dashed var(--amber-dim);
+  padding: 0 1px;
+  transition: background var(--t-fast), color var(--t-fast);
+}
+
+.wikilink::before {
+  content: '[[';
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.wikilink::after {
+  content: ']]';
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+
+.wikilink:hover {
+  background: color-mix(in srgb, var(--amber) 12%, transparent);
+  color: var(--amber-dim);
+}
+
+.wikilink--broken {
+  color: var(--warn);
+  border-bottom-color: var(--warn);
+  cursor: help;
+}
+
+.wikilink--broken::before,
+.wikilink--broken::after {
+  color: var(--warn);
+  opacity: 0.6;
+}
+
+/* ── Status pills (inline mono) ─────────────────────────── */
+
+.pill {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--fs-meta);
+  color: var(--ink-muted);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.pill::before {
+  content: '[';
+  color: var(--ink-faint);
+}
+
+.pill::after {
+  content: ']';
+  color: var(--ink-faint);
+}
+
+.pill--active {
+  color: var(--ok);
+}
+
+.pill--deprecated,
+.pill--archived {
+  color: var(--warn);
+}
+
+.pill--accent {
+  color: var(--amber);
+}
+
+.pill + .pill {
+  margin-left: 0.6em;
+}
+
+/* ── ASCII dividers ─────────────────────────────────────── */
+
+.divider {
+  font-family: var(--font-mono);
+  color: var(--ink-faint);
+  font-size: var(--fs-small);
+  margin: 2.2em 0 1.2em;
+  letter-spacing: 0.05em;
+}
+
+.divider::before {
+  content: '── ';
+}
+
+.divider::after {
+  content: ' ──';
+}
+
+/* ── Mono blocks for metadata ───────────────────────────── */
+
+.mono-block {
+  font-family: var(--font-mono);
+  font-size: var(--fs-small);
+  color: var(--ink-muted);
+  line-height: 1.55;
+}
+
+/* ── Keyboard hints ─────────────────────────────────────── */
+
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  color: var(--amber);
+  padding: 0 0.3em;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper-soft);
+}
+
+/* ── Selection ──────────────────────────────────────────── */
+
+::selection {
+  background: color-mix(in srgb, var(--amber) 30%, transparent);
+  color: var(--ink);
+}
+
+/* ── Focus ──────────────────────────────────────────────── */
+
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

@@ -1,0 +1,27 @@
+---
+/**
+ * Terminal-style metadata block shown just below the page title.
+ * Renders as monospace pills + small text.
+ */
+import StatusPill from './StatusPill.astro';
+
+export interface Props {
+  pillar?: string;
+  languages?: string[];
+  status?: string;
+  updated?: string;
+}
+
+const { pillar, languages, status, updated } = Astro.props;
+---
+<div class="header__meta">
+  {pillar && <StatusPill label={pillar} />}
+  {languages && languages.length > 0 && <StatusPill label={languages.join(',')} />}
+  {status && (
+    <StatusPill
+      label={status}
+      kind={status === 'active' ? 'active' : status === 'deprecated' || status === 'archived' ? 'deprecated' : 'default'}
+    />
+  )}
+  {updated && <StatusPill label={`updated ${updated}`} />}
+</div>
