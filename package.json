@@ -6,7 +6,7 @@
   "description": "Workflow wiki for IT services companies — bilingual, workflow-first, exportable.",
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/build-exports.mjs",
+    "prebuild": "node scripts/build-git-log.mjs && node scripts/build-exports.mjs",
     "build": "pnpm prebuild && astro build && pagefind --site dist",
     "build:astro": "astro build",
     "build:exports": "node scripts/build-exports.mjs",

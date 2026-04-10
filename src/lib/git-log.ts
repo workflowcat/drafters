@@ -1,8 +1,14 @@
 /**
- * Read git history at build time for the changelog page.
- * Uses child_process.execSync — runs only in the build environment.
+ * Read git history at build time for the changelog page and home-page
+ * weather report. Data source is a pre-generated JSON snapshot written
+ * by scripts/build-git-log.mjs during prebuild.
+ *
+ * This used to shell out to `git log` inside Astro pages via execSync,
+ * which fails on build platforms that don't expose a .git directory
+ * at render time (e.g. Vercel). The JSON snapshot decouples the render
+ * path from the presence of .git.
  */
-import { execSync } from 'node:child_process';
+import history from '../data/git-history.json';
 
 export interface Commit {
   hash: string;
@@ -15,33 +21,7 @@ export interface Commit {
 }
 
 export function readGitLog(limit = 50): Commit[] {
-  try {
-    const format = '%H%x1f%h%x1f%ai%x1f%an%x1f%s%x1f%b%x1e';
-    const cmd = `git log --pretty=format:'${format}' --name-only -n ${limit}`;
-    const out = execSync(cmd, { encoding: 'utf8', cwd: process.cwd() });
-    const commits: Commit[] = [];
-    for (const raw of out.split('\x1e')) {
-      if (!raw.trim()) continue;
-      const [meta, ...fileLines] = raw.split('\n');
-      const parts = meta.split('\x1f');
-      if (parts.length < 6) continue;
-      const [hash, shortHash, date, author, subject, body] = parts;
-      const files = fileLines.map((l) => l.trim()).filter(Boolean);
-      commits.push({
-        hash,
-        shortHash,
-        date: date.slice(0, 10),
-        author,
-        subject,
-        body: body || '',
-        files,
-      });
-    }
-    return commits;
-  } catch (e) {
-    console.warn('git log failed:', e);
-    return [];
-  }
+  return (history as Commit[]).slice(0, limit);
 }
 
 export function affectedContent(files: string[]): string[] {
