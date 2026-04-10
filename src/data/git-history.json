@@ -1,5 +1,19 @@
 [
   {
+    "hash": "dc424b47056918c38bfedfae8cb80990c4e5c695",
+    "shortHash": "dc424b4",
+    "date": "2026-04-10",
+    "author": "workflowcat",
+    "subject": "fix: precompute git history to JSON so Vercel builds work",
+    "body": "readGitLog() was shelling out to git log inside .astro pages via\nexecSync. That works locally but fails on Vercel, which checks out\nthe source without a .git directory at build time. Result: the home\npage's WeatherReport and the /changelog page silently rendered with\nno git history.\n\nFix is a two-step decoupling:\n\n  1. scripts/build-git-log.mjs runs during prebuild, captures up to\n     100 commits from the local .git into src/data/git-history.json.\n     Tolerant of git being unavailable — if git log fails and a\n     snapshot already exists, the script keeps it.\n\n  2. src/lib/git-log.ts now imports the JSON snapshot and slices it,\n     instead of shelling out. Same exported API (readGitLog,\n     affectedContent), no caller changes needed.\n\nThe committed JSON is \"state of the world at the developer's last\nlocal build\". On Vercel, prebuild's git log call no-ops and the\ncommitted JSON is what gets rendered. That means the site is\neffectively one commit behind the very latest push (whatever commit\nregenerates the JSON isn't in the JSON yet), which is acceptable\nfor a changelog.\n\nAlso fixes a parser bug in the original git log logic: `--name-only`\noutputs file names *between* pretty-format chunks because %x1e is\ninside the pretty block, so files land after the terminator, not\ninside it. The new script uses two passes (meta + files-by-hash)\nwith distinct separators.\n\nVerified: 11 commits parsed, 78 pages built, changelog shows\n\"11 останніх комітів\".\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>",
+    "files": [
+      "package.json",
+      "scripts/build-git-log.mjs",
+      "src/data/git-history.json",
+      "src/lib/git-log.ts"
+    ]
+  },
+  {
     "hash": "888f70268583fb8e45a864dc264758df0e6018be",
     "shortHash": "888f702",
     "date": "2026-04-10",
