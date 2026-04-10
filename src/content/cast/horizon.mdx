@@ -1,0 +1,46 @@
+---
+id: horizon
+kind: company
+title: Horizon
+legalName: Horizon Maritime Analytics Oy
+country: Finland (Helsinki)
+law: Finnish law, governing law Finland or UK per deal
+industry: Vessel-route optimisation and emissions telemetry SaaS for shipping
+size: Series B, ~120 employees
+personality: Engineering-led, direct, low patience. Head of Engineering does legal reviews in the margin. Obsessive about IP and escrow because a previous vendor left half-compiled code behind. Pays on time, short terms (14 days).
+aliases: [Horizon Oy, Horizon Maritime]
+tags: [client, series-b, fintech, maritime, nordic]
+relatedCompanies: []
+relatedPeople: [lena-krivonos]
+---
+
+## Horizon Maritime Analytics Oy
+
+**Horizon** is what happens when an engineering team runs procurement. Their Head of Engineering reads the MSA line by line and leaves margin comments. Their legal team is one part-time contractor who defers to him. Meetings are 23 minutes, on camera, on time. The word "committee" is never said.
+
+They move fast. They decide fast. And they carry a very specific kind of trauma from a previous vendor who went bust mid-project and left them with half-compiled services and no handover documentation. That story is the shape of every contract ask they've ever made to us.
+
+## Why they hire us
+
+Core platform work on their vessel-routing and emissions-telemetry backend. Heavy event-sourcing, big data pipelines, and integrations with port-authority systems across Northern Europe. Phase 1 was a rebuild of their ingestion layer; Phase 2 is the modelling and forecasting stack on top of it.
+
+## What they push on
+
+- **IP transfer.** They started out asking for **milestone-based IP transfer** instead of our default rolling transfer. See **[[milestone-ip-transfer-2025]]** — we ended up keeping rolling but adding an SLA handover addendum that satisfies their actual concern (not losing continuity).
+- **Escrow.** They asked for code escrow with a third-party provider. We declined; the SLA addendum covers the continuity risk without the ceremony.
+- **Handover package.** Spelled out at commit-level granularity: README, ADRs, deployment pipelines, credentials rotation, on-call runbook.
+
+## What they don't push on
+
+- **Payment terms.** Net-14, always on time, never disputed. They'd rather pay fast and get priority attention than negotiate terms down.
+- **Rate increases.** Accepted our 10% annual cap without comment. As their Head of Engineering put it: "If you're worth what you charge, charge more. If you're not, we'll find out."
+
+## Story threads
+
+- 2025 — **[[milestone-ip-transfer-2025]]**. The case that taught us how to translate "I want milestone IP" into "I want handover certainty". The resulting SLA addendum is reusable for any client with the same anxiety.
+- The ghost of the previous vendor shapes every clause. We refer to them internally as "the ghost" when explaining Horizon's asks to new team members.
+- **Phase 2 (backlog)** — Horizon returns in 2026 for a 12-month engagement. They will try to invoke the 2025 precedent as binding. We will have to explain why it isn't.
+
+## Who they send
+
+**[[cast/lena-krivonos|Dr. Lena Krivonos]]** was interim CTO during Phase 1. She left for Kestrel in early 2025; Horizon is still hiring her replacement. This will matter later.

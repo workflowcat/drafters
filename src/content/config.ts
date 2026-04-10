@@ -134,6 +134,33 @@ const cases = defineCollection({
     title: bilingualText,
     workflows: z.array(z.string()).default([]),
     tags: tagList,
+    // Optional recurring cast references for cross-linking cases.
+    clients: z.array(z.string()).default([]),       // company cast ids
+    people: z.array(z.string()).default([]),        // individual cast ids
+  }),
+});
+
+// Cast — recurring fake characters (companies + people) that appear
+// across cases. Having them as a collection lets us link them via
+// wikilinks, show where each character shows up, and evolve their
+// profiles over time.
+const cast = defineCollection({
+  type: 'content',
+  schema: z.object({
+    id: z.string(),
+    kind: z.enum(['company', 'person']),
+    title: z.string(),           // short display name e.g. "Horizon"
+    legalName: z.string().optional(), // full legal name e.g. "Horizon Maritime Analytics Oy"
+    country: z.string().optional(),
+    law: z.string().optional(),
+    industry: z.string().optional(),
+    size: z.string().optional(),
+    personality: z.string().optional(),
+    aliases: z.array(z.string()).default([]),
+    tags: tagList,
+    // Cross-references
+    relatedCompanies: z.array(z.string()).default([]),
+    relatedPeople: z.array(z.string()).default([]),
   }),
 });
 
@@ -166,5 +193,6 @@ export const collections = {
   roles,
   workflows,
   cases,
+  cast,
   contracts,
 };

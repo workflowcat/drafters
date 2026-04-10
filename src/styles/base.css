@@ -79,6 +79,10 @@ h3 {
   font-variation-settings: 'SOFT' 40, 'WONK' 0, 'opsz' 144;
   text-wrap: balance;
   margin: 0 0 0.6em;
+  max-width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 /* ── Body prose ─────────────────────────────────────────── */

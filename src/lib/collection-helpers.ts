@@ -27,6 +27,7 @@ export const COLLECTION_LABELS: Record<string, { uk: string; en: string }> = {
   terms: { uk: 'Терміни', en: 'Terms' },
   roles: { uk: 'Ролі', en: 'Roles' },
   cases: { uk: 'Кейси', en: 'Cases' },
+  cast: { uk: 'Персонажі', en: 'Cast' },
 };
 
 export const ROUTE_PREFIX: Record<string, string> = {
@@ -36,4 +37,5 @@ export const ROUTE_PREFIX: Record<string, string> = {
   terms: '/terms',
   roles: '/roles',
   cases: '/cases',
+  cast: '/cast',
 };

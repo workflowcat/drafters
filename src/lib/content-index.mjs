@@ -24,6 +24,7 @@ const COLLECTION_TYPES = [
   'roles',
   'workflows',
   'cases',
+  'cast',
 ];
 
 const ROUTE_PREFIX = {
@@ -33,6 +34,7 @@ const ROUTE_PREFIX = {
   roles: '/roles',
   workflows: '/workflows',
   cases: '/cases',
+  cast: '/cast',
 };
 
 // Very small YAML frontmatter reader. We don't need full YAML — just strings,

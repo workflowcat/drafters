@@ -1,0 +1,138 @@
+---
+import { getCollection } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+
+const safeGet = async (name: any) => {
+  try {
+    return await getCollection(name);
+  } catch {
+    return [];
+  }
+};
+
+const cast = await safeGet('cast');
+
+// Split into companies and people, each sorted alphabetically by title.
+const companies = cast
+  .filter((c: any) => c.data.kind === 'company')
+  .sort((a: any, b: any) => a.data.title.localeCompare(b.data.title));
+const people = cast
+  .filter((c: any) => c.data.kind === 'person')
+  .sort((a: any, b: any) => a.data.title.localeCompare(b.data.title));
+---
+
+<PageLayout title="Персонажі" crumbSegments={['cast']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Персонажі</h1>
+    <p class="header__subtitle">
+      {companies.length} компаній · {people.length} людей · повторювані актори у кейсах
+    </p>
+  </slot>
+
+  <p class="lead">
+    Усі клієнти, субпідрядники й окремі особи у наших кейсах — це
+    <strong>вигадані персонажі</strong>, які повертаються з кейсу в
+    кейс. Вони мають історії, особистості й типові поведінкові
+    патерни. Кожен з них — це архетип, який ми зустрічаємо у житті,
+    спресований у одну фіктивну компанію чи одну людину.
+  </p>
+
+  <p>
+    Поділ простий: <em>компанії</em> (клієнти, підрядники, контрагенти)
+    і <em>люди</em> (конкретні імена, які діють від імені компаній
+    або незалежно). Вони лінкуються між собою через
+    <code>relatedCompanies</code> і <code>relatedPeople</code> та
+    через вікі-лінки у тілі кейсів.
+  </p>
+
+  <h2>Компанії</h2>
+  {companies.length === 0 ? (
+    <p>Поки що немає компаній.</p>
+  ) : (
+    <ul class="cast-list">
+      {companies.map((c: any) => (
+        <li class="cast-list__item">
+          <a href={`/cast/${c.data.id}`} class="cast-list__title">{c.data.title}</a>
+          {c.data.legalName && c.data.legalName !== c.data.title && (
+            <span class="cast-list__legal">{c.data.legalName}</span>
+          )}
+          {c.data.industry && (
+            <span class="cast-list__meta">{c.data.industry}</span>
+          )}
+          {c.data.country && (
+            <span class="cast-list__meta cast-list__meta--dim">{c.data.country}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <h2>Люди</h2>
+  {people.length === 0 ? (
+    <p>Поки що немає людей.</p>
+  ) : (
+    <ul class="cast-list">
+      {people.map((c: any) => (
+        <li class="cast-list__item">
+          <a href={`/cast/${c.data.id}`} class="cast-list__title">{c.data.title}</a>
+          {c.data.industry && (
+            <span class="cast-list__meta">{c.data.industry}</span>
+          )}
+          {c.data.country && (
+            <span class="cast-list__meta cast-list__meta--dim">{c.data.country}</span>
+          )}
+        </li>
+      ))}
+    </ul>
+  )}
+</PageLayout>
+
+<style>
+  .cast-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 2.5rem;
+    border-top: 1px solid var(--rule);
+  }
+  .cast-list__item {
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--rule);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.6rem 1.2rem;
+    min-width: 0;
+  }
+  .cast-list__title {
+    font-family: var(--font-serif);
+    font-size: calc(var(--fs-body) * 1.2);
+    font-weight: var(--fw-bold);
+    color: var(--ink);
+    text-decoration: none;
+    flex: 0 0 auto;
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .cast-list__title:hover {
+    color: var(--lavender-dim);
+  }
+  .cast-list__legal {
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    font-style: italic;
+    color: var(--ink-muted);
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .cast-list__meta {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-muted);
+    flex: 0 0 auto;
+  }
+  .cast-list__meta--dim {
+    color: var(--ink-faint);
+  }
+</style>

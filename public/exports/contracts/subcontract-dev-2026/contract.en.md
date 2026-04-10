@@ -5,9 +5,9 @@
 
 **Contractor:** **Sloboda Software GMBH**, a company incorporated
 under the laws of the Federal Republic of Germany, Registry code
-**HRB260696B**, VAT ID **DE366220301**, with its registered address
-at Am Märchenbrunnen 7, Berlin, 10407, Germany, represented by its
-Director Olga Iakubovska, acting on the basis of the Articles of
+**HRB123456X**, VAT ID **DE999888777**, with its registered address
+at Musterstraße 1, Berlin, 10115, Germany, represented by its
+Director Jana Weber, acting on the basis of the Articles of
 Association (hereinafter the "**Contractor**").
 
 **Subcontractor:** \_\_\_\_\_\_\_\_\_\_\_, an individual entrepreneur
@@ -232,13 +232,13 @@ claim shall be settled in the **courts of England and Wales**.
 
 | **Sloboda Software GMBH** | **Subcontractor** |
 | :---- | :---- |
-| Registry code: HRB260696B | Company ID: \_\_\_\_\_\_\_\_\_\_\_ |
+| Registry code: HRB123456X | Company ID: \_\_\_\_\_\_\_\_\_\_\_ |
 | Jurisdiction: Germany | Jurisdiction: \_\_\_\_\_\_\_\_\_\_\_ |
-| Address: Am Märchenbrunnen 7, Berlin, 10407, Germany | Address: \_\_\_\_\_\_\_\_\_\_\_ |
-| VAT ID: DE366220301 | VAT ID: \_\_\_\_\_\_\_\_\_\_\_ |
+| Address: Musterstraße 1, Berlin, 10115, Germany | Address: \_\_\_\_\_\_\_\_\_\_\_ |
+| VAT ID: DE999888777 | VAT ID: \_\_\_\_\_\_\_\_\_\_\_ |
 |  |  |
 | **Signature:** \_\_\_\_\_\_\_\_\_\_\_ | **Signature:** \_\_\_\_\_\_\_\_\_\_\_ |
-| **Olga Iakubovska, Director** | \_\_\_\_\_\_\_\_\_\_\_ |
+| **Jana Weber, Director** | \_\_\_\_\_\_\_\_\_\_\_ |
 
 ---
 
@@ -254,4 +254,4 @@ To the Subcontractor Agreement dated \_\_\_\_\_\_\_\_\_\_\_.
 
 **Sloboda Software GMBH** **Subcontractor**
 Signature: \_\_\_\_\_\_\_\_\_\_\_ Signature: \_\_\_\_\_\_\_\_\_\_\_
-Olga Iakubovska, Director \_\_\_\_\_\_\_\_\_\_\_
+Jana Weber, Director \_\_\_\_\_\_\_\_\_\_\_

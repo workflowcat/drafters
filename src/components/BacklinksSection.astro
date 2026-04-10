@@ -16,10 +16,11 @@ for (const r of refs) {
   grouped.get(r.collection)!.push(r);
 }
 
-const order = ['workflows', 'cases', 'documents', 'clauses', 'terms', 'roles'];
+const order = ['workflows', 'cases', 'cast', 'documents', 'clauses', 'terms', 'roles'];
 const labels: Record<string, string> = {
   workflows: 'процеси',
   cases: 'кейси',
+  cast: 'персонажі',
   documents: 'документи',
   clauses: 'пункти',
   terms: 'терміни',

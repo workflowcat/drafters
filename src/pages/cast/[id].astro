@@ -1,0 +1,147 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import PageLayout from '~/layouts/PageLayout.astro';
+import MetaBlock from '~/components/MetaBlock.astro';
+import BacklinksSection from '~/components/BacklinksSection.astro';
+import PageFooter from '~/components/PageFooter.astro';
+import Toc from '~/components/Toc.astro';
+
+export async function getStaticPaths() {
+  const cast = await getCollection('cast' as any);
+  return cast.map((c: any) => ({ params: { id: c.data.id }, props: { entry: c } }));
+}
+
+const { entry } = Astro.props as { entry: any };
+const { Content, headings } = await render(entry);
+
+const d = entry.data;
+const title = d.title;
+
+// Hydrate related cast entries
+const relatedCompanies = await Promise.all(
+  (d.relatedCompanies ?? []).map((id: string) =>
+    getEntry('cast' as any, id).catch(() => null)
+  )
+);
+const relatedPeople = await Promise.all(
+  (d.relatedPeople ?? []).map((id: string) =>
+    getEntry('cast' as any, id).catch(() => null)
+  )
+);
+---
+
+<PageLayout title={title} crumbSegments={['cast', d.id]}>
+  <slot slot="header">
+    <p class="header__eyebrow">{d.kind === 'company' ? 'Компанія' : 'Особа'}</p>
+    <h1 class="header__title">{title}</h1>
+    {d.legalName && d.legalName !== title && (
+      <p class="header__subtitle"><em>{d.legalName}</em></p>
+    )}
+    <MetaBlock pillar="cast" languages={['uk']} />
+  </slot>
+
+  <Toc slot="margin" headings={headings} />
+
+  <dl class="cast-facts">
+    {d.country && (
+      <>
+        <dt>Юрисдикція</dt>
+        <dd>{d.country}</dd>
+      </>
+    )}
+    {d.law && (
+      <>
+        <dt>Право</dt>
+        <dd>{d.law}</dd>
+      </>
+    )}
+    {d.industry && (
+      <>
+        <dt>Індустрія</dt>
+        <dd>{d.industry}</dd>
+      </>
+    )}
+    {d.size && (
+      <>
+        <dt>Розмір</dt>
+        <dd>{d.size}</dd>
+      </>
+    )}
+    {d.personality && (
+      <>
+        <dt>Особистість</dt>
+        <dd>{d.personality}</dd>
+      </>
+    )}
+  </dl>
+
+  <Content />
+
+  {relatedCompanies.filter(Boolean).length > 0 && (
+    <div class="doc-card">
+      <p class="doc-card__title">Повʼязані компанії</p>
+      <ul class="doc-card__composition">
+        {relatedCompanies.filter(Boolean).map((c: any) => (
+          <li>
+            <a href={`/cast/${c.data.id}`}>{c.data.title}</a>
+            {c.data.industry && <span class="pill">{c.data.industry}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {relatedPeople.filter(Boolean).length > 0 && (
+    <div class="doc-card">
+      <p class="doc-card__title">Повʼязані люди</p>
+      <ul class="doc-card__composition">
+        {relatedPeople.filter(Boolean).map((c: any) => (
+          <li>
+            <a href={`/cast/${c.data.id}`}>{c.data.title}</a>
+            {c.data.industry && <span class="pill">{c.data.industry}</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <BacklinksSection collection="cast" id={d.id} />
+  <PageFooter editPath={`cast/${d.id}.mdx`} />
+</PageLayout>
+
+<style>
+  .cast-facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.5rem 1.5rem;
+    margin: 2rem 0 2.5rem;
+    padding: 1.2rem 1.4rem;
+    background: var(--paper-soft);
+    border: 1px solid var(--rule);
+    max-width: var(--measure);
+  }
+  .cast-facts dt {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-muted);
+    font-weight: var(--fw-bold);
+  }
+  .cast-facts dd {
+    margin: 0;
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    color: var(--ink);
+    min-width: 0;
+    overflow-wrap: break-word;
+  }
+  .header__eyebrow {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-muted);
+    margin: 0 0 0.5rem;
+  }
+</style>

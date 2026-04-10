@@ -1,0 +1,46 @@
+---
+id: kestrel
+kind: company
+title: Kestrel
+legalName: Kestrel Health Systems, Inc.
+country: United States (Boston, MA)
+law: Delaware law, arbitration AAA New York
+industry: HealthTech SaaS — clinical workflow + HIPAA-covered entity tooling
+size: Series C, ~€240M ARR, ~450 employees
+personality: Fast, aggressive, product-led. Sends redlines at 11pm ET. Treats MSAs as "a starting point for the real conversation". Wants everything yesterday, signs things today, forgets what was signed tomorrow. High-margin work, high-burnout risk.
+aliases: [Kestrel Health, KHS]
+tags: [client, healthtech, us, series-c, hipaa]
+relatedCompanies: []
+relatedPeople: [lena-krivonos]
+---
+
+## Kestrel Health Systems, Inc.
+
+**Kestrel** is the fastest-moving client we have and the one most likely to ruin a weekend. They operate on a time zone that seems to be "always 4pm Eastern", their Slack is always on fire, and every quarter they discover a new compliance surface that needs a new integration by next sprint. Their CTO **[[cast/lena-krivonos|Dr. Lena Krivonos]]** joined them in early 2025 from Horizon, and we inherited a working relationship with her on day one — which is the only reason the engagement functions at all.
+
+They pay well. They pay fast. They sign things at night. They then, six weeks later, send us a Slack message asking if we can "just quickly look at" a HIPAA business-associate subcontract their legal team drafted during someone's flight. We bill for the look.
+
+## Why they hire us
+
+Backend work on their clinical workflow platform and the HIPAA-adjacent integrations around it. The integrations are the sharp end: Epic, Cerner, payer systems, state registries. Each one is a compliance puzzle wrapped in an undocumented REST API.
+
+## What they push on
+
+- **Speed over paperwork.** They'll start work on a handshake and backfill the MSA. We don't do that anymore — see **[[subcontractor-parted-midproject-2025]]** — but we've had to set and reset that boundary with them at least four times.
+- **Indemnities.** Their legal team insists on broad indemnification for IP and data claims. We accept IP infringement indemnity (we always have) but push back hard on data-claim indemnities, because HIPAA liability is an uninsurable blast radius. Our line: **we will carry professional indemnity for our errors; we will not carry HIPAA breach liability for their system**.
+- **Data handling.** BAA in place, yes, but they constantly want to push PHI into environments we haven't pre-approved. Every single sprint has a 10-minute "no, that dataset stays in your environment" conversation.
+
+## What they don't push on
+
+- **Rates.** They barely read the rate card. If we say a senior engineer is $180/hr, they say yes and add a second engineer. This is good and dangerous in equal measure.
+- **Termination.** They want us on long runs. Their churn risk isn't that they'll fire us — it's that a cooler project across the office will lose them interest and slow payment will follow.
+
+## Story threads
+
+- 2025 — **[[subcontractor-parted-midproject-2025]]**. Our senior backend left mid-sprint. **[[cast/lena-krivonos|Lena]]** personally absorbed the context loss — her willingness to sit through five 2-hour knowledge-transfer sessions on our side of the table is the only reason Kestrel didn't catch it.
+- 2025 — Kestrel tried to invoke a "we're a healthcare company so we get broad indemnity" argument in the MSA. We didn't move. They signed anyway. The argument resurfaces every 6 months.
+- **Phase 2 (backlog)** — their Series C is fresh; they'll expand scope in H2 2026, and we expect a fight over subprocessor lists when their new CISO arrives.
+
+## Who they send
+
+**[[cast/lena-krivonos|Dr. Lena Krivonos]]** — CTO, technical and pragmatic, reads the MSA but not the addendum. A VP Legal who speaks in comments on Google Docs and never schedules a call. A procurement lead who never appears until renewal. If Lena leaves, Kestrel becomes a very different client overnight.

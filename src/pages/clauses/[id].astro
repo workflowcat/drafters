@@ -10,6 +10,7 @@ import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
 import LangToggle from '~/components/LangToggle.astro';
 import ReadingTime from '~/components/ReadingTime.astro';
+import FileHistory from '~/components/FileHistory.astro';
 import { listClauseBases, getClauseByBase } from '~/lib/clause-variants';
 
 export async function getStaticPaths() {
@@ -74,6 +75,12 @@ const title =
       <p style="color: var(--ink-muted); max-width: var(--measure);">{entry.data.commentary}</p>
     </>
   )}
+
+  <FileHistory
+    collection="clauses"
+    id={entry.data.id}
+    reviewedOn={entry.data.reviewedOn}
+  />
 
   <RelatedPanel collection="clauses" id={baseId} tags={entry.data.tags ?? []} />
   <BacklinksSection collection="clauses" id={baseId} />

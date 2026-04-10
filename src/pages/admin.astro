@@ -3,6 +3,7 @@ import { getCollection } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import { buildBacklinks } from '~/lib/backlinks';
 import { pickTitle } from '~/lib/collection-helpers';
+import { touchedSinceDate, contentPath, type FileCommit } from '~/lib/file-history';
 
 const safeGet = async (name: any) => {
   try {
@@ -85,6 +86,40 @@ const now = new Date();
 const reviewExpired = all.filter((e) => {
   if (!e.data.reviewExpires) return false;
   return new Date(e.data.reviewExpires) < now;
+});
+
+// Pending review — content that has been edited since its last
+// reviewedOn date. We look only at clauses and documents, since
+// those are the ones Legal cares about reviewing.
+type Pending = {
+  col: string;
+  id: string;
+  title: string;
+  reviewedOn: string;
+  commits: FileCommit[];
+};
+const pendingReview: Pending[] = [];
+for (const e of all) {
+  if (e.col !== 'clauses' && e.col !== 'documents') continue;
+  const reviewedOn = e.data.reviewedOn;
+  if (!reviewedOn) continue;
+  const path = contentPath(e.col, e.id);
+  const commits = touchedSinceDate(path, reviewedOn);
+  if (commits.length > 0) {
+    pendingReview.push({
+      col: e.col,
+      id: e.id,
+      title: e.title,
+      reviewedOn,
+      commits,
+    });
+  }
+}
+// Most-recently-touched first
+pendingReview.sort((a, b) => {
+  const da = a.commits[0]?.date || '';
+  const db = b.commits[0]?.date || '';
+  return db.localeCompare(da);
 });
 ---
 
@@ -201,6 +236,47 @@ const reviewExpired = all.filter((e) => {
       </ul>
     )}
   </section>
+
+  <section class="admin-section">
+    <h2>Зміни після останнього ревʼю</h2>
+    <p class="label">{pendingReview.length} документів потребують погляду</p>
+    <p class="muted">
+      Контент, що був відредагований після дати <code>reviewedOn</code>.
+      Використовує git-історію: якщо файл має commit пізніше за вказану
+      дату, він у цьому списку. Legal може пройтися і оновити
+      <code>reviewedOn</code> або поставити нове ревʼю.
+    </p>
+    {pendingReview.length === 0 ? (
+      <p>Усі оглянуті файли стабільні з моменту останнього ревʼю.</p>
+    ) : (
+      <ul class="pending-list">
+        {pendingReview.map((p) => (
+          <li class="pending-item">
+            <div class="pending-row">
+              <a href={`/${p.col}/${p.id}`}>{p.title}</a>{' '}
+              <span class="pill">{p.col}</span>
+              <span class="pending-meta">
+                reviewed {p.reviewedOn} · {p.commits.length} комітів після
+              </span>
+            </div>
+            <ol class="pending-commits">
+              {p.commits.slice(0, 5).map((c) => (
+                <li>
+                  <code>{c.shortHash}</code>{' '}
+                  <span class="pending-date">{c.date}</span>{' '}
+                  <span>{c.subject}</span>{' '}
+                  <span class="pending-author">{c.author}</span>
+                </li>
+              ))}
+              {p.commits.length > 5 && (
+                <li class="pending-more">…ще {p.commits.length - 5}</li>
+              )}
+            </ol>
+          </li>
+        ))}
+      </ul>
+    )}
+  </section>
 </PageLayout>
 
 <style>
@@ -220,4 +296,61 @@ const reviewExpired = all.filter((e) => {
     border-bottom: 1px dashed var(--rule);
   }
   .admin-section li:last-child { border-bottom: 0; }
+
+  .muted { color: var(--ink-muted); font-size: var(--fs-small); }
+  .pending-list {
+    margin: 1.5rem 0 0;
+  }
+  .pending-item {
+    border: 1px solid var(--rule) !important;
+    padding: 1rem 1.2rem !important;
+    margin-bottom: 1rem;
+    background: var(--paper-soft);
+  }
+  .pending-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+  .pending-meta {
+    margin-left: auto;
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+  }
+  .pending-commits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0 0.5rem;
+    border-left: 2px solid var(--lavender-dim, var(--rule));
+    padding-left: 1rem;
+  }
+  .pending-commits li {
+    padding: 0.25rem 0 !important;
+    border: 0 !important;
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    display: flex;
+    gap: 0.4rem;
+    align-items: baseline;
+    flex-wrap: wrap;
+  }
+  .pending-commits code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: var(--fs-meta);
+    color: var(--ink-faint);
+  }
+  .pending-date, .pending-author {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    color: var(--ink-muted);
+  }
+  .pending-more {
+    color: var(--ink-faint);
+    font-style: italic;
+  }
 </style>

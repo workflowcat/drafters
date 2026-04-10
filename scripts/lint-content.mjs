@@ -38,7 +38,7 @@ function bodyText(src) {
 }
 
 // Scan everything
-const collections = ['terms', 'clauses', 'documents', 'roles', 'workflows', 'cases', 'contracts'];
+const collections = ['terms', 'clauses', 'documents', 'roles', 'workflows', 'cases', 'contracts', 'cast'];
 const entries = [];
 for (const col of collections) {
   for (const file of walk(join(CONTENT, col))) {

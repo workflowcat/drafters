@@ -189,6 +189,8 @@
     { id: 'clauses', label: 'Перейти: пункти', hint: 'g c', url: '/clauses' },
     { id: 'terms', label: 'Перейти: терміни', hint: 'g t', url: '/terms' },
     { id: 'roles', label: 'Перейти: ролі', hint: 'g r', url: '/roles' },
+    { id: 'cases', label: 'Перейти: кейси', url: '/cases' },
+    { id: 'cast', label: 'Перейти: персонажі', url: '/cast' },
     { id: 'graph', label: 'Перейти: граф знань', hint: 'g g', url: '/graph' },
     { id: 'changelog', label: 'Перейти: журнал змін', url: '/changelog' },
     { id: 'admin', label: 'Перейти: стан контенту', url: '/admin' },
@@ -222,7 +224,7 @@
   }
 
   function getCollectionFromUrl(url: string): string {
-    const m = url.match(/\/(workflows|documents|clauses|terms|roles|cases)\//);
+    const m = url.match(/\/(workflows|documents|clauses|terms|roles|cases|cast)\//);
     return m ? m[1] : 'page';
   }
 

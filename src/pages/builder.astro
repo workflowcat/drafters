@@ -36,7 +36,26 @@ import PageLayout from '~/layouts/PageLayout.astro';
         </label>
       </div>
 
-      <div class="builder__grid">
+      <div class="builder__presets-bar">
+        <div class="builder__presets-bar-group">
+          <span class="label">Шаблони</span>
+          <button class="btn btn--ghost" data-b-save>+ зберегти поточний</button>
+          <select data-b-load>
+            <option value="">— відкрити —</option>
+          </select>
+          <button class="btn btn--ghost" data-b-delete disabled>× видалити</button>
+        </div>
+        <div class="builder__presets-bar-group">
+          <label class="builder__compare-label">
+            <span class="label">Порівняти з</span>
+            <select data-b-compare>
+              <option value="">— немає —</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <div class="builder__grid" data-b-grid>
         <section class="builder__library">
           <header>
             <span class="label">Бібліотека пунктів</span>
@@ -58,6 +77,9 @@ import PageLayout from '~/layouts/PageLayout.astro';
             <button class="btn btn--primary" data-b-download-md>
               Завантажити .md
             </button>
+            <button class="btn btn--ghost" data-b-download-html>
+              .html
+            </button>
             <button class="btn btn--ghost" data-b-copy-url>
               Копіювати URL
             </button>
@@ -66,10 +88,20 @@ import PageLayout from '~/layouts/PageLayout.astro';
 
         <section class="builder__preview">
           <header>
-            <span class="label">Попередній перегляд</span>
+            <span class="label" data-b-preview-label>Попередній перегляд</span>
           </header>
           <div class="builder__preview-body" data-b-preview>
             <p class="builder__empty">Попередній перегляд з'явиться тут</p>
+          </div>
+        </section>
+
+        <section class="builder__preview builder__preview--compare" data-b-compare-pane hidden>
+          <header>
+            <span class="label" data-b-compare-label>Порівняння</span>
+            <button class="btn btn--ghost" data-b-compare-close>×</button>
+          </header>
+          <div class="builder__preview-body" data-b-compare-body>
+            <p class="builder__empty">Порівняння з'явиться тут</p>
           </div>
         </section>
       </div>
@@ -130,14 +162,64 @@ import PageLayout from '~/layouts/PageLayout.astro';
     min-width: 14rem;
   }
 
+  .builder__presets-bar {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+    padding: 0.8rem 1rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--rule);
+    background: var(--paper-soft);
+  }
+  .builder__presets-bar-group {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .builder__presets-bar .label {
+    font-family: var(--font-sans);
+    font-weight: var(--fw-bold);
+    font-size: var(--fs-meta);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-label);
+    color: var(--ink-faint);
+  }
+  .builder__presets-bar select {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    color: var(--ink);
+    min-width: 12rem;
+  }
+  .builder__compare-label {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+  }
+
   .builder__grid {
     display: grid;
     grid-template-columns: 1.1fr 1.1fr 1.3fr;
     gap: 1rem;
     min-height: 30rem;
   }
+  .builder__grid--compare {
+    grid-template-columns: 1fr 1fr 1.2fr 1.2fr;
+  }
+  @media (max-width: 1200px) {
+    .builder__grid--compare {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
   @media (max-width: 1024px) {
-    .builder__grid { grid-template-columns: 1fr; }
+    .builder__grid,
+    .builder__grid--compare {
+      grid-template-columns: 1fr;
+    }
   }
   .builder__grid section {
     border: 1px solid var(--rule);
@@ -277,6 +359,8 @@ import PageLayout from '~/layouts/PageLayout.astro';
     font-size: var(--fs-small);
     line-height: 1.55;
     padding-right: 0.4rem;
+    min-width: 0;
+    overflow-wrap: break-word;
   }
   .builder__preview-body h1 {
     font-size: 1.4rem;
@@ -286,6 +370,35 @@ import PageLayout from '~/layouts/PageLayout.astro';
     margin-top: 1.2em;
     padding-top: 0.6em;
     border-top: 1px solid var(--rule);
+  }
+  .builder__preview--compare {
+    background: color-mix(in srgb, var(--lavender-wash) 55%, var(--paper-soft)) !important;
+  }
+  .builder__preview--compare header button {
+    background: transparent;
+    border: 1px solid var(--rule);
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+    color: var(--ink-muted);
+    font-size: var(--fs-meta);
+  }
+  .builder__preview-body :global(.diff-line) {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: calc(var(--fs-meta) * 1.02);
+    padding: 0.05rem 0.3rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .builder__preview-body :global(.diff-line--ctx) {
+    color: var(--ink-muted);
+  }
+  .builder__preview-body :global(.diff-line--add) {
+    background: color-mix(in srgb, #7cb07c 22%, transparent);
+    color: #1f4a1f;
+  }
+  .builder__preview-body :global(.diff-line--del) {
+    background: color-mix(in srgb, #c88080 22%, transparent);
+    color: #5a1f1f;
   }
 
   .builder__actions {
@@ -328,6 +441,32 @@ import PageLayout from '~/layouts/PageLayout.astro';
   type Manifest = Record<string, ClauseEntry>;
 
   const LS_KEY = 'drafters:builder:v1';
+  const PRESETS_KEY = 'drafters:builder:presets:v1';
+
+  interface BuilderState {
+    selected: string[];
+    lang: string;
+    title: string;
+  }
+  interface Preset {
+    name: string;
+    state: BuilderState;
+    savedAt: number;
+  }
+
+  function loadPresets(): Preset[] {
+    try {
+      const raw = localStorage.getItem(PRESETS_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch {
+      return [];
+    }
+  }
+  function savePresets(list: Preset[]) {
+    localStorage.setItem(PRESETS_KEY, JSON.stringify(list));
+  }
 
   function pickTitle(t: any, lang: string): string {
     if (typeof t === 'string') return t;
@@ -410,9 +549,22 @@ import PageLayout from '~/layouts/PageLayout.astro';
     const count = app.querySelector<HTMLElement>('[data-b-count]')!;
     const clearBtn = app.querySelector<HTMLButtonElement>('[data-b-clear]')!;
     const downloadBtn = app.querySelector<HTMLButtonElement>('[data-b-download-md]')!;
+    const downloadHtmlBtn = app.querySelector<HTMLButtonElement>('[data-b-download-html]')!;
     const copyUrlBtn = app.querySelector<HTMLButtonElement>('[data-b-copy-url]')!;
     const searchInput = app.querySelector<HTMLInputElement>('[data-b-search]')!;
     const tagChips = app.querySelector<HTMLElement>('[data-b-tag-chips]')!;
+    const grid = app.querySelector<HTMLElement>('[data-b-grid]')!;
+    const saveBtn = app.querySelector<HTMLButtonElement>('[data-b-save]')!;
+    const loadSelect = app.querySelector<HTMLSelectElement>('[data-b-load]')!;
+    const deleteBtn = app.querySelector<HTMLButtonElement>('[data-b-delete]')!;
+    const compareSelect = app.querySelector<HTMLSelectElement>('[data-b-compare]')!;
+    const comparePane = app.querySelector<HTMLElement>('[data-b-compare-pane]')!;
+    const compareBody = app.querySelector<HTMLElement>('[data-b-compare-body]')!;
+    const compareLabel = app.querySelector<HTMLElement>('[data-b-compare-label]')!;
+    const compareClose = app.querySelector<HTMLButtonElement>('[data-b-compare-close]')!;
+
+    let activePresetName: string | null = null;
+    let comparePresetName: string | null = null;
 
     langSelect.value = state.lang;
     titleInput.value = state.title;
@@ -590,12 +742,125 @@ import PageLayout from '~/layouts/PageLayout.astro';
       renderLibrary();
       renderSelected();
       renderPreview();
+      renderCompare();
+    }
+
+    // --- Preset management ---
+    function renderPresetSelectors() {
+      const presets = loadPresets();
+      const loadOptions = ['<option value="">— відкрити —</option>']
+        .concat(
+          presets.map(
+            (p) =>
+              `<option value="${p.name}" ${activePresetName === p.name ? 'selected' : ''}>${p.name} (${p.state.selected.length})</option>`
+          )
+        )
+        .join('');
+      loadSelect.innerHTML = loadOptions;
+
+      const compareOptions = ['<option value="">— немає —</option>']
+        .concat(
+          presets.map(
+            (p) =>
+              `<option value="${p.name}" ${comparePresetName === p.name ? 'selected' : ''}>${p.name}</option>`
+          )
+        )
+        .join('');
+      compareSelect.innerHTML = compareOptions;
+
+      deleteBtn.disabled = !activePresetName;
+    }
+
+    function buildMarkdownFrom(other: BuilderState): string {
+      const parts: string[] = [];
+      parts.push(`# ${other.title}\n`);
+      parts.push('_Generated with the Drafters contract builder._\n');
+      other.selected.forEach((id, i) => {
+        const c = manifest[id];
+        if (!c) return;
+        const body = c.variants[other.lang] || c.variants.uk || c.variants.en || '';
+        const title = pickTitle(c.title, other.lang);
+        parts.push(`\n## ${i + 1}. ${title}\n`);
+        parts.push(stripClauseBody(body) + '\n');
+      });
+      return parts.join('\n');
+    }
+
+    // Line-level diff for compare pane. Dumb but fair.
+    function lineDiff(aText: string, bText: string): string {
+      const aLines = aText.split('\n');
+      const bLines = bText.split('\n');
+      const aSet = new Set(aLines);
+      const bSet = new Set(bLines);
+      const out: string[] = [];
+      const esc = (s: string) =>
+        s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]!));
+      // Walk b to show both sides — additions relative to a, and show a's removals inline
+      const seen = new Set<string>();
+      for (const line of bLines) {
+        if (seen.has(line)) {
+          out.push(`<div class="diff-line diff-line--ctx">${esc(line) || '&nbsp;'}</div>`);
+          continue;
+        }
+        seen.add(line);
+        if (aSet.has(line)) {
+          out.push(`<div class="diff-line diff-line--ctx">${esc(line) || '&nbsp;'}</div>`);
+        } else {
+          out.push(`<div class="diff-line diff-line--add">+ ${esc(line)}</div>`);
+        }
+      }
+      // Append removals that were only in a
+      const removed: string[] = [];
+      for (const line of aLines) {
+        if (!bSet.has(line) && !removed.includes(line)) {
+          removed.push(line);
+          out.push(`<div class="diff-line diff-line--del">− ${esc(line)}</div>`);
+        }
+      }
+      return out.join('');
+    }
+
+    function renderCompare() {
+      if (!comparePresetName) {
+        comparePane.setAttribute('hidden', '');
+        grid.classList.remove('builder__grid--compare');
+        return;
+      }
+      const preset = loadPresets().find((p) => p.name === comparePresetName);
+      if (!preset) {
+        comparePresetName = null;
+        comparePane.setAttribute('hidden', '');
+        grid.classList.remove('builder__grid--compare');
+        return;
+      }
+      comparePane.removeAttribute('hidden');
+      grid.classList.add('builder__grid--compare');
+      compareLabel.textContent = `Порівняння з «${preset.name}»`;
+
+      const currentMd = buildMarkdown();
+      const otherMd = buildMarkdownFrom(preset.state);
+      compareBody.innerHTML = lineDiff(currentMd, otherMd);
+    }
+
+    function updatePreviewLabel() {
+      const el = app.querySelector<HTMLElement>('[data-b-preview-label]');
+      if (!el) return;
+      el.textContent = activePresetName
+        ? `Попередній перегляд · ${activePresetName}`
+        : 'Попередній перегляд';
     }
 
     langSelect.addEventListener('change', () => { persist(); renderAll(); });
-    titleInput.addEventListener('input', () => { persist(); renderPreview(); });
+    titleInput.addEventListener('input', () => { persist(); renderPreview(); renderCompare(); });
     searchInput.addEventListener('input', () => { searchQ = searchInput.value; renderLibrary(); });
-    clearBtn.addEventListener('click', () => { state.selected = []; persist(); renderAll(); });
+    clearBtn.addEventListener('click', () => {
+      state.selected = [];
+      activePresetName = null;
+      updatePreviewLabel();
+      persist();
+      renderAll();
+      renderPresetSelectors();
+    });
     downloadBtn.addEventListener('click', () => {
       const md = buildMarkdown();
       const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
@@ -603,6 +868,35 @@ import PageLayout from '~/layouts/PageLayout.astro';
       const a = document.createElement('a');
       a.href = url;
       a.download = `${(state.title || 'custom-contract').replace(/\s+/g, '-').toLowerCase()}.md`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+    downloadHtmlBtn.addEventListener('click', () => {
+      const md = buildMarkdown();
+      const bodyHtml = mdToHtml(md);
+      const titleSafe = (state.title || 'Custom Contract').replace(/[<>&]/g, '');
+      const html = `<!doctype html>
+<html lang="${state.lang}"><head><meta charset="utf-8" />
+<title>${titleSafe}</title>
+<style>
+  body { font: 16px/1.55 Georgia, 'Times New Roman', serif; max-width: 720px; margin: 4rem auto; padding: 0 2rem; color: #1a1a1a; }
+  h1 { font-size: 1.9rem; border-bottom: 2px solid #1a1a1a; padding-bottom: 0.3em; }
+  h2 { font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Helvetica Neue', Arial, sans-serif; margin-top: 2.4em; padding-top: 0.9em; border-top: 1px solid #ccc; }
+  h3 { font-size: 1rem; text-transform: uppercase; letter-spacing: 0.08em; font-family: 'Helvetica Neue', Arial, sans-serif; }
+  p { margin: 0.8em 0; }
+  ul, ol { padding-left: 1.4em; }
+  table { width: 100%; border-collapse: collapse; margin: 1em 0; }
+  th, td { border: 1px solid #ccc; padding: 0.4em 0.6em; text-align: left; }
+  @media print { body { margin: 0; padding: 1.5cm 1.8cm; max-width: none; } }
+</style>
+</head><body>${bodyHtml}</body></html>`;
+      const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(state.title || 'custom-contract').replace(/\s+/g, '-').toLowerCase()}.html`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -618,7 +912,87 @@ import PageLayout from '~/layouts/PageLayout.astro';
       } catch {}
     });
 
+    saveBtn.addEventListener('click', () => {
+      const suggested = activePresetName || state.title || 'Новий шаблон';
+      const name = prompt('Назва шаблону:', suggested);
+      if (!name) return;
+      const trimmed = name.trim();
+      if (!trimmed) return;
+      const presets = loadPresets();
+      const existing = presets.findIndex((p) => p.name === trimmed);
+      const snapshot: Preset = {
+        name: trimmed,
+        state: {
+          selected: [...state.selected],
+          lang: state.lang,
+          title: state.title,
+        },
+        savedAt: Date.now(),
+      };
+      if (existing >= 0) {
+        if (!confirm(`Шаблон «${trimmed}» вже існує. Перезаписати?`)) return;
+        presets[existing] = snapshot;
+      } else {
+        presets.push(snapshot);
+      }
+      savePresets(presets);
+      activePresetName = trimmed;
+      updatePreviewLabel();
+      renderPresetSelectors();
+    });
+
+    loadSelect.addEventListener('change', () => {
+      const name = loadSelect.value;
+      if (!name) {
+        activePresetName = null;
+        updatePreviewLabel();
+        renderPresetSelectors();
+        return;
+      }
+      const preset = loadPresets().find((p) => p.name === name);
+      if (!preset) return;
+      state = {
+        selected: [...preset.state.selected],
+        lang: preset.state.lang,
+        title: preset.state.title,
+      };
+      activePresetName = name;
+      langSelect.value = state.lang;
+      titleInput.value = state.title;
+      updatePreviewLabel();
+      persist();
+      renderAll();
+      renderPresetSelectors();
+    });
+
+    deleteBtn.addEventListener('click', () => {
+      if (!activePresetName) return;
+      if (!confirm(`Видалити шаблон «${activePresetName}»?`)) return;
+      const presets = loadPresets().filter((p) => p.name !== activePresetName);
+      savePresets(presets);
+      if (comparePresetName === activePresetName) {
+        comparePresetName = null;
+      }
+      activePresetName = null;
+      updatePreviewLabel();
+      renderPresetSelectors();
+      renderCompare();
+    });
+
+    compareSelect.addEventListener('change', () => {
+      comparePresetName = compareSelect.value || null;
+      renderCompare();
+    });
+
+    compareClose.addEventListener('click', () => {
+      comparePresetName = null;
+      compareSelect.value = '';
+      renderCompare();
+    });
+
     renderTagChips();
+    renderPresetSelectors();
+    updatePreviewLabel();
     renderAll();
   }
 

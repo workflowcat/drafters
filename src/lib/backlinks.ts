@@ -29,6 +29,7 @@ const ROUTE_PREFIX: Record<string, string> = {
   roles: '/roles',
   workflows: '/workflows',
   cases: '/cases',
+  cast: '/cast',
 };
 
 function pickTitle(title: unknown): string {
@@ -55,13 +56,14 @@ export async function buildBacklinks(): Promise<BacklinkMap> {
   };
 
   // Load every collection once
-  const [terms, clauses, documents, roles, workflows, cases] = await Promise.all([
+  const [terms, clauses, documents, roles, workflows, cases, cast] = await Promise.all([
     safeGet('terms'),
     safeGet('clauses'),
     safeGet('documents'),
     safeGet('roles'),
     safeGet('workflows'),
     safeGet('cases'),
+    safeGet('cast' as any),
   ]);
 
   const all: Array<{ collection: string; entry: any }> = [
@@ -71,6 +73,7 @@ export async function buildBacklinks(): Promise<BacklinkMap> {
     ...roles.map((e) => ({ collection: 'roles', entry: e })),
     ...workflows.map((e) => ({ collection: 'workflows', entry: e })),
     ...cases.map((e) => ({ collection: 'cases', entry: e })),
+    ...cast.map((e) => ({ collection: 'cast', entry: e })),
   ];
 
   // Build a quick "title/id → {collection, id}" resolver.

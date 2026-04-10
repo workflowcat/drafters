@@ -9,6 +9,7 @@ import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
 import LangToggle from '~/components/LangToggle.astro';
 import ReadingTime from '~/components/ReadingTime.astro';
+import FileHistory from '~/components/FileHistory.astro';
 import { getClauseByBase } from '~/lib/clause-variants';
 
 export async function getStaticPaths() {
@@ -91,6 +92,12 @@ function pickTitle(t: any): string {
       Джерело в Drive: <a href={entry.data.driveSource}>{entry.data.driveSource}</a>
     </p>
   )}
+
+  <FileHistory
+    collection="documents"
+    id={entry.data.id}
+    reviewedOn={entry.data.reviewedOn}
+  />
 
   <RelatedPanel collection="documents" id={entry.data.id} tags={entry.data.tags ?? []} />
   <BacklinksSection collection="documents" id={entry.data.id} />

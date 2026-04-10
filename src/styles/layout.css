@@ -32,6 +32,8 @@
   text-transform: uppercase;
   letter-spacing: var(--tracking-label);
   color: var(--ink-muted);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .page__rail nav {
@@ -40,9 +42,11 @@
   gap: 0.9rem;
   position: sticky;
   top: 3rem;
+  min-width: 0;
 }
 
-.page__rail a {
+/* Main nav items only: let them size to content (for underline). */
+.page__rail nav > a {
   color: var(--ink);
   text-decoration: none;
   display: inline-block;
@@ -50,15 +54,38 @@
   border-bottom: 1px solid transparent;
   transition: color var(--t-base), border-color var(--t-base);
   width: max-content;
+  max-width: 100%;
 }
 
-.page__rail a:hover {
+.page__rail nav > a:hover {
   color: var(--lavender-dim);
   border-bottom-color: var(--lavender-dim);
 }
 
+/* Everything else in the rail (recent, search, etc.) must stay
+   inside the 13rem column, no matter where it was inserted from
+   (including client-side innerHTML that bypasses Astro scoping). */
+.page__rail a:not(nav > a) {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--ink-muted);
+  text-decoration: none;
+}
+.page__rail a:not(nav > a):hover {
+  color: var(--lavender-dim);
+}
+
 .page__body {
   min-width: 0;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+/* Defensive: any child of the body column is bounded by it. */
+.page__body > * {
+  max-width: 100%;
 }
 
 .page__margin {
@@ -120,6 +147,9 @@
   margin: 0 0 1rem;
   max-width: var(--measure);
   text-wrap: balance;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
 }
 
 .header__title--display {
@@ -390,6 +420,8 @@
   justify-content: space-between;
   align-items: baseline;
   gap: 1rem;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .content-list li:last-child { border-bottom: 0; }
@@ -402,6 +434,10 @@
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: color var(--t-base), border-color var(--t-base);
+  min-width: 0;
+  overflow-wrap: break-word;
+  word-break: break-word;
+  flex: 1 1 auto;
 }
 
 .content-list a:hover {

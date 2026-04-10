@@ -36,17 +36,23 @@
   .recent__list li {
     padding: 0.2rem 0;
   }
-  .recent__list a {
+  /* Use :global() because the <a> elements are inserted via
+     innerHTML at runtime and don't carry Astro's scope attribute. */
+  .recent__list :global(a) {
     color: var(--ink-muted) !important;
     text-decoration: none;
     display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 12rem;
+    max-width: 100%;
   }
-  .recent__list a:hover {
+  .recent__list :global(a:hover) {
     color: var(--lavender-dim) !important;
+  }
+  .recent__list :global(li) {
+    min-width: 0;
+    overflow: hidden;
   }
   .recent:empty,
   .recent__list:empty + .recent__label {
