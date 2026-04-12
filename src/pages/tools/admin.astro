@@ -5,20 +5,12 @@ import { buildBacklinks } from '~/lib/backlinks';
 import { pickTitle } from '~/lib/collection-helpers';
 import { touchedSinceDate, contentPath, type FileCommit } from '~/lib/file-history';
 
-const safeGet = async (name: any) => {
-  try {
-    return await getCollection(name);
-  } catch {
-    return [];
-  }
-};
-
 const [workflows, documents, clauses, terms, roles] = await Promise.all([
-  safeGet('workflows'),
-  safeGet('documents'),
-  safeGet('clauses'),
-  safeGet('terms'),
-  safeGet('roles'),
+  getCollection('workflows'),
+  getCollection('documents'),
+  getCollection('clauses'),
+  getCollection('terms'),
+  getCollection('roles'),
 ]);
 
 const backlinks = await buildBacklinks();
@@ -123,7 +115,7 @@ pendingReview.sort((a, b) => {
 });
 ---
 
-<PageLayout title="Admin / стан контенту" crumbSegments={['admin']}>
+<PageLayout title="Admin / стан контенту" crumbSegments={['tools', 'admin']}>
   <slot slot="header">
     <h1 class="header__title header__title--display">Admin</h1>
     <p class="header__subtitle">Редакційний дашборд · стан контенту</p>

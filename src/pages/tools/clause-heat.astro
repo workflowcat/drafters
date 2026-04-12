@@ -70,7 +70,7 @@ const totalUsage = entries.reduce((s, e) => s + e.usage, 0);
 const orphans = entries.filter((e) => e.usage === 0);
 ---
 
-<PageLayout title="Clause heat map" crumbSegments={['clauses', 'heat']}>
+<PageLayout title="Clause heat map" crumbSegments={['tools', 'clause-heat']}>
   <slot slot="header">
     <h1 class="header__title header__title--display">Heat map</h1>
     <p class="header__subtitle">

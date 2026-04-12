@@ -59,7 +59,7 @@ const aTitle = aEntry ? pickTitle(aEntry.data.title) : null;
 const bTitle = bEntry ? pickTitle(bEntry.data.title) : null;
 ---
 
-<PageLayout title="Порівняння пунктів" crumbSegments={['compare']}>
+<PageLayout title="Порівняння пунктів" crumbSegments={['tools', 'compare']}>
   <slot slot="header">
     <h1 class="header__title">Порівняння пунктів</h1>
     <p class="header__subtitle">Виберіть два пункти, щоб побачити їх поруч</p>
@@ -112,9 +112,9 @@ const bTitle = bEntry ? pickTitle(bEntry.data.title) : null;
   ) : (
     <p class="lead">
       Виберіть два пункти у формі вище. Corisно для порівняння варіантів
-      одного пункту (наприклад, <a href="/compare?a=ip-assignment&b=ip-assignment-services">
+      одного пункту (наприклад, <a href="/tools/compare?a=ip-assignment&b=ip-assignment-services">
       IP Assignment (strict) vs IP Assignment (services)
-      </a>) або для перегляду дзеркальних напрямків (<a href="/compare?a=payment-dispute&b=payment-dispute-client">
+      </a>) або для перегляду дзеркальних напрямків (<a href="/tools/compare?a=payment-dispute&b=payment-dispute-client">
       Payment Dispute vs Payment Dispute (client-facing)
       </a>).
     </p>

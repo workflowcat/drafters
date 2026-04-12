@@ -12,19 +12,12 @@ import { getCollection } from 'astro:content';
 import { buildBacklinks } from '~/lib/backlinks';
 import { pickTitle } from '~/lib/collection-helpers';
 
-const safeGet = async (name: any) => {
-  try {
-    return await getCollection(name);
-  } catch {
-    return [];
-  }
-};
 const [workflows, documents, clauses, terms, roles] = await Promise.all([
-  safeGet('workflows'),
-  safeGet('documents'),
-  safeGet('clauses'),
-  safeGet('terms'),
-  safeGet('roles'),
+  getCollection('workflows'),
+  getCollection('documents'),
+  getCollection('clauses'),
+  getCollection('terms'),
+  getCollection('roles'),
 ]);
 
 type Node = {
@@ -109,7 +102,7 @@ const COLORS: Record<string, string> = {
 };
 ---
 
-<PageLayout title="Граф знань" crumbSegments={['graph']}>
+<PageLayout title="Граф знань" crumbSegments={['tools', 'graph']}>
   <slot slot="header">
     <h1 class="header__title header__title--display">Граф знань</h1>
     <p class="header__subtitle">{nodes.length} вузлів · {edges.length} зв'язків</p>

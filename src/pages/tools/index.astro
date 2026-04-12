@@ -1,0 +1,113 @@
+---
+import PageLayout from '~/layouts/PageLayout.astro';
+
+// One-line descriptions of each secondary tool. These are not products;
+// they are build-time views over the same content vault as the wiki.
+const tools = [
+  {
+    href: '/tools/builder',
+    title: 'Contract builder',
+    desc: 'Збери контракт з повторно використовуваних пунктів, експортуй як markdown або .docx.',
+    kind: 'editor',
+  },
+  {
+    href: '/tools/compare',
+    title: 'Порівняння пунктів',
+    desc: 'Покласти два пункти поруч — варіанти одного, або дзеркальні напрямки двох.',
+    kind: 'reader',
+  },
+  {
+    href: '/tools/graph',
+    title: 'Граф знань',
+    desc: 'Статичний SVG усього контенту: процеси в центрі, пункти на периферії.',
+    kind: 'visual',
+  },
+  {
+    href: '/tools/clause-heat',
+    title: 'Heat map пунктів',
+    desc: 'Скільки разів кожен пункт використано в контрактах, документах, процесах.',
+    kind: 'visual',
+  },
+  {
+    href: '/tools/analytics',
+    title: 'Analytics',
+    desc: 'Реюз пунктів, Jaccard-перетин контрактів, cross-pillar статистика.',
+    kind: 'visual',
+  },
+  {
+    href: '/tools/admin',
+    title: 'Content health',
+    desc: 'Биті wikilinks, orphans, drafts, просрочені ревʼю, мовні прогалини.',
+    kind: 'editorial',
+  },
+];
+---
+
+<PageLayout title="Інструменти" crumbSegments={['tools']}>
+  <slot slot="header">
+    <h1 class="header__title header__title--display">Інструменти</h1>
+    <p class="header__subtitle">
+      Допоміжні вьюхи над вмістом вікі — не продукти, а лінзи.
+    </p>
+  </slot>
+
+  <p class="lead">
+    Все нижче — це різні способи подивитись на той самий контент. Вікі
+    залишається головною справою; тут зібрано все, що колись могло б
+    стати окремим додатком, але поки що краще жити збоку.
+  </p>
+
+  <ul class="tools-list">
+    {tools.map((t) => (
+      <li class="tools-list__item">
+        <a href={t.href}>
+          <span class="tools-list__title">{t.title}</span>
+          <span class="pill">{t.kind}</span>
+        </a>
+        <p class="tools-list__desc">{t.desc}</p>
+      </li>
+    ))}
+  </ul>
+</PageLayout>
+
+<style>
+  .tools-list {
+    list-style: none;
+    padding: 0;
+    margin: 2rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.4rem;
+  }
+  .tools-list__item {
+    padding: 0 0 1.4rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .tools-list__item:last-child {
+    border-bottom: 0;
+  }
+  .tools-list__item a {
+    display: flex;
+    gap: 0.8rem;
+    align-items: baseline;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .tools-list__item a:hover .tools-list__title {
+    color: var(--lavender-dim);
+    border-bottom-color: var(--lavender-dim);
+  }
+  .tools-list__title {
+    font-family: var(--font-serif);
+    font-size: 1.4rem;
+    font-weight: var(--fw-regular);
+    border-bottom: 1px solid transparent;
+    transition: color var(--t-base), border-color var(--t-base);
+  }
+  .tools-list__desc {
+    margin: 0.4rem 0 0;
+    color: var(--ink-muted);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+  }
+</style>

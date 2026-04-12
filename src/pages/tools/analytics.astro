@@ -4,13 +4,9 @@ import { getCollection } from 'astro:content';
 import { pickTitle } from '~/lib/collection-helpers';
 import { buildBacklinks } from '~/lib/backlinks';
 
-const safeGet = async (name: any) => {
-  try { return await getCollection(name); } catch { return []; }
-};
-
-const contracts = await safeGet('contracts');
-const clauses = await safeGet('clauses');
-const documents = await safeGet('documents');
+const contracts = await getCollection('contracts');
+const clauses = await getCollection('clauses');
+const documents = await getCollection('documents');
 const backlinks = await buildBacklinks();
 
 // Group contracts by baseId (pick uk preferred)
@@ -90,7 +86,7 @@ for (const c of clauses) {
 }
 ---
 
-<PageLayout title="Analytics" crumbSegments={['analytics']}>
+<PageLayout title="Analytics" crumbSegments={['tools', 'analytics']}>
   <slot slot="header">
     <h1 class="header__title header__title--display">Analytics</h1>
     <p class="header__subtitle">
@@ -195,9 +191,9 @@ for (const c of clauses) {
 
   <p class="divider">Дивись також</p>
   <ul class="content-list">
-    <li><a href="/clauses/heat">Clause heat map</a><span class="pill">visual</span></li>
-    <li><a href="/graph">Граф зв'язків</a><span class="pill">visual</span></li>
-    <li><a href="/admin">Content health dashboard</a><span class="pill">editorial</span></li>
+    <li><a href="/tools/clause-heat">Clause heat map</a><span class="pill">visual</span></li>
+    <li><a href="/tools/graph">Граф зв'язків</a><span class="pill">visual</span></li>
+    <li><a href="/tools/admin">Content health dashboard</a><span class="pill">editorial</span></li>
   </ul>
 </PageLayout>
 

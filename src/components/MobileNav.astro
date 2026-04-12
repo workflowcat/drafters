@@ -10,19 +10,21 @@
     <span class="mobile-nav__line"></span>
   </button>
   <nav class="mobile-nav__drawer" aria-hidden="true">
+    <button class="mobile-nav__search" data-open-palette>
+      Пошук
+    </button>
     <a href="/">Головна</a>
     <a href="/workflows">Процеси</a>
     <a href="/documents">Документи</a>
+    <a href="/contracts">Контракти</a>
     <a href="/clauses">Пункти</a>
     <a href="/terms">Терміни</a>
     <a href="/roles">Ролі</a>
     <a href="/cases">Кейси</a>
-    <a href="/cast">Персонажі</a>
-    <a href="/graph">Граф</a>
-    <a href="/changelog">Зміни</a>
-    <button class="mobile-nav__search" data-open-palette>
-      Пошук
-    </button>
+    <span class="mobile-nav__rule"></span>
+    <a href="/cast" class="mobile-nav__secondary">Персонажі</a>
+    <a href="/changelog" class="mobile-nav__secondary">Зміни</a>
+    <a href="/tools" class="mobile-nav__secondary">Інструменти →</a>
   </nav>
 </div>
 
@@ -113,6 +115,21 @@
   .mobile-nav__drawer button:hover {
     color: var(--lavender-dim);
     border-bottom-color: var(--lavender-dim);
+  }
+  .mobile-nav__rule {
+    display: block;
+    border-bottom: 1px solid var(--rule);
+    margin: 0.8rem 0 0.2rem;
+  }
+  .mobile-nav__drawer a.mobile-nav__secondary {
+    font-size: 1.3rem;
+    font-weight: var(--fw-regular);
+    color: var(--ink-faint);
+    border-bottom: 0;
+    padding: 0.2rem 0;
+  }
+  .mobile-nav__drawer a.mobile-nav__secondary:hover {
+    color: var(--lavender-dim);
   }
 </style>
 

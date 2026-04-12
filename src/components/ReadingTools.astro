@@ -3,13 +3,11 @@
  * Client-side reading utilities, all hydrated in the page.
  *
  *   f            — toggle focus mode (hides rail + margin + backlinks)
- *   a            — toggle "read aloud" using Web Speech API
  *   shift+c      — copy page body as markdown
- *   .            — toggle annotations panel
  *
  * The component renders a small floating toolbar that surfaces these
- * actions with visible buttons + kbd hints. The toolbar hides itself
- * in focus mode (press ? to see it again).
+ * actions with visible buttons + kbd hints. The toolbar fades out
+ * in focus mode (hover to see it again).
  */
 ---
 
@@ -18,29 +16,11 @@
     <span>focus</span>
     <kbd>f</kbd>
   </button>
-  <button class="reading-tools__btn" data-rt-speak title="Прочитати вголос">
-    <span class="rt-label">read</span>
-    <kbd>a</kbd>
-  </button>
   <button class="reading-tools__btn" data-rt-copy title="Копіювати як markdown">
     <span>copy .md</span>
     <kbd>C</kbd>
   </button>
-  <button class="reading-tools__btn" data-rt-notes title="Нотатки">
-    <span>notes</span>
-    <kbd>.</kbd>
-  </button>
 </div>
-
-<aside class="annotations-panel" data-annotations-panel hidden>
-  <header>
-    <span class="label">Мої нотатки</span>
-    <button data-annotations-close aria-label="Закрити">×</button>
-  </header>
-  <div class="annotations-list" data-annotations-list>
-    <p class="annotations-empty">Виділіть будь-який текст на сторінці, щоб додати нотатку.</p>
-  </div>
-</aside>
 
 <style is:global>
   .reading-tools {
@@ -114,139 +94,12 @@
   body.is-focus-mode .reading-tools:hover {
     opacity: 1;
   }
-
-  .annotations-panel {
-    position: fixed;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: min(24rem, 90vw);
-    background: var(--paper-soft);
-    border-left: 1px solid var(--ink);
-    z-index: 140;
-    padding: 1.2rem;
-    overflow-y: auto;
-    font-family: var(--font-sans);
-    transform: translateX(100%);
-    transition: transform var(--t-slow);
-  }
-  .annotations-panel:not([hidden]) {
-    transform: translateX(0);
-  }
-  .annotations-panel header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding-bottom: 0.8rem;
-    border-bottom: 1px solid var(--rule);
-    margin-bottom: 1rem;
-  }
-  .annotations-panel .label {
-    font-weight: var(--fw-bold);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    font-size: var(--fs-meta);
-    color: var(--ink);
-  }
-  .annotations-panel button {
-    background: transparent;
-    border: 1px solid var(--rule);
-    padding: 0.2rem 0.6rem;
-    cursor: pointer;
-    font-size: 1.1rem;
-    color: var(--ink-muted);
-  }
-  .annotations-panel button:hover {
-    color: var(--ink);
-    background: var(--lavender-wash);
-  }
-  .annotations-empty {
-    font-style: italic;
-    color: var(--ink-faint);
-    font-size: var(--fs-small);
-    font-family: var(--font-serif);
-  }
-  .annotation {
-    padding: 0.8rem 0;
-    border-bottom: 1px dashed var(--rule);
-  }
-  .annotation blockquote {
-    margin: 0 0 0.4rem;
-    padding: 0.4rem 0.6rem;
-    background: var(--lavender-wash);
-    font-family: var(--font-serif);
-    font-size: var(--fs-small);
-    border-left: 2px solid var(--lavender);
-    font-style: italic;
-  }
-  .annotation textarea {
-    width: 100%;
-    min-height: 3rem;
-    border: 1px solid var(--rule);
-    padding: 0.4rem;
-    font-family: var(--font-serif);
-    font-size: var(--fs-small);
-    background: var(--paper);
-    resize: vertical;
-  }
-  .annotation__meta {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.4rem;
-    font-size: var(--fs-meta);
-    color: var(--ink-faint);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-  }
-  .annotation__meta button {
-    background: transparent;
-    border: 0;
-    padding: 0;
-    color: var(--ink-faint);
-    cursor: pointer;
-    font-size: var(--fs-meta);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-  }
-  .annotation__meta button:hover {
-    color: var(--peach-dim);
-  }
-
-  .rt-speaking {
-    background: linear-gradient(to right, var(--lavender-wash) var(--rt-progress, 0%), transparent var(--rt-progress, 0%)) !important;
-    transition: background 200ms linear;
-  }
 </style>
 
 <script>
-  const STORAGE_KEY = 'drafters:annotations:v1';
-
-  interface Annotation {
-    id: string;
-    url: string;
-    selected: string;
-    note: string;
-    at: string;
-  }
-
-  function loadAll(): Record<string, Annotation[]> {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    } catch { return {}; }
-  }
-  function saveAll(data: Record<string, Annotation[]>) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-  }
-  function currentKey() { return location.pathname; }
-
   function setupReadingTools() {
     const focusBtn = document.querySelector<HTMLButtonElement>('[data-rt-focus]');
-    const speakBtn = document.querySelector<HTMLButtonElement>('[data-rt-speak]');
     const copyBtn = document.querySelector<HTMLButtonElement>('[data-rt-copy]');
-    const notesBtn = document.querySelector<HTMLButtonElement>('[data-rt-notes]');
-    const panel = document.querySelector<HTMLElement>('[data-annotations-panel]');
-    const list = document.querySelector<HTMLElement>('[data-annotations-list]');
-    const closeBtn = document.querySelector<HTMLButtonElement>('[data-annotations-close]');
     if (!focusBtn) return;
 
     // ── Focus mode ────────────────────────────────
@@ -262,35 +115,11 @@
       localStorage.setItem('drafters:focus', now ? '1' : '0');
     }
 
-    // ── Read aloud ────────────────────────────────
-    let utterance: SpeechSynthesisUtterance | null = null;
-    speakBtn?.addEventListener('click', toggleSpeak);
-    function toggleSpeak() {
-      if (!('speechSynthesis' in window)) return;
-      if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-        speakBtn?.classList.remove('is-active');
-        return;
-      }
-      const article = document.querySelector('article');
-      if (!article) return;
-      const text = article.innerText;
-      utterance = new SpeechSynthesisUtterance(text);
-      const lang = document.documentElement.lang || 'uk';
-      utterance.lang = lang === 'uk' ? 'uk-UA' : lang === 'en' ? 'en-US' : 'de-DE';
-      utterance.rate = 1.0;
-      utterance.onstart = () => speakBtn?.classList.add('is-active');
-      utterance.onend = () => speakBtn?.classList.remove('is-active');
-      utterance.onerror = () => speakBtn?.classList.remove('is-active');
-      speechSynthesis.speak(utterance);
-    }
-
     // ── Copy as markdown ──────────────────────────
     copyBtn?.addEventListener('click', copyMarkdown);
     async function copyMarkdown() {
       const article = document.querySelector('article');
       if (!article) return;
-      // Naive: extract text with basic structure
       const md = htmlToMarkdown(article);
       try {
         await navigator.clipboard.writeText(md);
@@ -302,7 +131,6 @@
 
     function htmlToMarkdown(el: HTMLElement): string {
       const clone = el.cloneNode(true) as HTMLElement;
-      // Strip interactive scaffolding
       clone.querySelectorAll('.reading-tools, .scroll-progress, .page__rail, .page__margin, .backlinks, .related, .page-footer, button').forEach((e) => e.remove());
       const walk = (node: Node): string => {
         if (node.nodeType === Node.TEXT_NODE) return node.textContent || '';
@@ -339,128 +167,16 @@
       setTimeout(() => { if (orig) span.textContent = orig; }, 1400);
     }
 
-    // ── Annotations ───────────────────────────────
-    function renderAnnotations() {
-      if (!list) return;
-      const all = loadAll();
-      const entries = all[currentKey()] || [];
-      if (entries.length === 0) {
-        list.innerHTML = '<p class="annotations-empty">Виділіть будь-який текст на сторінці, щоб додати нотатку.</p>';
-        return;
-      }
-      list.innerHTML = entries
-        .map(
-          (a) => `
-          <div class="annotation" data-ann="${a.id}">
-            <blockquote>${escapeHtml(a.selected)}</blockquote>
-            <textarea data-ann-note="${a.id}">${escapeHtml(a.note)}</textarea>
-            <div class="annotation__meta">
-              <span>${a.at.slice(0, 10)}</span>
-              <button data-ann-del="${a.id}">видалити</button>
-            </div>
-          </div>`
-        )
-        .join('');
-      list.querySelectorAll<HTMLTextAreaElement>('[data-ann-note]').forEach((t) => {
-        t.addEventListener('input', () => {
-          const id = t.dataset.annNote!;
-          const data = loadAll();
-          const arr = data[currentKey()] || [];
-          const hit = arr.find((a) => a.id === id);
-          if (hit) { hit.note = t.value; saveAll(data); }
-        });
-      });
-      list.querySelectorAll<HTMLButtonElement>('[data-ann-del]').forEach((b) => {
-        b.addEventListener('click', () => {
-          const id = b.dataset.annDel!;
-          const data = loadAll();
-          data[currentKey()] = (data[currentKey()] || []).filter((a) => a.id !== id);
-          saveAll(data);
-          renderAnnotations();
-        });
-      });
-    }
-
-    function escapeHtml(s: string): string {
-      return s.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
-    }
-
-    notesBtn?.addEventListener('click', () => {
-      if (!panel) return;
-      panel.toggleAttribute('hidden');
-      notesBtn.classList.toggle('is-active', !panel.hasAttribute('hidden'));
-      renderAnnotations();
-    });
-    closeBtn?.addEventListener('click', () => {
-      if (panel) panel.setAttribute('hidden', '');
-      notesBtn?.classList.remove('is-active');
-    });
-
-    // Text selection → add annotation
-    let annPopover: HTMLDivElement | null = null;
-    document.addEventListener('mouseup', (e) => {
-      // Ignore selections inside the panel itself
-      const target = e.target as HTMLElement;
-      if (target.closest('.annotations-panel, .reading-tools')) return;
-      const sel = window.getSelection();
-      if (!sel || sel.isCollapsed) {
-        if (annPopover) annPopover.remove();
-        return;
-      }
-      const text = sel.toString().trim();
-      if (text.length < 4) return;
-      const rect = sel.getRangeAt(0).getBoundingClientRect();
-      if (annPopover) annPopover.remove();
-      annPopover = document.createElement('div');
-      annPopover.className = 'ann-popover';
-      annPopover.innerHTML = `<button class="btn btn--primary" style="padding:0.4em 0.8em;font-size:var(--fs-meta)">+ нотатка</button>`;
-      Object.assign(annPopover.style, {
-        position: 'absolute',
-        left: `${rect.left + window.scrollX + rect.width / 2 - 60}px`,
-        top: `${rect.top + window.scrollY - 48}px`,
-        zIndex: '95',
-      });
-      annPopover.querySelector('button')?.addEventListener('click', () => {
-        const data = loadAll();
-        if (!data[currentKey()]) data[currentKey()] = [];
-        data[currentKey()].push({
-          id: `a_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-          url: currentKey(),
-          selected: text.slice(0, 400),
-          note: '',
-          at: new Date().toISOString(),
-        });
-        saveAll(data);
-        annPopover?.remove();
-        annPopover = null;
-        if (panel) {
-          panel.removeAttribute('hidden');
-          notesBtn?.classList.add('is-active');
-          renderAnnotations();
-        }
-      });
-      document.body.appendChild(annPopover);
-    });
-
     // ── Keyboard bindings ─────────────────────────
     document.addEventListener('keydown', (e) => {
       if (['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName)) return;
       if ((e.target as HTMLElement)?.isContentEditable) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
       if (e.key === 'f') { e.preventDefault(); toggleFocus(); }
-      else if (e.key === 'a') { e.preventDefault(); toggleSpeak(); }
       else if (e.key === 'C') { e.preventDefault(); copyMarkdown(); }
-      else if (e.key === '.') { e.preventDefault(); notesBtn?.click(); }
     });
   }
 
   setupReadingTools();
   document.addEventListener('astro:page-load', setupReadingTools);
 </script>
-
-<style>
-  :global(.ann-popover) {
-    position: absolute;
-    z-index: 95;
-  }
-</style>
