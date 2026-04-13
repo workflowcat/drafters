@@ -1,5 +1,33 @@
 [
   {
+    "hash": "d17abb01190a9ab8770f7a74fb0ef995c693cfde",
+    "shortHash": "d17abb0",
+    "date": "2026-04-13",
+    "author": "workflowcat",
+    "subject": "refactor: focus wiki as core product, demote side-projects to /tools/",
+    "body": "Major simplification pass to make the site lighter, quicker, and\neasier on the eyes. Follows the redesign plan in mighty-floating-honey.\n\nCuts:\n- Deleted /documents/* routes (middle layer between clauses and contracts)\n- Deleted /changelog route (dev tool, not reader destination)\n- Removed ScrollProgress, ReadingTools from layout\n- Removed wikilink popover tooltip (90+ lines of JS + CSS)\n- Removed ExportMenu from clause and workflow pages\n- Removed RecentlyViewed from sidebar\n- Trimmed rail nav from 12 items to 5 (Home, Contracts, Clauses, Cases, Cast)\n- Removed secondary nav section entirely\n\nLanguage:\n- All chrome now English (nav, search, breadcrumbs, backlinks labels,\n  cast metadata, case workflow cards, meta description)\n- Default html lang switched from uk to en\n- Content stays as-authored (mostly Ukrainian prose)\n\nVisual tone-down:\n- Background: cream (#f8f3e1) → white (#ffffff)\n- Removed all text-transform: uppercase from chrome\n- Removed letter-spacing from labels and buttons (tracking → 0)\n- Removed offset box-shadows from CommandPalette\n- Rules and borders lightened (#e2d9bf → #e5e5e5)\n\nHome page:\n- Rewrote intro from user perspective, not developer perspective\n- \"Grab a contract template\", \"Understand why each clause is written\",\n  \"Learn from what went wrong before\" — action-oriented, not architecture\n\nResult: 81 pages (down from 93), cleaner nav, lighter aesthetic.\nLint: 96 entries, 0 warnings, 0 errors.\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>",
+    "files": [
+      "src/components/BacklinksSection.astro",
+      "src/components/CommandPalette.astro",
+      "src/components/MobileNav.astro",
+      "src/components/RelatedPanel.astro",
+      "src/components/Toc.astro",
+      "src/data/git-history.json",
+      "src/layouts/PageLayout.astro",
+      "src/pages/cases/[id].astro",
+      "src/pages/cast/[id].astro",
+      "src/pages/changelog.astro",
+      "src/pages/clauses/[id].astro",
+      "src/pages/documents/[id].astro",
+      "src/pages/documents/index.astro",
+      "src/pages/index.astro",
+      "src/pages/workflows/[id].astro",
+      "src/styles/base.css",
+      "src/styles/layout.css",
+      "src/styles/tokens.css"
+    ]
+  },
+  {
     "hash": "4b2f5e928cd8896674e74b5935b040ca8deb12bf",
     "shortHash": "4b2f5e9",
     "date": "2026-04-13",

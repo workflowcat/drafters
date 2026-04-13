@@ -3,192 +3,527 @@ import PageLayout from '~/layouts/PageLayout.astro';
 import { getCollection } from 'astro:content';
 import { listClauseBases } from '~/lib/clause-variants';
 
-
 const safeGet = async (name: any) => {
   try { return await getCollection(name); } catch { return []; }
 };
 
-const workflows = await getCollection('workflows');
-const documents = await getCollection('documents');
 const contracts = await safeGet('contracts');
 const bases = await listClauseBases();
-const terms = await getCollection('terms');
-const roles = await getCollection('roles');
 const cases = await safeGet('cases');
-const cast = await safeGet('cast');
 
 function pickTitle(title: any): string {
   if (typeof title === 'string') return title;
   return title?.uk || title?.en || title?.de || '';
 }
 
-// Deduplicate contracts by baseId (show one entry per template, not per language variant)
+// Deduplicate contracts by baseId
 const contractBases = new Map<string, any>();
 for (const c of contracts) {
   const base = c.data.baseId || c.data.id;
   if (!contractBases.has(base)) contractBases.set(base, c);
 }
-
-// Split workflows by pillar
-const peopleWorkflows = workflows.filter((w) => w.data.pillar === 'people');
-const clientWorkflows = workflows.filter((w) => w.data.pillar === 'client-engagement');
-const otherWorkflows = workflows.filter((w) => !['people', 'client-engagement'].includes(w.data.pillar));
 ---
 
 <PageLayout title="Drafters" crumbSegments={[]}>
   <h1 class="display">Drafters<span class="display-cursor" aria-hidden="true"></span></h1>
 
-  <div class="about-section">
-    <p class="lead dropcap">
-      Standard contracts and clauses for IT services — ready to use,
-      tested in real engagements, with the reasoning behind every
-      decision written down so you don't have to guess.
-    </p>
-
-    <p>
-      <strong>Grab a contract template</strong> for your next engagement —
-      MSA, Time & Materials, Dedicated Team, Statement of Work, NDA, or
-      DPA. Each template uses the same proven clauses, so your payment
-      terms, IP assignment, and liability caps are consistent across every
-      deal you sign.
-    </p>
-    <p>
-      <strong>Understand why each clause is written the way it is.</strong>
-      Every clause page includes commentary: what it protects you from,
-      where it's been tested, and what to watch for when a client pushes
-      back. No more signing paper you don't fully understand.
-    </p>
-    <p>
-      <strong>Learn from what went wrong (and right) before.</strong>
-      Cases are real scenarios — a client who paid late, an IP dispute
-      over milestone delivery, a non-solicit clause that didn't reach far
-      enough. Each one shows which clauses were involved and how the
-      situation was resolved, so you're prepared before it happens to you.
-    </p>
-  </div>
-
-  <p class="divider">Contract Templates</p>
-  <ul class="content-list">
-    {[...contractBases.values()].map((c) => (
-      <li>
-        <a href={`/contracts/${c.data.baseId || c.data.id}`}>{pickTitle(c.data.title)}</a>
-        <span class="pill">{c.data.lang}</span>
-      </li>
-    ))}
-  </ul>
-
-  {clientWorkflows.length > 0 && (
-    <>
-      <p class="divider">Client Engagement</p>
-      <ul class="content-list">
-        {clientWorkflows.map((w) => (
-          <li>
-            <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
-            <span class="pill pill--accent">{w.data.pillar}</span>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
-
-  {peopleWorkflows.length > 0 && (
-    <>
-      <p class="divider">People / Hiring</p>
-      <ul class="content-list">
-        {peopleWorkflows.map((w) => (
-          <li>
-            <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
-            <span class="pill pill--active">{w.data.pillar}</span>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
-
-  {otherWorkflows.length > 0 && (
-    <>
-      <p class="divider">Other Processes</p>
-      <ul class="content-list">
-        {otherWorkflows.map((w) => (
-          <li>
-            <a href={`/workflows/${w.data.id}`}>{pickTitle(w.data.title)}</a>
-            <span class="pill">{w.data.pillar}</span>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
-
-  {cases.length > 0 && (
-    <>
-      <p class="divider">Cases</p>
-      <ul class="content-list">
-        {cases.map((c: any) => (
-          <li>
-            <a href={`/cases/${c.data.id}`}>{pickTitle(c.data.title)}</a>
-            <span class="pill">{(c.data.workflows ?? []).length} workflows</span>
-          </li>
-        ))}
-      </ul>
-    </>
-  )}
-
-  <p class="divider">Documents</p>
-  <ul class="content-list">
-    {documents.map((d) => (
-      <li>
-        <a href={`/documents/${d.data.id}`}>{pickTitle(d.data.title)}</a>
-        <span class="pill">{d.data.type}</span>
-      </li>
-    ))}
-  </ul>
-
-  <p class="divider">Reusable Clauses</p>
-  <ul class="content-list">
-    {bases.map((b) => (
-      <li>
-        <a href={`/clauses/${b.baseId}`}>{pickTitle(b.preferred.data.title)}</a>
-        <span class="pill">{b.languages.join(' · ')}</span>
-      </li>
-    ))}
-  </ul>
-
-  <p class="divider">Glossary</p>
-  <ul class="content-list">
-    {terms.map((t) => (
-      <li>
-        <a href={`/terms/${t.data.id}`}>{pickTitle(t.data.title)}</a>
-      </li>
-    ))}
-  </ul>
-
-  <p class="divider">Roles</p>
-  <ul class="content-list">
-    {roles.map((r) => (
-      <li>
-        <a href={`/roles/${r.data.id}`}>{pickTitle(r.data.title)}</a>
-      </li>
-    ))}
-  </ul>
-
-  <p class="divider">About</p>
-  <p>
-    Drafters is a contract library for IT services companies. Pick a
-    template, read the commentary on each clause, learn from past
-    negotiations. Everything here is open, searchable, and cross-linked —
-    change one clause and it updates across every contract that uses it.
+  <p class="lead dropcap">
+    Як працює IT-аутсорс з точки зору контрактів.
+    Від першого NDA до щомісячного інвойсу — кожен крок,
+    кожен документ, типові запитання клієнтів і що на них відповідати.
   </p>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ЕТАП 1: NDA                                     -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <section class="stage">
+    <h2 class="stage__title">
+      <span class="stage__number">1</span>
+      NDA — перший документ
+    </h2>
+
+    <p>
+      Підписується <strong>до будь-якого обговорення</strong> деталей проекту.
+      Клієнт ще не знає, чи працюватимемо разом — але вже готовий ділитися
+      вимогами, архітектурою, внутрішніми даними. NDA захищає обидві сторони.
+    </p>
+
+    <p>
+      Наш шаблон — <strong>mutual NDA</strong> (обопільна конфіденційність).
+      Не one-way: якщо ми показуємо клієнту нашу внутрішню архітектуру або
+      rate sheet, це теж захищено.
+    </p>
+
+    <div class="stage__links">
+      <a href="/contracts/nda-general">Шаблон NDA →</a>
+      <a href="/clauses/confidentiality-mutual">Пункт: конфіденційність →</a>
+    </div>
+
+    <div class="stage__issues">
+      <h3>Типові запитання на цьому етапі</h3>
+
+      <details>
+        <summary>«У нас є свій NDA, підпишіть наш»</summary>
+        <p>
+          Це нормально. Порівняйте їхній NDA з нашим шаблоном. Ключове, на що
+          дивитися: чи NDA mutual (обопільний) чи one-way. Якщо one-way — наші
+          дані не захищені. Запросіть зробити mutual або додайте clause про
+          зворотну конфіденційність. Якщо їхній NDA по суті робить те саме —
+          підписуйте їхній, не наполягайте на своєму.
+        </p>
+      </details>
+
+      <details>
+        <summary>«Навіщо mutual? Ми ж вам нічого секретного не покажемо»</summary>
+        <p>
+          На практиці — покажуть. Rate sheets, внутрішні процеси, архітектурні
+          рішення. Mutual NDA — стандарт індустрії. Якщо клієнт наполягає на
+          one-way, це прапорець: можливо, вони звикли до дисбалансу сили в
+          контрактах. Це важливо знати до підписання MSA.
+        </p>
+      </details>
+
+      <details>
+        <summary>«Термін дії 5 років — це замало / забагато»</summary>
+        <p>
+          Наш стандарт — 3 роки. Це ринковий стандарт для IT-послуг. Якщо
+          клієнт хоче 5 або більше — погоджуємося, це не критично. Менше 2 років —
+          занадто мало, конфіденційна інформація зберігає цінність довше.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ЕТАП 2: MSA                                     -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <section class="stage">
+    <h2 class="stage__title">
+      <span class="stage__number">2</span>
+      MSA — основний договір
+    </h2>
+
+    <p>
+      Master Services Agreement — рамковий договір, який визначає <strong>як</strong>
+      ми працюємо. Не що робимо (це буде в SoW або T&M addendum), а правила гри:
+      оплата, IP, відповідальність, розірвання.
+    </p>
+
+    <p>
+      MSA підписується <strong>один раз</strong> і покриває всі майбутні проекти
+      з цим клієнтом. Потім до нього додаються addenda: T&M, Dedicated Team,
+      SoW — залежно від моделі.
+    </p>
+
+    <div class="stage__links">
+      <a href="/contracts/services-agreement-2026">Шаблон MSA →</a>
+      <a href="/clauses/liability-limitation-mutual">Пункт: обмеження відповідальності →</a>
+      <a href="/clauses/termination-at-will">Пункт: розірвання →</a>
+      <a href="/clauses/dispute-resolution-uk">Пункт: вирішення спорів →</a>
+    </div>
+
+    <div class="stage__issues">
+      <h3>Типові запитання на цьому етапі</h3>
+
+      <details>
+        <summary>«Liability cap занадто низький / високий»</summary>
+        <p>
+          Наш стандарт — <strong>12 місяців fees</strong> (обопільно). Це
+          ринковий стандарт для IT-послуг. Якщо клієнт хоче більше — з'ясуйте
+          чому. Зазвичай це вимога їхнього compliance або страхової. Рішення:
+          підняти cap пропорційно до розміру проекту, але тримати mutual
+          (обопільно, не один бік).
+          Дивіться <a href="/cases/liability-cap-negotiation-2025">кейс Helvetic →</a>
+        </p>
+      </details>
+
+      <details>
+        <summary>«Ми хочемо governing law нашої юрисдикції»</summary>
+        <p>
+          Наш стандарт — <strong>England & Wales</strong> (нейтральна юрисдикція
+          для обох сторін). Якщо клієнт — EU-based і наполягає на своїй юрисдикції,
+          це обговорюється. Ключове: не погоджуватися на юрисдикцію, де ми не
+          маємо юридичного представництва. England & Wales зручні, бо
+          англомовні суди і зрозумілий прецедент.
+        </p>
+      </details>
+
+      <details>
+        <summary>«Payment terms 15 днів — замало, нам потрібно 30/45/60»</summary>
+        <p>
+          15 днів — наш стандарт для prepayment моделі. Для post-payment (T&M) —
+          можемо обговорити 21-30 днів. Більше 30 — тільки якщо проект великий
+          і клієнт надійний. Завжди додавайте
+          <a href="/clauses/late-payments-interest">late payment interest (0.5%/день)</a>
+          як страховку. 60+ днів — прапорець. Дивіться
+          <a href="/cases/late-payment-dispute-2024">кейс Aria →</a>
+        </p>
+      </details>
+
+      <details>
+        <summary>«Хто володітиме IP?»</summary>
+        <p>
+          Стандарт: <strong>клієнт володіє всім IP після повної оплати</strong>.
+          Це очікування більшості клієнтів і ми не сперечаємось. Але:
+          IP переходить <em>після оплати</em>, не раніше. Це наш основний
+          leverage якщо клієнт не платить. Дивіться
+          <a href="/cases/milestone-ip-transfer-2025">кейс Horizon IP →</a>
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ЕТАП 3: МОДЕЛЬ ЦІНОУТВОРЕННЯ                    -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <section class="stage">
+    <h2 class="stage__title">
+      <span class="stage__number">3</span>
+      Модель ціноутворення
+    </h2>
+
+    <p>
+      Після MSA потрібно домовитися <strong>як білити</strong>.
+      Три основні моделі — вибір залежить від зрілості scope і
+      бажаного рівня контролю клієнта.
+    </p>
+
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Time & Materials</h3>
+        <p class="pricing-card__when">
+          Scope нечіткий або змінюється. Клієнт хоче гнучкість.
+          Discovery-фаза. Довготривала підтримка.
+        </p>
+        <p>Оплата за <strong>фактичні години</strong>, щомісячний time report.</p>
+        <a href="/contracts/time-and-materials-2026">Шаблон T&M →</a>
+      </div>
+
+      <div class="pricing-card">
+        <h3>Dedicated Team</h3>
+        <p class="pricing-card__when">
+          Стабільний проект 6+ місяців. Клієнту важливі конкретні люди.
+          Потрібен committed headcount.
+        </p>
+        <p>Фіксований <strong>місячний ретейнер</strong> за команду.</p>
+        <a href="/contracts/dedicated-team-2026">Шаблон Dedicated Team →</a>
+      </div>
+
+      <div class="pricing-card">
+        <h3>Fixed Price (SoW)</h3>
+        <p class="pricing-card__when">
+          Scope чітко визначений. Клієнт хоче фіксовану ціну.
+          Milestone-based delivery.
+        </p>
+        <p>Оплата за <strong>deliverables</strong>, не за час.</p>
+        <a href="/contracts/statement-of-work-2026">Шаблон SoW →</a>
+      </div>
+    </div>
+
+    <div class="stage__issues">
+      <h3>Типові запитання на цьому етапі</h3>
+
+      <details>
+        <summary>«Ми хочемо fixed price, але scope ще не визначений»</summary>
+        <p>
+          Це найпоширеніша проблема. Fixed price потребує фіксованого scope.
+          Рішення: почати з T&M на discovery (2-4 тижні), потім перейти на
+          SoW з milestone-based оплатою. Ніколи не давайте fixed price без
+          детального scope — ви візьмете весь ризик перевитрат на себе.
+        </p>
+      </details>
+
+      <details>
+        <summary>«Чому не можна просто дати hourly rate?»</summary>
+        <p>
+          Можна — це і є T&M. Але клієнти часто плутають hourly rate з
+          fixed price. Поясніть: T&M = оплата за час (гнучко, але без
+          гарантії бюджету). Fixed price = оплата за результат (передбачувано,
+          але scope заморожений). Dedicated Team = оплата за людей (стабільно,
+          але клієнт керує пріоритетами сам).
+        </p>
+      </details>
+
+      <details>
+        <summary>«Rate increase 12% — забагато»</summary>
+        <p>
+          12% — це <em>максимум</em> на рік, не автоматичне підвищення.
+          На практиці ми підвищуємо 5-8% і тільки після 12 місяців.
+          Ця цифра в контракті — захист від інфляційних шоків. Якщо клієнт
+          хоче нижче — можемо домовитися на 8-10%, але не менше.
+          Дивіться <a href="/cases/rate-increase-conversation-2025">кейс rate increase →</a>
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ЕТАП 4: DPA                                     -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <section class="stage">
+    <h2 class="stage__title">
+      <span class="stage__number">4</span>
+      DPA — якщо є персональні дані
+    </h2>
+
+    <p>
+      Data Processing Agreement потрібний коли наш код або інфраструктура
+      торкається <strong>персональних даних</strong> кінцевих користувачів
+      клієнта. Вимагається GDPR (стаття 28) для будь-якого EU-based клієнта.
+    </p>
+
+    <p>
+      Підписується <strong>разом із MSA</strong> або як додаток після.
+      Не блокуйте початок роботи через DPA — але переконайтесь, що він
+      підписаний до моменту, коли розробники отримають доступ до production
+      даних.
+    </p>
+
+    <div class="stage__links">
+      <a href="/contracts/data-processing-agreement-2026">Шаблон DPA →</a>
+      <a href="/clauses/data-processing">Пункт: обробка даних →</a>
+      <a href="/clauses/confidentiality-mutual">Пункт: конфіденційність →</a>
+    </div>
+
+    <div class="stage__issues">
+      <h3>Типові запитання на цьому етапі</h3>
+
+      <details>
+        <summary>«Чи потрібен нам DPA? Ми ж не обробляємо PII»</summary>
+        <p>
+          Якщо ваші розробники мають доступ до production — потрібен. Навіть
+          якщо "ми лише дивимося на логи" — логи часто містять IP-адреси,
+          email-адреси, user agents. Це все PII. Простіше підписати DPA
+          завчасно, ніж пояснювати регулятору, чому його не було.
+        </p>
+      </details>
+
+      <details>
+        <summary>«Breach notification 48 годин — нереалістично»</summary>
+        <p>
+          48 годин — це стандарт індустрії (GDPR вимагає 72 години від
+          Controller до регулятора, тому Processor повинен повідомити
+          швидше). 48 годин — це не "повне розслідування за 48 годин",
+          а "перше повідомлення, що щось сталося." Деталі можуть
+          надаватися пізніше.
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ЕТАП 5: SLA                                     -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <section class="stage">
+    <h2 class="stage__title">
+      <span class="stage__number">5</span>
+      SLA — операційний додаток
+    </h2>
+
+    <p>
+      Service Level Agreement — не юридичний документ, а
+      <strong>операційна угода</strong>: години роботи, час реакції
+      за пріоритетом, критерії прийняття, протокол мітингів.
+      Додаток до MSA.
+    </p>
+
+    <p>
+      SLA потрібний не з першого дня — зазвичай підписується після
+      перших 1-2 місяців роботи, коли зрозумілі реальні потреби клієнта.
+    </p>
+
+    <div class="stage__links">
+      <a href="/contracts/sla-template">Шаблон SLA →</a>
+    </div>
+
+    <div class="stage__issues">
+      <h3>Типові запитання на цьому етапі</h3>
+
+      <details>
+        <summary>«Reaction time 3 години — замало для Top Priority»</summary>
+        <p>
+          3 години — це <em>reaction time</em> (ми починаємо дивитися на
+          проблему), не <em>resolution time</em> (ми її вирішили). Це
+          стандарт для critical issues. Якщо клієнт хоче швидше — потрібна
+          окрема on-call угода з додатковою оплатою.
+        </p>
+      </details>
+
+      <details>
+        <summary>«Нам потрібна підтримка 24/7»</summary>
+        <p>
+          Наш стандарт — Mon-Fri 09:00-18:00 CET. 24/7 можливий,
+          але потребує виділеної on-call ротації (мінімум 3 людини)
+          і коштує суттєво більше. Спочатку з'ясуйте, чи дійсно
+          потрібний 24/7, чи достатньо extended hours (08:00-22:00).
+        </p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════ -->
+  <!-- ДОПОМІЖНІ СЕКЦІЇ                                -->
+  <!-- ═══════════════════════════════════════════════ -->
+
+  <section class="stage stage--secondary">
+    <h2>Кейси з практики</h2>
+    <p>
+      Реальні ситуації (анонімізовані), де контракти були перевірені на
+      міцність. Прострочені оплати, суперечки щодо IP, non-solicit
+      питання — кожен кейс посилається на задіяні пункти і контракти.
+    </p>
+    <ul class="content-list">
+      {cases.map((c: any) => (
+        <li>
+          <a href={`/cases/${c.data.id}`}>{pickTitle(c.data.title)}</a>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="stage stage--secondary">
+    <h2>Усі пункти</h2>
+    <p>
+      Кожен пункт — окрема сторінка з текстом (українською та англійською),
+      коментарем чому він написаний саме так, і посиланнями на контракти
+      та кейси де він використовується.
+    </p>
+    <ul class="content-list">
+      {bases.map((b) => (
+        <li>
+          <a href={`/clauses/${b.baseId}`}>{pickTitle(b.preferred.data.title)}</a>
+          <span class="pill">{b.languages.join(' · ')}</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <section class="stage stage--secondary">
+    <h2>Про Drafters</h2>
+    <p>
+      Бібліотека контрактів для ІТ-сервісних компаній. Кожен контракт
+      складається з повторно використовуваних пунктів. Змініть один пункт —
+      він оновиться скрізь. Все — статичні файли, open source, задеплоєно
+      на Vercel.
+    </p>
+  </section>
 </PageLayout>
 
 <style>
-  .about-section {
+  .stage {
     max-width: var(--measure);
+    margin-bottom: 3.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .stage--secondary {
+    border-bottom: none;
     margin-bottom: 2rem;
+    padding-bottom: 1rem;
   }
-  .about-section h2 {
-    margin-top: 2rem;
+  .stage__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.8rem;
   }
-  .about-section p {
-    margin-bottom: 0.8rem;
+  .stage__number {
+    font-family: var(--font-sans);
+    font-size: var(--fs-meta);
+    font-weight: var(--fw-bold);
+    color: var(--lavender-dim);
+    background: var(--lavender-wash);
+    width: 2rem;
+    height: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .stage__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.2rem;
+    margin: 1.2rem 0;
+  }
+  .stage__links a {
+    font-family: var(--font-sans);
+    font-size: var(--fs-small);
+    color: var(--lavender-dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--lavender);
+  }
+  .stage__links a:hover {
+    color: var(--ink);
+    border-bottom-color: var(--ink);
+  }
+  .stage__issues {
+    margin-top: 1.5rem;
+    padding: 1.2rem 1.4rem;
+    background: var(--paper-soft);
+    border-left: 3px solid var(--lavender);
+  }
+  .stage__issues h3 {
+    font-size: var(--fs-small);
+    font-family: var(--font-sans);
+    color: var(--ink-faint);
+    margin: 0 0 0.8rem;
+  }
+  .stage__issues details {
+    margin-bottom: 0.6rem;
+  }
+  .stage__issues summary {
+    font-family: var(--font-serif);
+    font-weight: var(--fw-semibold);
+    font-size: var(--fs-body);
+    cursor: pointer;
+    color: var(--ink);
+    padding: 0.4rem 0;
+  }
+  .stage__issues summary:hover {
+    color: var(--lavender-dim);
+  }
+  .stage__issues details p {
+    margin: 0.4rem 0 0.8rem;
+    padding-left: 1rem;
+    font-size: var(--fs-small);
+    line-height: 1.6;
+    color: var(--ink-muted);
+  }
+  .stage__issues details a {
+    color: var(--lavender-dim);
+  }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+    margin: 1.2rem 0;
+  }
+  .pricing-card {
+    padding: 1.2rem;
+    border: 1px solid var(--rule);
+    background: var(--paper-soft);
+  }
+  .pricing-card h3 {
+    margin: 0 0 0.4rem;
+    font-size: var(--fs-h3);
+  }
+  .pricing-card__when {
+    font-size: var(--fs-small);
+    color: var(--ink-faint);
+    font-style: italic;
+    margin-bottom: 0.6rem;
+  }
+  .pricing-card a {
+    font-family: var(--font-sans);
+    font-size: var(--fs-small);
+    color: var(--lavender-dim);
+    text-decoration: none;
+    border-bottom: 1px solid var(--lavender);
   }
 </style>
