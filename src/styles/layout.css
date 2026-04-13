@@ -29,7 +29,7 @@
   font-family: var(--font-sans);
   font-size: var(--fs-meta);
   font-weight: var(--fw-semibold);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-muted);
   min-width: 0;
@@ -111,7 +111,7 @@
   font-family: var(--font-sans);
   font-size: var(--fs-meta);
   font-weight: var(--fw-semibold);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-faint);
   margin-bottom: 2rem;
@@ -162,7 +162,7 @@
   font-family: var(--font-sans);
   font-size: var(--fs-meta);
   font-weight: var(--fw-regular);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-muted);
   margin: -0.4rem 0 1rem;
@@ -206,7 +206,7 @@
   font-family: var(--font-sans);
   font-size: var(--fs-meta);
   font-weight: var(--fw-bold);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink);
   margin: 0 0 0.4rem;
@@ -217,7 +217,7 @@
   font-size: var(--fs-meta);
   color: var(--ink-faint);
   margin: 0 0 1.2rem;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
 }
 
@@ -275,7 +275,7 @@
   font-family: var(--font-sans);
   font-size: var(--fs-meta);
   font-weight: var(--fw-semibold);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-faint);
   margin-left: 0.8em;
@@ -318,7 +318,7 @@
   font-family: var(--font-sans);
   font-weight: var(--fw-bold);
   font-size: var(--fs-meta);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-faint);
   min-width: 8ch;
@@ -393,7 +393,7 @@
   font-size: var(--fs-meta);
   color: var(--ink-faint);
   margin-bottom: 0.6rem;
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
 }
 

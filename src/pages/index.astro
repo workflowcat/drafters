@@ -40,35 +40,30 @@ const otherWorkflows = workflows.filter((w) => !['people', 'client-engagement'].
 
   <div class="about-section">
     <p class="lead dropcap">
-      A modular contract wiki for IT services companies. Every agreement
-      is assembled from reusable clauses. Every clause links back to the
-      contracts, cases, and workflows that use it. Change a clause once —
-      the update propagates everywhere.
+      Standard contracts and clauses for IT services — ready to use,
+      tested in real engagements, with the reasoning behind every
+      decision written down so you don't have to guess.
     </p>
 
-    <h2>How it works</h2>
     <p>
-      <strong>Clauses</strong> are the building blocks — small, reusable legal fragments
-      (IP assignment, payment terms, termination, liability caps). Each clause
-      exists as its own wiki page with commentary explaining why it's written
-      the way it is.
+      <strong>Grab a contract template</strong> for your next engagement —
+      MSA, Time & Materials, Dedicated Team, Statement of Work, NDA, or
+      DPA. Each template uses the same proven clauses, so your payment
+      terms, IP assignment, and liability caps are consistent across every
+      deal you sign.
     </p>
     <p>
-      <strong>Contracts</strong> are assembled from clauses. An MSA, a T&M agreement, an NDA —
-      each one composes the clauses it needs, in order. The same liability clause
-      that appears in your MSA also appears in your subcontract, with one source
-      of truth.
+      <strong>Understand why each clause is written the way it is.</strong>
+      Every clause page includes commentary: what it protects you from,
+      where it's been tested, and what to watch for when a client pushes
+      back. No more signing paper you don't fully understand.
     </p>
     <p>
-      <strong>Cases</strong> tell the stories of how these contracts were tested in practice.
-      Real scenarios (anonymized) where a payment dispute, an IP assignment, or
-      a non-solicit question forced us to read the paper we wrote. Each case
-      links to the clauses and contracts involved.
-    </p>
-    <p>
-      <strong>Cast</strong> members are the recurring clients and people who appear across
-      cases — each with their own personality, jurisdiction, and negotiating
-      style that shapes how contracts evolve over time.
+      <strong>Learn from what went wrong (and right) before.</strong>
+      Cases are real scenarios — a client who paid late, an IP dispute
+      over milestone delivery, a non-solicit clause that didn't reach far
+      enough. Each one shows which clauses were involved and how the
+      situation was resolved, so you're prepared before it happens to you.
     </p>
   </div>
 
@@ -176,13 +171,12 @@ const otherWorkflows = workflows.filter((w) => !['people', 'client-engagement'].
     ))}
   </ul>
 
-  <p class="divider">About this project</p>
+  <p class="divider">About</p>
   <p>
-    Drafters is a modular, bilingual contract wiki for IT services companies.
-    Every workflow references documents, every document is composed of reusable
-    clauses, and every term has a tooltip. Everything is static files — MDX
-    source, built with Astro, deployed from GitHub to Vercel. Export to Word
-    is available for contracts and clauses.
+    Drafters is a contract library for IT services companies. Pick a
+    template, read the commentary on each clause, learn from past
+    negotiations. Everything here is open, searchable, and cross-linked —
+    change one clause and it updates across every contract that uses it.
   </p>
 </PageLayout>
 

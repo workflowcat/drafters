@@ -32,7 +32,7 @@ const relatedPeople = await Promise.all(
 
 <PageLayout title={title} crumbSegments={['cast', d.id]}>
   <slot slot="header">
-    <p class="header__eyebrow">{d.kind === 'company' ? 'Компанія' : 'Особа'}</p>
+    <p class="header__eyebrow">{d.kind === 'company' ? 'Company' : 'Person'}</p>
     <h1 class="header__title">{title}</h1>
     {d.legalName && d.legalName !== title && (
       <p class="header__subtitle"><em>{d.legalName}</em></p>
@@ -45,13 +45,13 @@ const relatedPeople = await Promise.all(
   <dl class="cast-facts">
     {d.country && (
       <>
-        <dt>Юрисдикція</dt>
+        <dt>Jurisdiction</dt>
         <dd>{d.country}</dd>
       </>
     )}
     {d.law && (
       <>
-        <dt>Право</dt>
+        <dt>Law</dt>
         <dd>{d.law}</dd>
       </>
     )}
@@ -69,7 +69,7 @@ const relatedPeople = await Promise.all(
     )}
     {d.personality && (
       <>
-        <dt>Особистість</dt>
+        <dt>Personality</dt>
         <dd>{d.personality}</dd>
       </>
     )}

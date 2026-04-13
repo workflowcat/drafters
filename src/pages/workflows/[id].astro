@@ -2,7 +2,6 @@
 import { getCollection, getEntry, render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
-import ExportMenu from '~/components/ExportMenu.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
 import RelatedPanel from '~/components/RelatedPanel.astro';
 import PageFooter from '~/components/PageFooter.astro';
@@ -70,7 +69,7 @@ function pickTitle(t: any): string {
     <div class="header__meta">
       <ReadingTime body={entry.body ?? ''} lang={entry.data.primaryLanguage} />
     </div>
-    <ExportMenu workflowId={entry.data.id} />
+    
   </slot>
 
   <Toc slot="margin" headings={headings} />

@@ -2,7 +2,6 @@
 import { render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
-import ExportMenu from '~/components/ExportMenu.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
 import UsageCounter from '~/components/UsageCounter.astro';
 import RelatedPanel from '~/components/RelatedPanel.astro';
@@ -60,7 +59,7 @@ const title =
       <ReadingTime body={entry.body ?? ''} lang={resolveLang as any} />
     </div>
     <LangToggle base={`/clauses/${baseId}`} languages={languages} current={resolveLang} />
-    <ExportMenu clauseId={baseId} />
+    
   </slot>
 
   <Toc slot="margin" headings={headings} />

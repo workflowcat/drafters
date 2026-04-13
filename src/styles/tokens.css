@@ -1,26 +1,21 @@
 /*
  * Drafters — design tokens.
  *
- * Editorial minimal brand system:
- *   paper cream + pure black ink
- *   lavender as primary accent (calm brand color)
- *   peach as hover-only accent (motion color)
+ * Clean, lightweight brand system:
+ *   white background + black ink
+ *   lavender as subtle accent
  *
  * Typography: Fraunces (serif, display + body) / Raleway (sans, chrome).
- *
- * No dark mode yet — the brand system doesn't define one. We pick
- * one palette and hold it.
  */
 
 :root {
-  /* Paper */
-  --paper: #f8f3e1;
-  --paper-soft: #f3ecd2;
-  --paper-deep: #ecdfb6;
+  /* Backgrounds */
+  --paper: #ffffff;
+  --paper-soft: #f7f7f7;
 
   /* Hairlines */
-  --rule: #e2d9bf;
-  --rule-soft: #ece5ce;
+  --rule: #e5e5e5;
+  --rule-soft: #efefef;
 
   /* Ink (pure black per brand, with softer greys for secondary text) */
   --ink: #000000;
@@ -44,15 +39,15 @@
   --font-sans: 'Raleway', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Fluid type scale (min → max via clamp) */
-  --fs-display: clamp(2.6rem, 5vw + 1.5rem, 6.875rem); /* ~42 → 110 */
-  --fs-h1: clamp(2rem, 2.5vw + 1.2rem, 3.75rem); /* ~32 → 60 */
-  --fs-h2: clamp(1.5rem, 1.2vw + 1rem, 2.125rem); /* ~24 → 34 */
-  --fs-h3: clamp(1.25rem, 0.5vw + 1rem, 1.5rem); /* ~20 → 24 */
-  --fs-body: clamp(1.0625rem, 0.3vw + 1rem, 1.1875rem); /* ~17 → 19 */
-  --fs-lead: clamp(1.25rem, 0.8vw + 1rem, 1.5rem); /* ~20 → 24 */
-  --fs-small: clamp(0.875rem, 0.15vw + 0.8rem, 0.9375rem); /* ~14 → 15 */
-  --fs-meta: 0.8125rem; /* 13 */
-  --fs-chrome: 0.875rem; /* 14 */
+  --fs-display: clamp(2.6rem, 5vw + 1.5rem, 6.875rem);
+  --fs-h1: clamp(2rem, 2.5vw + 1.2rem, 3.75rem);
+  --fs-h2: clamp(1.5rem, 1.2vw + 1rem, 2.125rem);
+  --fs-h3: clamp(1.25rem, 0.5vw + 1rem, 1.5rem);
+  --fs-body: clamp(1.0625rem, 0.3vw + 1rem, 1.1875rem);
+  --fs-lead: clamp(1.25rem, 0.8vw + 1rem, 1.5rem);
+  --fs-small: clamp(0.875rem, 0.15vw + 0.8rem, 0.9375rem);
+  --fs-meta: 0.8125rem;
+  --fs-chrome: 0.875rem;
 
   /* Weights */
   --fw-light: 300;
@@ -77,9 +72,9 @@
   --t-base: 180ms ease;
   --t-slow: 240ms cubic-bezier(0.2, 0.6, 0.2, 1);
 
-  /* Letter-spacing for chrome */
-  --tracking-label: 0.08em;
-  --tracking-button: 0.05em;
+  /* Letter-spacing — removed from chrome for lighter feel */
+  --tracking-label: 0;
+  --tracking-button: 0;
 
   /* Borders */
   --border-strong: 1px solid var(--ink);

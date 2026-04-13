@@ -6,11 +6,8 @@ import '~/styles/base.css';
 import '~/styles/layout.css';
 import '~/styles/print.css';
 import { ClientRouter } from 'astro:transitions';
-import ScrollProgress from '~/components/ScrollProgress.astro';
 import MobileNav from '~/components/MobileNav.astro';
 import CommandPalette from '~/components/CommandPalette.astro';
-import ReadingTools from '~/components/ReadingTools.astro';
-import RecentlyViewed from '~/components/RecentlyViewed.astro';
 
 export interface Props {
   title: string;
@@ -19,7 +16,7 @@ export interface Props {
   lang?: 'uk' | 'en';
 }
 
-const { title, description, crumbSegments, lang = 'uk' } = Astro.props;
+const { title, description, crumbSegments, lang = 'en' } = Astro.props;
 const pageTitle = crumbSegments.length === 0 ? 'Drafters' : `${title} · Drafters`;
 
 const crumbs = crumbSegments.map((seg, i) => ({
@@ -33,41 +30,30 @@ const crumbs = crumbSegments.map((seg, i) => ({
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description ?? 'Drafters — робоча вікі для ІТ-сервісних компаній.'} />
+    <meta name="description" content={description ?? 'Drafters — contract library for IT services companies.'} />
     <meta name="color-scheme" content="light" />
     <title>{pageTitle}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <ClientRouter />
   </head>
   <body>
-    <ScrollProgress />
     <MobileNav />
     <CommandPalette />
-    <ReadingTools />
 
     <div class="page">
-      <aside class="page__rail" aria-label="Навігація">
+      <aside class="page__rail" aria-label="Navigation">
         <slot name="rail">
           <div class="page__rail-inner">
-            <button class="page__rail-search" data-open-palette aria-label="Пошук">
-              <span>Пошук</span>
+            <button class="page__rail-search" data-open-palette aria-label="Search">
+              <span>Search</span>
               <kbd>/</kbd>
             </button>
             <nav class="page__rail-nav">
-              <a href="/">Головна</a>
-              <a href="/workflows">Процеси</a>
-              <a href="/documents">Документи</a>
-              <a href="/contracts">Контракти</a>
-              <a href="/clauses">Пункти</a>
-              <a href="/terms">Терміни</a>
-              <a href="/roles">Ролі</a>
-              <a href="/cases">Кейси</a>
-            </nav>
-            <RecentlyViewed />
-            <nav class="page__rail-secondary" aria-label="Ще">
-              <a href="/cast">Персонажі</a>
-              <a href="/changelog">Зміни</a>
-              <a href="/tools">Інструменти →</a>
+              <a href="/">Home</a>
+              <a href="/contracts">Contracts</a>
+              <a href="/clauses">Clauses</a>
+              <a href="/cases">Cases</a>
+              <a href="/cast">Cast</a>
             </nav>
           </div>
         </slot>
@@ -94,146 +80,12 @@ const crumbs = crumbSegments.map((seg, i) => ({
         </article>
       </main>
 
-      <aside class="page__margin" aria-label="Нотатки">
+      <aside class="page__margin" aria-label="Notes">
         <slot name="margin" />
       </aside>
     </div>
 
-    <script>
-      // Tooltip hydration — works on hover AND touch.
-      function setupTooltips() {
-        const links = document.querySelectorAll<HTMLAnchorElement>('.wikilink:not(.wikilink--broken)');
-        let popover: HTMLDivElement | null = document.querySelector('.wikilink-popover');
-        let activeLink: HTMLAnchorElement | null = null;
-        let touchShownLink: HTMLAnchorElement | null = null;
-
-        function ensurePopover() {
-          if (!popover) {
-            popover = document.createElement('div');
-            popover.className = 'wikilink-popover';
-            popover.setAttribute('role', 'tooltip');
-            document.body.appendChild(popover);
-          }
-          return popover;
-        }
-
-        function show(link: HTMLAnchorElement) {
-          const short = link.dataset.wikiShort;
-          const type = link.dataset.wikiType;
-          if (!short && !type) return;
-          const p = ensurePopover();
-          activeLink = link;
-          const parts: string[] = [];
-          if (type) parts.push(`<span class="wp-type">${type}</span>`);
-          if (short) parts.push(`<span class="wp-short">${short}</span>`);
-          p.innerHTML = parts.join('');
-          p.style.display = 'block';
-          requestAnimationFrame(() => {
-            if (p) p.style.opacity = '1';
-          });
-          const rect = link.getBoundingClientRect();
-          const pRect = p.getBoundingClientRect();
-          // Default: below the link
-          let top = rect.bottom + window.scrollY + 10;
-          let left = rect.left + window.scrollX;
-          // Clamp right edge
-          if (left + pRect.width > window.innerWidth - 16) {
-            left = window.innerWidth - pRect.width - 16;
-          }
-          if (left < 8) left = 8;
-          p.style.left = `${left}px`;
-          p.style.top = `${top}px`;
-        }
-
-        function hide() {
-          if (popover) {
-            popover.style.opacity = '0';
-            setTimeout(() => {
-              if (popover && popover.style.opacity === '0') popover.style.display = 'none';
-            }, 180);
-          }
-          activeLink = null;
-        }
-
-        for (const link of links) {
-          link.addEventListener('mouseenter', () => show(link));
-          link.addEventListener('focus', () => show(link));
-          link.addEventListener('mouseleave', hide);
-          link.addEventListener('blur', hide);
-
-          // Touch: first tap = show tooltip, second tap = navigate
-          link.addEventListener('click', (e) => {
-            if (window.matchMedia('(hover: none)').matches) {
-              if (touchShownLink !== link) {
-                e.preventDefault();
-                show(link);
-                touchShownLink = link;
-              } else {
-                touchShownLink = null;
-                hide();
-              }
-            }
-          });
-        }
-
-        // Dismiss touch tooltip on outside tap
-        document.addEventListener('click', (e) => {
-          const target = e.target as HTMLElement;
-          if (touchShownLink && !target.closest('.wikilink') && !target.closest('.wikilink-popover')) {
-            touchShownLink = null;
-            hide();
-          }
-        });
-      }
-
-      setupTooltips();
-      document.addEventListener('astro:page-load', setupTooltips);
-    </script>
     <style is:global>
-      .wikilink-popover {
-        position: absolute;
-        display: none;
-        opacity: 0;
-        max-width: 26rem;
-        padding: 0.9rem 1.1rem;
-        background: var(--paper);
-        border: 1px solid var(--ink);
-        border-radius: 0;
-        font-family: var(--font-serif);
-        font-size: var(--fs-small);
-        line-height: 1.5;
-        color: var(--ink);
-        box-shadow: 6px 6px 0 0 var(--lavender);
-        z-index: 150;
-        pointer-events: none;
-        transition: opacity var(--t-base);
-      }
-      .wikilink-popover::before {
-        content: '';
-        position: absolute;
-        top: -6px;
-        left: 14px;
-        width: 10px;
-        height: 10px;
-        background: var(--paper);
-        border-top: 1px solid var(--ink);
-        border-left: 1px solid var(--ink);
-        transform: rotate(45deg);
-      }
-      .wikilink-popover .wp-type {
-        display: block;
-        font-family: var(--font-sans);
-        font-weight: var(--fw-bold);
-        font-size: var(--fs-meta);
-        color: var(--ink-faint);
-        margin-bottom: 0.4rem;
-        text-transform: uppercase;
-        letter-spacing: var(--tracking-label);
-      }
-      .wikilink-popover .wp-short {
-        font-style: italic;
-        color: var(--ink-muted);
-      }
       .page__rail-inner {
         position: sticky;
         top: 3rem;
@@ -246,8 +98,6 @@ const crumbs = crumbSegments.map((seg, i) => ({
         font-family: var(--font-sans);
         font-size: var(--fs-meta);
         font-weight: var(--fw-bold);
-        text-transform: uppercase;
-        letter-spacing: var(--tracking-label);
         background: transparent;
         color: var(--ink-muted);
         border: 1px solid var(--rule);
@@ -264,22 +114,6 @@ const crumbs = crumbSegments.map((seg, i) => ({
         color: var(--ink);
         border-color: var(--ink);
         background: var(--lavender-wash);
-      }
-      .page__rail-secondary {
-        padding-top: 1rem;
-        border-top: 1px solid var(--rule);
-        gap: 0.55rem !important;
-      }
-      .page__rail-secondary > a {
-        color: var(--ink-faint) !important;
-        font-weight: var(--fw-regular) !important;
-        text-transform: none !important;
-        letter-spacing: normal !important;
-        font-family: var(--font-serif) !important;
-        font-size: var(--fs-small) !important;
-      }
-      .page__rail-secondary > a:hover {
-        color: var(--lavender-dim) !important;
       }
     </style>
   </body>

@@ -21,8 +21,8 @@ const visible = headings.filter((h) => h.depth >= 2 && h.depth <= 3);
 ---
 
 {visible.length > 1 && (
-  <nav class="toc" aria-label="На цій сторінці">
-    <p class="toc__label">На цій сторінці</p>
+  <nav class="toc" aria-label="On this page">
+    <p class="toc__label">On this page</p>
     <ol>
       {visible.map((h) => (
         <li class={`toc__item toc__item--d${h.depth}`}>

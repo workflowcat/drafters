@@ -18,13 +18,13 @@ for (const r of refs) {
 
 const order = ['workflows', 'cases', 'cast', 'documents', 'clauses', 'terms', 'roles'];
 const labels: Record<string, string> = {
-  workflows: 'процеси',
-  cases: 'кейси',
-  cast: 'персонажі',
-  documents: 'документи',
-  clauses: 'пункти',
-  terms: 'терміни',
-  roles: 'ролі',
+  workflows: 'Workflows',
+  cases: 'Cases',
+  cast: 'Cast',
+  documents: 'Documents',
+  clauses: 'Clauses',
+  terms: 'Terms',
+  roles: 'Roles',
 };
 const groups = order
   .filter((k) => grouped.has(k))
@@ -32,8 +32,8 @@ const groups = order
 ---
 
 {refs.length > 0 && (
-  <section class="backlinks" aria-label="Посилання на цю сторінку">
-    <p class="divider">Посилання на цю сторінку</p>
+  <section class="backlinks" aria-label="Referenced from">
+    <p class="divider">Referenced from</p>
     {groups.map((g) => (
       <div class="backlinks__group">
         <span class="backlinks__group-label">{labels[g.key] ?? g.key}</span>

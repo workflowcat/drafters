@@ -154,7 +154,7 @@ th, td {
 th {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   font-size: var(--fs-meta);
   color: var(--ink);
@@ -248,7 +248,7 @@ a:visited:hover {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-meta);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-muted);
   white-space: nowrap;
@@ -276,7 +276,7 @@ a:visited:hover {
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-meta);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-faint);
   margin: 3.5rem 0 1.2rem;
@@ -411,7 +411,7 @@ h4:hover .heading-anchor,
   font-family: var(--font-sans);
   font-weight: var(--fw-bold);
   font-size: var(--fs-meta);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   color: var(--ink-faint);
   margin-right: 0.2rem;
@@ -421,7 +421,7 @@ h4:hover .heading-anchor,
   font-family: var(--font-sans);
   font-weight: var(--fw-semibold);
   font-size: var(--fs-meta);
-  text-transform: uppercase;
+  text-transform: none;
   letter-spacing: var(--tracking-label);
   background: transparent;
   color: var(--ink-muted);
