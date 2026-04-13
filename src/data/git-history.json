@@ -1,5 +1,18 @@
 [
   {
+    "hash": "0c50ab6696b2bb4d926d32e1f555064c0c12ced4",
+    "shortHash": "0c50ab6",
+    "date": "2026-04-13",
+    "author": "workflowcat",
+    "subject": "feat: add negotiation briefs + clause interaction notes to MSA",
+    "body": "Embeds practical negotiation guidance directly into the MSA contract\ntemplate (both EN and UK variants). Three types of annotations:\n\n1. **Negotiation brief** at the top — which 3 of 9 sections get\n   negotiated in every deal, key trade-offs to know before reading.\n\n2. **Interaction notes** between clauses — how IP depends on payment,\n   how payment-dispute and late-interest form a two-layer system,\n   how termination/IP/payment form a sequential chain.\n\n3. **Negotiation notes** per clause — what clients typically redline,\n   what to concede vs hold, common trade-off patterns.\n\nResearch-backed (Norton Rose Fulbright, DLA Piper, IAOP patterns):\n- Liability cap is the most contested clause (\"always last to close\")\n- IP ownership and payment terms are the other two hot spots\n- Key trade-offs: carve-outs ↔ cap multiple, IP assignment ↔ retained\n  license, payment cycle ↔ late payment interest\n- Must-hold: mutual liability, 12-month floor, indemnities inside cap\n- Tradeable: payment cycle, non-compete scope, dispute forum\n\nAnnotations use blockquote styling (>) with emoji markers:\n🔍 = negotiation note, 🔗 = clause interaction, ⚠️ = critical item\n\nLint: 96 entries, 0 warnings, 0 errors. Build: 81 pages.\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>",
+    "files": [
+      "src/content/contracts/services-agreement-2026.en.mdx",
+      "src/content/contracts/services-agreement-2026.uk.mdx",
+      "src/data/git-history.json"
+    ]
+  },
+  {
     "hash": "4bf279b7e498db06815afe8ae5eae2c32959d399",
     "shortHash": "4bf279b",
     "date": "2026-04-13",

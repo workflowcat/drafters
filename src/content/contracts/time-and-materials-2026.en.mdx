@@ -14,6 +14,16 @@ tags: [contract, t-and-m, client, "2026", signable]
 
 # Time & Materials Agreement
 
+> **Брифінг перед переговорами.** T&M — найгнучкіша модель, але саме
+> ця гнучкість створює точки тертя. Три секції обговорюються в кожній
+> угоді: **Rate increase cap** (§1 — клієнти хочуть заморозити ставки
+> або обмежити зростання до 5%), **Liability cap** (§6 — завжди
+> закривається останнім), та **Overtime rate** (§1 — клієнти тиснуть
+> на 125% замість 150%). На відміну від fixed-price, change control тут
+> не болюча тема — scope flexibility вже вбудована в модель. Головний
+> ризик: клієнт оспорює reported hours. Тому time tracking transparency
+> у §1 — це не формальність, а фундамент довіри.
+
 **Start date:** \_\_\_\_\_\_\_\_\_\_\_
 
 **Contractor:** **Acme Services GmbH**, a company incorporated
@@ -43,6 +53,34 @@ to the terms below.
 | **Overtime** | Work beyond 40 hours/week per team member requires prior written approval. Overtime rate = **150%** of the standard hourly rate. |
 | **Rate increase** | No more than once every 12 months. Not more than **12%** annually, with **60 days** prior written notice. |
 
+> **💼 Бізнес.** T&M дає передбачуваний cash flow — щомісячний білінг
+> за фактичні години. 15 днів на оплату — агресивно, але прийнятно для
+> більшості клієнтів. Якщо просять 30 — погоджуйтесь для великих угод
+> (50k+/міс). 45+ днів — червоний прапорець: їхній AP department диктує
+> умови, а не люди з якими працюєте.
+>
+> **🎯 Переговори.** Rate increase cap — найгарячіший пункт T&M переговорів.
+> Клієнти тиснуть на rate lock (0%) або cap 5%. Наша позиція: 12% —
+> це максимум, не автоматика. На практиці підвищуємо 5-8%. Якщо клієнт
+> тисне нижче 10% — погоджуйтесь на 8-10%, нижче 8% не варто, бо
+> інфляція з'їсть margin. 60 днів notice — дає клієнту час на бюджетування.
+> Trade-off: якщо клієнт хоче cap 5% — вимагайте довший term (24 міс).
+>
+> **⚖️ Юридичний.** Overtime 150% — стандарт ринку. Деякі клієнти
+> вимагають 125% або взагалі без premium. Юридично допустимо, але знижує
+> мотивацію команди працювати позаурочно. Prior written approval на
+> overtime захищає обидві сторони від disputed hours.
+>
+> **🔧 Delivery.** Time tracking — фундамент T&M відносин. Detailed time
+> reports з описом робіт запобігають спорам. Переконайтесь, що команда
+> логує години щоденно, а не постфактум у кінці місяця. Клієнти, які
+> сумніваються в reported hours — найчастіша причина конфліктів у T&M.
+>
+> **🔗 Взаємодія.** Key Terms задають параметри для всього контракту:
+> rate increase cap впливає на довгостроковість угоди, overtime rate —
+> на flexibility у delivery, а payment terms — на cash flow і leverage
+> при disputes (§3).
+
 ## 2. Scope of Services
 
 The Contractor shall provide the Services as described in Attachment A
@@ -54,33 +92,157 @@ to providing qualified personnel and reasonable diligence, but does
 not guarantee specific outcomes or deliverables unless separately
 agreed in a Statement of Work.
 
+> **💼 Бізнес.** Effort basis — ключова відмінність T&M від fixed-price.
+> Ми продаємо час кваліфікованих людей, а не результат. Це знижує наш
+> ризик, але клієнти іноді намагаються вписати deliverable commitments
+> у SoW. Слідкуйте, щоб SoW не перетворив T&M на замаскований fixed-price.
+>
+> **🎯 Переговори.** Клієнти часто хочуть «T&M з гарантією результату».
+> Пояснюйте: effort basis означає, що ми гарантуємо кваліфікацію і
+> diligence, а не конкретні deliverables. Якщо клієнту потрібні гарантії
+> результату — пропонуйте окремий fixed-price SoW на конкретний scope.
+>
+> **🔧 Delivery.** Designated point of contact з боку клієнта — критично.
+> Без чіткого PoC команда отримує суперечливі вказівки від різних
+> stakeholders, що веде до перевитрати годин і disputed invoices.
+
 ## 3. Payments
 
 <Clause baseId="expense-reimbursement" lang="en" />
 
+> **💼 Бізнес.** Поріг €500 на витрати без попереднього погодження —
+> зазвичай приймається клієнтами без дискусій. Деякі enterprise-клієнти
+> хочуть знизити до €200-300. Не варто воювати за цю суму — погоджуйтесь,
+> якщо це розблоковує підписання.
+>
+> **🎯 Переговори.** Якщо клієнт тисне на зниження порогу — trade-off:
+> погоджуйтесь на €250, але вимагайте спрощену процедуру погодження
+> (email замість formal approval process).
+
 <Clause baseId="payment-dispute-client" lang="en" />
 
+> **⚖️ Юридичний.** Payment dispute у T&M — частіше ніж у fixed-price,
+> бо клієнт може оспорити конкретні години. Процес «оспорюй → плати
+> неоспорену частину → 5 днів на вирішення» захищає від тактики
+> «заморожую весь інвойс через 2 години QA».
+>
+> **🔧 Delivery.** Найкращий захист від payment disputes — granular time
+> reports. Якщо клієнт бачить «8 годин — розробка», він оспорить. Якщо
+> бачить «3h — API integration, 2h — bug fix JIRA-1234, 3h — code review
+> PR#89» — запитань набагато менше. Інвестуйте у якість time tracking.
+
 <Clause baseId="late-payments-interest" lang="en" />
+
+> **🔗 Взаємодія.** Payment dispute → late interest — дворівнева система.
+> Спочатку справедливий процес (dispute), потім фінансовий тиск (interest).
+> У T&M ця зв'язка критичніша, ніж у fixed-price: клієнт може
+> «оспорювати» кожен інвойс, щоб відтягнути оплату. Interest clause
+> робить цю тактику дорогою.
+>
+> **🔧 Delivery.** На практиці late interest використовується рідко.
+> Головна цінність — психологічна: фінансові відділи клієнтів бачать
+> 0.5%/день і пересувають наш інвойс вгору черги. Не погрожуйте interest
+> на дрібних затримках (5-10 днів) — це псує стосунки.
 
 ## 4. Deliverables and Intellectual Property
 
 <Clause baseId="client-ip-assignment" lang="en" />
 
+> **🔗 Взаємодія: IP ↔ Оплата.** IP переходить до Клієнта **тільки
+> після повної оплати**. У T&M це особливо важливо: якщо клієнт
+> затримує оплату за 3 місяці, він не має прав на код написаний за цей
+> період. Це найсильніший leverage для вчасної оплати.
+>
+> **🎯 Переговори.** Типовий redline клієнта: «IP має переходити при
+> створенні, незалежно від оплати.» Наша відповідь: «Оплата — це trigger
+> для передачі прав. Це стандарт індустрії і захищає обидві сторони.»
+> Якщо клієнт наполягає — пропонуйте escrow або milestone-based transfer.
+>
+> **⚖️ Юридичний.** «Після повної оплати» означає саме це — не часткової,
+> не scheduled payment. Весь борг по інвойсах має бути закритий. У T&M
+> це створює rolling IP transfer: кожен оплачений місяць = передача прав
+> на роботу того місяця.
+>
+> **🔧 Delivery.** Переконайтесь, що команда не використовує GPL/AGPL
+> бібліотеки без погодження з клієнтом. IP assignment не працює, якщо
+> deliverables містять copyleft dependencies.
+
 ## 5. Term and Termination
 
 <Clause baseId="termination-at-will" lang="en" />
+
+> **💼 Бізнес.** 30 днів notice — мінімум для реалокації команди на
+> інші проекти. У T&M termination менш болючий ніж у fixed-price (немає
+> незавершених milestones), але втрата стабільного щомісячного revenue
+> потребує часу на заміщення. Для великих команд (5+ людей) тисніть
+> на 45-60 днів notice.
+>
+> **🎯 Переговори.** Redline клієнта: «14 днів notice з першого дня.»
+> Наша відповідь: «30 днів — це захист вашої ж команди. При 14 днях
+> ми не зможемо забезпечити якісний knowledge transfer.» Trade-off:
+> погоджуйтесь на 14 днів notice після 12+ місяців співпраці, коли
+> відносини стабільні і re-staffing простіший.
+>
+> **🔧 Delivery.** При отриманні notice негайно починайте documentation
+> sprint і knowledge transfer. 30 днів — це мало для повної передачі
+> складного проекту. Тримайте документацію актуальною протягом усього
+> engagement, а не тільки при termination.
 
 ## 6. Limitation of Liability and Indemnification
 
 <Clause baseId="liability-limitation-mutual" lang="en" />
 
+> **⚖️ Юридичний.** Liability cap — найбільш обговорюваний пункт у
+> будь-якому контракті. У T&M специфіка: cap прив'язаний до fees paid
+> за останні 12 місяців. При великих engagement (100k+/міс) клієнти
+> вимагатимуть вищий cap або specific carve-outs для data breaches.
+>
+> **💼 Бізнес.** Liability — це де deals помирають. Не тому що сума
+> нерозумна, а тому що юристи з обох сторін змагаються. Тримайте цей
+> пункт на кінець переговорів — він вирішується легше, коли все інше
+> вже погоджено і обидві сторони invested у закриття угоди.
+>
+> **🎯 Переговори.** Trade-off: якщо приймаєте ширші carve-outs (IP
+> infringement, data breach) — вимагайте вищий cap або відповідні
+> carve-outs з боку клієнта. Симетрія — ваш головний аргумент:
+> «Mutual liability означає mutual cap. Якщо ви хочете unlimited
+> liability від нас — ми хочемо те саме від вас.»
+
 ## 7. Effect of Termination
 
 <Clause baseId="effect-of-termination" lang="en" />
 
+> **🔗 Взаємодія: Termination ↔ IP ↔ Payment.** При розірванні T&M
+> три речі відбуваються одночасно: (1) оплата за фактично відпрацьовані
+> години до дати termination, (2) передача IP за оплачену роботу,
+> (3) knowledge transfer. Якщо клієнт не заплатив — IP не переходить,
+> і це наш головний leverage при messy terminations.
+>
+> **🔧 Delivery.** Effect of termination визначає, наскільки «чисто»
+> закінчується engagement. На практиці: підготуйте handover package
+> (доступи, документація, незавершені задачі) заздалегідь. У T&M
+> немає «фінальних deliverables» як у fixed-price, тому handover
+> process має бути описаний детальніше.
+
 ## 8. Dispute Resolution
 
 <Clause baseId="dispute-resolution-uk" lang="en" />
+
+> **⚖️ Юридичний.** England & Wales — нейтральний forum для
+> EU-контрактора і міжнародного клієнта. Selling point: «London Commercial
+> Court — один з найшвидших і найпередбачуваніших у світі.» Якщо клієнт
+> наполягає на своїй юрисдикції — це negotiation leverage, не dealbreaker.
+>
+> **💼 Бізнес.** На практиці dispute resolution clause використовується
+> раз на 50+ контрактів. Але коли він потрібен — він критичний. Вартість
+> litigation в UK висока для обох сторін, що створює стимул вирішувати
+> спори мирним шляхом. У T&M disputes зазвичай про неоплачені інвойси,
+> а не про якість роботи.
+>
+> **🎯 Переговори.** Якщо клієнт хоче свою юрисдикцію — trade-off:
+> погоджуйтесь на юрисдикцію клієнта, але вимагайте mandatory mediation
+> перед судом. Mediation дешевша і швидша, і зазвичай вирішує T&M
+> спори без суду.
 
 ## 9. Signatures
 
