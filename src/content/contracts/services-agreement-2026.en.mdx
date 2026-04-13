@@ -8,11 +8,26 @@ title:
   en: Services Agreement — Acme Services GmbH
 contractor: acme-services
 counterparty: customer
-updated: '2026-04-10'
+updated: '2026-04-13'
 tags: [contract, msa, client, "2026", signable]
 ---
 
 # Services Agreement
+
+> **Negotiation brief.** This contract has 9 sections. Three get negotiated
+> in almost every deal: **Liability cap** (§7 — always last to close),
+> **IP ownership** (§4 — clients want full assignment, we want retained
+> license for reusable tools), and **Payment terms** (§1 — cycle length
+> and rate increase cap). The rest — dispute resolution, non-solicitation,
+> termination — are usually accepted with minor edits.
+>
+> **Key trade-offs:**
+> - If you give on liability carve-outs (uncapped for data breach) → hold
+>   on the overall cap multiple (12 months minimum)
+> - If you give on full IP assignment → hold on retained license for
+>   generic components and background IP
+> - If you give on payment cycle (15 → 30 days) → hold on late payment
+>   interest (0.5%/day) as your safety net
 
 **Start date:** \_\_\_\_\_\_\_\_\_\_\_
 
@@ -20,7 +35,7 @@ tags: [contract, msa, client, "2026", signable]
 under the laws of the Federal Republic of Germany, Registry code
 **HRB123456X**, VAT ID **DE999888777**, with its registered address
 at Musterstraße 1, Berlin, 10115, Germany, represented by its
-Director Jana Weber (hereinafter the "**Contractor**").
+Director [Director Name] (hereinafter the "**Contractor**").
 
 **Customer:** \_\_\_\_\_\_\_\_\_\_\_ (hereinafter the "**Customer**").
 
@@ -37,11 +52,24 @@ Director Jana Weber (hereinafter the "**Contractor**").
 | **Overtime** | Overtime = **2× Rate**. Only with Customer's written approval. |
 | **Rate increase** | No more than once every 12 months. Not more than **12%** annually. |
 
+> **🔍 Negotiation note — Payment terms.** 15 days is our standard for
+> prepayment. Clients often request 30 or 45. Up to 30 is acceptable
+> if combined with [[Late Payments Interest|late payment interest]].
+> Beyond 30 — only for large, reliable clients.
+> The 12% rate increase cap is a maximum, not automatic — in practice
+> we increase 5-8%. If client pushes below 10%, accept 8-10% but no lower.
+
 ## 2. Payments
 
 <Clause baseId="payment-dispute-client" lang="en" />
 
 <Clause baseId="late-payments-interest" lang="en" />
+
+> **🔗 How these two clauses interact.** Payment dispute is the process
+> (client disputes → pays undisputed portion → 5 days to resolve).
+> Late payment interest is the consequence (0.5%/day after due date).
+> Together they create a two-layer system: fair process first,
+> financial pressure second. Don't remove one without the other.
 
 ## 3. Non-solicitation
 
@@ -54,9 +82,30 @@ If any employee or subcontractor of the Contractor independently
 approaches the Customer about employment, the Customer shall
 immediately suspend such a request and notify the Contractor.
 
+> **🔍 Negotiation note.** Clients rarely push back on non-solicitation.
+> When they do, it's usually about the 1-year period (ask for 6 months)
+> or about "independent approach" (they want to hire people who come
+> to them unsolicited). The "suspend and notify" language is our
+> compromise — we don't block the hire, we just want to know.
+
 ## 4. Deliverables and Intellectual Property
 
 <Clause baseId="client-ip-assignment" lang="en" />
+
+> **🔗 Critical interaction: IP ↔ Payment.** IP transfers to the
+> Customer **only after full payment**. This is the Contractor's primary
+> leverage in payment disputes. If you negotiate IP terms separately
+> from payment terms, you lose this leverage. Always keep them linked.
+>
+> **🔍 Common client redline:** "We want IP to transfer on creation,
+> not on payment." Response: "Work product created before payment
+> carries our risk. Assignment on payment is the industry standard
+> and protects both sides — you get clean title, we get paid."
+>
+> **Trade-off:** If client insists on full foreground IP assignment
+> (which is our default), make sure background IP and generic
+> tools/frameworks are explicitly excluded. We need to reuse our
+> internal libraries across clients.
 
 ## 5. Publicity
 
@@ -68,17 +117,73 @@ purposes only, and only with the Customer's prior written consent.
 
 <Clause baseId="termination-at-will" lang="en" />
 
+> **🔍 Negotiation note.** 30 days is reasonable for most engagements.
+> For large deals (5+ developers), push for 60-90 days or add a
+> wind-down fee (1 month of the last invoice). The shortened 14-day
+> second notice reflects that once you've decided to part, dragging
+> it out helps nobody.
+>
+> **Client redline:** "We want 14 days from day one." Response:
+> "14 days doesn't give us time to redeploy the team. 30 days is the
+> industry standard and protects your knowledge transfer too."
+
 ## 7. Limitation of Liability and Indemnification
 
 <Clause baseId="liability-limitation-mutual" lang="en" />
+
+> **⚠️ This is the most negotiated clause in the contract.**
+>
+> **Our position:** Mutual cap at 12 months of fees. Both sides
+> limited equally.
+>
+> **What clients want:** Uncapped carve-outs for data breaches,
+> IP infringement, willful misconduct, and confidentiality breaches.
+> Some clients want unlimited liability on the vendor side only.
+>
+> **What to concede:**
+> - Carve-outs for willful misconduct and fraud — these are
+>   reasonable and standard.
+> - GDPR fines exclusion — regulatory fines bypass liability caps
+>   by law anyway, so agreeing to exclude them costs nothing.
+>
+> **What to hold:**
+> - The mutual nature — if liability is uncapped for us, it should
+>   be uncapped for them too.
+> - The 12-month floor — below that, a single incident can wipe
+>   out all project revenue.
+> - Indemnities should sit INSIDE the cap, not outside it.
+>   If indemnities are outside the cap, the cap is meaningless.
+>
+> **Trade-off:** If you accept broader carve-outs, negotiate a
+> higher cap multiple (18 or 24 months instead of 12).
 
 ## 8. Effect of Termination
 
 <Clause baseId="effect-of-termination" lang="en" />
 
+> **🔗 Interaction: Termination ↔ IP ↔ Payment.** This clause
+> connects termination (§6), IP (§4), and payment (§2). On
+> termination: (1) client pays for work done, (2) we deliver
+> work-in-progress, (3) IP for paid work transfers. The three
+> obligations are sequential — no delivery without payment,
+> no IP transfer without delivery. Don't let anyone rearrange
+> this sequence.
+
 ## 9. Dispute Resolution
 
 <Clause baseId="dispute-resolution-uk" lang="en" />
+
+> **🔍 Negotiation note.** England & Wales is a neutral forum —
+> neither our home jurisdiction nor theirs. This is actually a
+> selling point: we're not trying to force our courts on the client.
+> The 60-day negotiation period before litigation is standard and
+> saves both sides legal fees. Clients rarely push back here.
+>
+> **If client insists on their jurisdiction:** Accept if it's a
+> major EU jurisdiction with English-language commercial courts
+> (Netherlands, Ireland). Push back on jurisdictions where we have
+> no representation or where proceedings are in a language we don't
+> speak.
 
 ## 10. Signatures
 
@@ -89,7 +194,7 @@ purposes only, and only with the Customer's prior written consent.
 | Address: Musterstraße 1, Berlin, 10115, Germany | Address: \_\_\_\_\_\_\_\_\_\_\_ |
 |  |  |
 | **Signature:** \_\_\_\_\_\_\_\_\_\_\_ | **Signature:** \_\_\_\_\_\_\_\_\_\_\_ |
-| **Jana Weber, Director** | \_\_\_\_\_\_\_\_\_\_\_ |
+| **[Director Name], Director** | \_\_\_\_\_\_\_\_\_\_\_ |
 
 ---
 

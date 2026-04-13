@@ -1,5 +1,24 @@
 [
   {
+    "hash": "4bf279b7e498db06815afe8ae5eae2c32959d399",
+    "shortHash": "4bf279b",
+    "date": "2026-04-13",
+    "author": "workflowcat",
+    "subject": "feat: rewrite home as Ukrainian engagement lifecycle guide",
+    "body": "Complete rewrite of the home page from a contract catalog to a\nstep-by-step engagement playbook:\n\n  1. NDA — перший документ\n  2. MSA — основний договір\n  3. Модель ціноутворення (T&M / Dedicated Team / SoW)\n  4. DPA — якщо є персональні дані\n  5. SLA — операційний додаток\n\nEach stage includes:\n- Ukrainian explanation of what the document is and when to sign it\n- Links to the template and key clauses\n- \"Типові запитання\" (common pushback) with expandable Q&A:\n  what clients ask and what to say back, with links to relevant\n  cases that show the clause in action\n\nAlso reverts all chrome to Ukrainian (nav, search, breadcrumbs,\nbacklinks, cast labels, mobile nav, command palette) — the audience\nis Ukrainian account managers and sales people.\n\nThe pricing stage uses a 3-card grid comparing T&M / Dedicated Team /\nFixed Price (SoW) with \"when to use\" guidance for each model.\n\nCases and clauses remain as reference sections at the bottom,\nbut the primary reading experience is the lifecycle guide.\n\nLint: 96 entries, 0 warnings, 0 errors. Build: 81 pages.\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>",
+    "files": [
+      "src/components/BacklinksSection.astro",
+      "src/components/CommandPalette.astro",
+      "src/components/MobileNav.astro",
+      "src/components/Toc.astro",
+      "src/data/git-history.json",
+      "src/layouts/PageLayout.astro",
+      "src/pages/cases/[id].astro",
+      "src/pages/cast/[id].astro",
+      "src/pages/index.astro"
+    ]
+  },
+  {
     "hash": "d17abb01190a9ab8770f7a74fb0ef995c693cfde",
     "shortHash": "d17abb0",
     "date": "2026-04-13",
