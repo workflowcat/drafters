@@ -1,0 +1,53 @@
+---
+id: data-processing-agreement-2026
+title:
+  uk: Договір про обробку даних (2026)
+  en: Data Processing Agreement (2026)
+type: contract
+languages: [en]
+status: active
+composedOf:
+  - data-processing
+  - confidentiality-mutual
+  - liability-limitation-mutual
+  - dispute-resolution-uk
+workflows:
+  - client-onboarding
+aliases: [DPA, GDPR DPA, Data Processing Agreement, Data Protection Agreement]
+tags: [dpa, gdpr, privacy, client, legal, compliance]
+updated: '2026-04-13'
+---
+
+**Data Processing Agreement (DPA)** — додаток до [[documents/services-agreement-2026|MSA]], необхідний коли ми обробляємо персональні дані від імені клієнта. Вимагається GDPR (стаття 28) для будь-якого engagement, де наш код або інфраструктура торкається особистих даних кінцевих користувачів клієнта.
+
+## Коли DPA обов'язковий
+
+- Клієнт — EU-based компанія (або обробляє дані EU residents)
+- Наш код має доступ до PII: імена, email, IP адреси, usage data
+- Ми використовуємо cloud services (AWS, GCP) для зберігання клієнтських даних
+- Клієнт проходить compliance audit або certification
+
+## Коли DPA НЕ потрібен
+
+- Ми розробляємо on-premise і не маємо доступу до production даних
+- Проект не включає personal data (pure infrastructure, internal tooling)
+- Клієнт — не EU-based і не обробляє EU residents' data (рідкісний випадок)
+
+## Склад документа
+
+DPA спирається на 4 пункти:
+
+- [[Data Processing]] — НОВА clause: ролі Controller/Processor, sub-processors, breach notification (48 годин), audit rights, data return/deletion
+- [[clauses/confidentiality-mutual|Confidentiality Mutual]] — ширша NDA-level obligation
+- [[Liability Limitation Mutual]] — стандартне обмеження (з caveat: GDPR fines excluded)
+- [[Dispute Resolution UK]] — England & Wales
+
+Також містить 3 обов'язкових annex:
+
+- **Annex A — Details of Processing** — категорії даних, data subjects, операції
+- **Annex B — Approved Sub-processors** — список cloud/SaaS providers з локацією
+- **Annex C — Technical and Organizational Measures** — encryption, access control, backups, incident response
+
+## Зв'язок з іншими документами
+
+DPA підписується разом з [[documents/services-agreement-2026|MSA]] і діє весь час дії основного договору. Також може застосовуватися до [[documents/time-and-materials-2026|T&M]], [[documents/dedicated-team-2026|Dedicated Team]] та [[documents/statement-of-work-2026|SoW]] — фактично, до будь-якого engagement де є personal data.

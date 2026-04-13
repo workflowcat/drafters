@@ -147,7 +147,7 @@ for (const e of entries) {
 // has the essential "protection quartet". NDAs and SLAs are subordinate
 // documents and have their own protection patterns, so skip them.
 const ESSENTIAL = ['dispute-resolution-uk', 'liability-limitation-mutual', 'effect-of-termination'];
-const SKIP_IDS = new Set(['nda-general', 'sla-template-sloboda']);
+const SKIP_IDS = new Set(['nda-general', 'sla-template', 'data-processing-agreement-2026', 'statement-of-work-2026']);
 for (const e of entries) {
   if (e.collection !== 'documents') continue;
   if (e.fm.type !== 'contract') continue;

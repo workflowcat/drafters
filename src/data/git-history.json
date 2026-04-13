@@ -1,5 +1,16 @@
 [
   {
+    "hash": "56ba8f11557996d83f9229c18e5e421d755c8675",
+    "shortHash": "56ba8f1",
+    "date": "2026-04-10",
+    "author": "workflowcat",
+    "subject": "chore: refresh git-history snapshot to include the fix commit",
+    "body": "First run of the new precompute script after committing the fix —\nregenerates so the deployed changelog shows its own fix.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>",
+    "files": [
+      "src/data/git-history.json"
+    ]
+  },
+  {
     "hash": "dc424b47056918c38bfedfae8cb80990c4e5c695",
     "shortHash": "dc424b4",
     "date": "2026-04-10",
