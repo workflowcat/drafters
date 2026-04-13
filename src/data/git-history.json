@@ -1,5 +1,21 @@
 [
   {
+    "hash": "a3ac23febdc488c73a6cd24fdfcf54a6f085ed97",
+    "shortHash": "a3ac23f",
+    "date": "2026-04-13",
+    "author": "workflowcat",
+    "subject": "feat: multi-perspective negotiation annotations on all 5 contracts",
+    "body": "Adds practical negotiation guidance to every contract template, written\nfrom four organizational perspectives:\n\n  ⚖️ Юридичний — legal risk, regulatory context, clause mechanics\n  💼 Бізнес — revenue impact, deal velocity, cash flow dynamics\n  🎯 Переговори — what to say to the client, trade-off positioning\n  🔧 Delivery — practical workability, how it affects the team\n  🔗 Взаємодія — how clauses depend on and connect to each other\n\nEach contract has a negotiation brief at the top identifying the 2-3\nhottest clauses and key trade-offs, plus role-specific annotations\nbetween every major section.\n\nContracts annotated:\n- MSA (UK variant refactored with 4-perspective pattern)\n- T&M (rate increase, budget caps, time tracking, overtime)\n- Dedicated Team (replacement SLA, ramp-down, vacancy cost, bench)\n- SoW (scope definition, change orders, holdback, acceptance)\n- DPA (sub-processors, audit rights, breach notification, deletion)\n\nAll annotations in Ukrainian. Research-backed negotiation dynamics from\nNorton Rose Fulbright, DLA Piper, IAOP patterns.\n\nLint: 96 entries, 0 warnings, 0 errors. Build: 81 pages, 11K words.\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>",
+    "files": [
+      "src/content/contracts/data-processing-agreement-2026.en.mdx",
+      "src/content/contracts/dedicated-team-2026.en.mdx",
+      "src/content/contracts/services-agreement-2026.uk.mdx",
+      "src/content/contracts/statement-of-work-2026.en.mdx",
+      "src/content/contracts/time-and-materials-2026.en.mdx",
+      "src/data/git-history.json"
+    ]
+  },
+  {
     "hash": "0c50ab6696b2bb4d926d32e1f555064c0c12ced4",
     "shortHash": "0c50ab6",
     "date": "2026-04-13",

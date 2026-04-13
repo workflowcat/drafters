@@ -7,6 +7,7 @@ import BacklinksSection from '~/components/BacklinksSection.astro';
 import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
 import Clause from '~/components/Clause.astro';
+import Voice from '~/components/Voice.astro';
 import { pickTitle } from '~/lib/collection-helpers';
 
 const safeGet = async (name: any) => {
@@ -80,33 +81,13 @@ const languages = variants.map((v: any) => v.data.lang);
     <LangToggle base={`/contracts/${baseId}`} languages={languages} current={currentLang} />
     <div class="header__actions">
       <span class="pill">повний контракт · готовий до підпису</span>
-      <button class="btn btn--primary" type="button" data-preview-open>
-        Попередній перегляд →
-      </button>
-      <a
-        class="btn btn--ghost"
-        href={`/exports/contracts/${baseId}/contract.${currentLang}.docx`}
-        download
-        data-export-trigger
-      >
-        .docx ({currentLang})
-      </a>
-      <a class="btn btn--ghost" href={`/exports/contracts/${baseId}/contract.${currentLang}.md`} download>
-        .md
-      </a>
-      <a class="btn btn--ghost" href={`/exports/contracts/${baseId}/contract.zip`} download>
-        .zip (всі мови)
-      </a>
-      <a class="btn btn--ghost" href={`/documents/${entry.data.documentId}`}>
-        Wiki-сторінка →
-      </a>
     </div>
   </slot>
 
   <Toc slot="margin" headings={headings} />
 
   <div class="contract-body" data-contract-source>
-    <Content components={{ Clause }} />
+    <Content components={{ Clause, Voice }} />
   </div>
 
   <dialog class="preview-dialog" data-preview-dialog>

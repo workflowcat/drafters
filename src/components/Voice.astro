@@ -1,0 +1,151 @@
+---
+/**
+ * Disco Elysium-style margin voice. Renders as a compact card
+ * positioned on the left or right side of the main text.
+ *
+ * On desktop (wide): pulls into the actual page margin via float
+ * + negative margin — genuine margin commentary.
+ * On desktop (medium): half-width cards aligned left or right
+ * within the body column — creates a dialogue feel.
+ * On mobile: full-width inline cards with colored left border.
+ *
+ * Voices:
+ *   legal        ⚖️  Юридичний   — left side, steel blue
+ *   business     💼  Бізнес      — right side, muted green
+ *   negotiations 🎯  Переговори  — right side, lavender
+ *   delivery     🔧  Delivery    — left side, warm amber
+ *   interaction  🔗  Взаємодія   — full width, neutral
+ */
+export interface Props {
+  voice: 'legal' | 'business' | 'negotiations' | 'delivery' | 'interaction';
+}
+
+const { voice } = Astro.props;
+
+const config = {
+  legal:        { emoji: '⚖️', label: 'Юридичний',  side: 'left',  color: '#7e8fa6' },
+  business:     { emoji: '💼', label: 'Бізнес',      side: 'right', color: '#6b9e6b' },
+  negotiations: { emoji: '🎯', label: 'Переговори',  side: 'right', color: '#9ca9ef' },
+  delivery:     { emoji: '🔧', label: 'Delivery',    side: 'left',  color: '#c4956a' },
+  interaction:  { emoji: '🔗', label: 'Взаємодія',   side: 'full',  color: '#b0b0b0' },
+} as const;
+
+const v = config[voice];
+---
+
+<aside
+  class={`voice voice--${v.side}`}
+  style={`--voice-color: ${v.color}`}
+  data-voice={voice}
+>
+  <p class="voice__label">
+    <span class="voice__emoji">{v.emoji}</span>
+    {v.label}
+  </p>
+  <div class="voice__body">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .voice {
+    font-family: var(--font-serif);
+    font-size: var(--fs-small);
+    line-height: 1.55;
+    color: var(--ink-muted);
+    margin: 1rem 0;
+    padding: 0.7rem 0.9rem;
+    background: var(--paper-soft);
+    border-left: 3px solid var(--voice-color);
+    max-width: 100%;
+  }
+
+  .voice__label {
+    font-family: var(--font-sans);
+    font-size: 0.7rem;
+    font-weight: var(--fw-bold);
+    color: var(--voice-color);
+    margin: 0 0 0.3rem;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .voice__emoji {
+    font-size: 0.85rem;
+  }
+
+  .voice__body {
+    margin: 0;
+  }
+
+  .voice__body :global(p) {
+    margin: 0.3rem 0;
+  }
+
+  .voice__body :global(p:first-child) {
+    margin-top: 0;
+  }
+
+  .voice__body :global(p:last-child) {
+    margin-bottom: 0;
+  }
+
+  .voice__body :global(a) {
+    color: var(--voice-color);
+  }
+
+  /* ── Right-side voices ─────────────────────────────── */
+  .voice--right {
+    border-left: 0;
+    border-right: 3px solid var(--voice-color);
+  }
+
+  /* ── Full-width (interaction) ──────────────────────── */
+  .voice--full {
+    border-left: 0;
+    border-top: 2px solid var(--voice-color);
+    border-bottom: 1px solid var(--rule);
+    background: transparent;
+    padding: 0.8rem 0;
+  }
+
+  /* ── Desktop: dialogue layout within body column ───── */
+  @media (min-width: 768px) {
+    .voice--left {
+      max-width: 52%;
+      margin-right: auto;
+    }
+
+    .voice--right {
+      max-width: 52%;
+      margin-left: auto;
+    }
+  }
+
+  /* ── Wide desktop: pull into actual margins ────────── */
+  @media (min-width: 1440px) {
+    .voice--right {
+      float: right;
+      clear: right;
+      width: 17rem;
+      max-width: 17rem;
+      margin-right: calc(-17rem - 2rem);
+      margin-top: 0.2rem;
+      margin-bottom: 0.6rem;
+      border-right: 3px solid var(--voice-color);
+      font-size: var(--fs-meta);
+    }
+
+    .voice--left {
+      float: left;
+      clear: left;
+      width: 17rem;
+      max-width: 17rem;
+      margin-left: calc(-17rem - 2rem);
+      margin-top: 0.2rem;
+      margin-bottom: 0.6rem;
+      font-size: var(--fs-meta);
+    }
+  }
+</style>
