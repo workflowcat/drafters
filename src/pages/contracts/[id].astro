@@ -8,7 +8,6 @@ import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
 import Clause from '~/components/Clause.astro';
 import Voice from '~/components/Voice.astro';
-import { pickTitle } from '~/lib/collection-helpers';
 
 const safeGet = async (name: any) => {
   try { return await getCollection(name); } catch { return []; }
@@ -17,7 +16,6 @@ const safeGet = async (name: any) => {
 export async function getStaticPaths() {
   try {
     const all = await getCollection('contracts');
-    // Group by baseId
     const bases = new Map<string, any[]>();
     for (const c of all) {
       const base = c.data.baseId || c.data.id;
@@ -79,117 +77,81 @@ const languages = variants.map((v: any) => v.data.lang);
       updated={entry.data.updated}
     />
     <LangToggle base={`/contracts/${baseId}`} languages={languages} current={currentLang} />
-    <div class="header__actions">
-      <span class="pill">повний контракт · готовий до підпису</span>
+
+    <div class="view-toggle" role="tablist" aria-label="Режим перегляду">
+      <button
+        type="button"
+        class="view-toggle__btn"
+        data-view-btn="clean"
+        role="tab"
+      >
+        <span class="view-toggle__label">Чистий текст</span>
+        <span class="view-toggle__hint">лише контракт</span>
+      </button>
+      <button
+        type="button"
+        class="view-toggle__btn is-active"
+        data-view-btn="reviewed"
+        role="tab"
+        aria-selected="true"
+      >
+        <span class="view-toggle__label">З коментарями</span>
+        <span class="view-toggle__hint">контракт + голоси</span>
+      </button>
+      <button
+        type="button"
+        class="view-toggle__btn"
+        data-view-btn="brief"
+        role="tab"
+      >
+        <span class="view-toggle__label">Лише бриф</span>
+        <span class="view-toggle__hint">огляд + переговори</span>
+      </button>
     </div>
   </slot>
 
   <Toc slot="margin" headings={headings} />
 
-  <div class="contract-body" data-contract-source>
-    <Content components={{ Clause, Voice }} />
+  <div class="contract-layout" data-view="reviewed">
+    <div class="contract-body" data-contract-source>
+      <Content components={{ Clause, Voice }} />
+    </div>
   </div>
 
-  <dialog class="preview-dialog" data-preview-dialog>
-    <form method="dialog" class="preview-dialog__bar">
-      <div class="preview-dialog__bar-left">
-        <span class="preview-dialog__label">Попередній перегляд</span>
-        <span class="preview-dialog__title">{title}</span>
-        <span class="preview-dialog__lang">· {currentLang}</span>
-      </div>
-      <div class="preview-dialog__bar-right">
-        <a
-          class="btn btn--primary"
-          href={`/exports/contracts/${baseId}/contract.${currentLang}.docx`}
-          download
-          data-preview-download
-        >
-          Завантажити .docx
-        </a>
-        <button class="btn btn--ghost" type="button" data-preview-print>
-          Друк
-        </button>
-        <button class="btn btn--ghost" type="submit" aria-label="Закрити">
-          ✕
-        </button>
-      </div>
-    </form>
-    <div class="preview-dialog__paper-wrap">
-      <article class="preview-dialog__paper" data-preview-target>
-        <p class="preview-dialog__placeholder">…</p>
-      </article>
-    </div>
-  </dialog>
-
   <script>
-    // Contract export preview modal.
-    // Clones the already-rendered .contract-body into a paper-styled
-    // dialog so the user sees exactly what the .docx will look like
-    // before downloading. Kept client-side so no extra build pipeline.
-    function setupContractPreview() {
-      const openBtn = document.querySelector<HTMLButtonElement>('[data-preview-open]');
-      const dialog = document.querySelector<HTMLDialogElement>('[data-preview-dialog]');
-      const source = document.querySelector<HTMLElement>('[data-contract-source]');
-      const target = document.querySelector<HTMLElement>('[data-preview-target]');
-      const printBtn = document.querySelector<HTMLButtonElement>('[data-preview-print]');
-      const downloadBtn = document.querySelector<HTMLAnchorElement>('[data-preview-download]');
-      if (!openBtn || !dialog || !source || !target) return;
+    // View mode toggle — three layers: clean, reviewed, brief.
+    // Persists choice in localStorage per page.
+    function setupViewToggle() {
+      const layout = document.querySelector<HTMLElement>('.contract-layout');
+      const buttons = document.querySelectorAll<HTMLButtonElement>('[data-view-btn]');
+      if (!layout || buttons.length === 0) return;
 
-      function highlightClauses(root: HTMLElement) {
-        const clauses = root.querySelectorAll<HTMLElement>('.clause, section, h2');
-        clauses.forEach((el, i) => {
-          setTimeout(() => {
-            el.style.transition = 'background 220ms ease, outline 220ms ease';
-            el.style.background = 'color-mix(in srgb, var(--lavender) 22%, transparent)';
-            el.style.outline = '2px solid var(--lavender)';
-            el.style.outlineOffset = '4px';
-            setTimeout(() => {
-              el.style.background = '';
-              el.style.outline = '';
-              el.style.outlineOffset = '';
-            }, 420);
-          }, i * 40);
+      const KEY = 'drafters:contract-view';
+      const saved = localStorage.getItem(KEY);
+      if (saved && ['clean', 'reviewed', 'brief'].includes(saved)) {
+        applyView(saved);
+      }
+
+      function applyView(view: string) {
+        layout!.setAttribute('data-view', view);
+        buttons.forEach((b) => {
+          const isActive = b.dataset.viewBtn === view;
+          b.classList.toggle('is-active', isActive);
+          b.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
       }
 
-      openBtn.addEventListener('click', () => {
-        // Clone the live contract body into the modal target
-        target.innerHTML = '';
-        const clone = source.cloneNode(true) as HTMLElement;
-        // Strip any data hooks that shouldn't be in the static preview
-        clone.removeAttribute('data-contract-source');
-        while (clone.firstChild) target.appendChild(clone.firstChild);
-        dialog.showModal();
-        // Delayed highlight to show what's being bundled
-        requestAnimationFrame(() => highlightClauses(target));
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const view = btn.dataset.viewBtn;
+          if (!view) return;
+          applyView(view);
+          localStorage.setItem(KEY, view);
+        });
       });
-
-      // Click on backdrop closes it
-      dialog.addEventListener('click', (e) => {
-        if (e.target === dialog) dialog.close();
-      });
-
-      // Escape key already handled by <dialog> natively
-
-      if (printBtn) {
-        printBtn.addEventListener('click', () => {
-          // Add a temporary print class to document, restore on afterprint
-          document.body.classList.add('is-printing-preview');
-          window.print();
-          setTimeout(() => {
-            document.body.classList.remove('is-printing-preview');
-          }, 300);
-        });
-      }
-
-      if (downloadBtn) {
-        downloadBtn.addEventListener('click', () => {
-          highlightClauses(target);
-        });
-      }
     }
-    setupContractPreview();
-    document.addEventListener('astro:page-load', setupContractPreview);
+    setupViewToggle();
+    document.addEventListener('astro:page-load', setupViewToggle);
   </script>
 
   <BacklinksSection collection="contracts" id={baseId} />
@@ -197,218 +159,185 @@ const languages = variants.map((v: any) => v.data.lang);
 </PageLayout>
 
 <style>
+  /* ───────────────────────────────────────────────────── */
+  /* View toggle UI                                        */
+  /* ───────────────────────────────────────────────────── */
+  .view-toggle {
+    display: inline-flex;
+    gap: 0;
+    margin-top: 1.2rem;
+    border: 1px solid var(--rule);
+    background: var(--paper);
+  }
+  .view-toggle__btn {
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--rule);
+    padding: 0.6rem 0.9rem;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.15rem;
+    font-family: var(--font-sans);
+    color: var(--ink-muted);
+    transition: background var(--t-base), color var(--t-base);
+  }
+  .view-toggle__btn:last-child {
+    border-right: 0;
+  }
+  .view-toggle__btn:hover {
+    background: var(--lavender-wash);
+    color: var(--ink);
+  }
+  .view-toggle__btn.is-active {
+    background: var(--ink);
+    color: var(--paper);
+  }
+  .view-toggle__btn.is-active:hover {
+    background: var(--ink);
+  }
+  .view-toggle__label {
+    font-size: var(--fs-small);
+    font-weight: var(--fw-bold);
+  }
+  .view-toggle__hint {
+    font-size: 0.7rem;
+    opacity: 0.75;
+    font-weight: var(--fw-regular);
+  }
+
+  /* ───────────────────────────────────────────────────── */
+  /* Contract layout: two-column on wide screens           */
+  /* ───────────────────────────────────────────────────── */
+  .contract-layout {
+    position: relative;
+  }
+
   .contract-body {
     max-width: var(--measure);
   }
+
   .contract-body :global(h1) {
     font-size: var(--fs-h1);
     border-bottom: 2px solid var(--ink);
     padding-bottom: 0.3em;
     margin-bottom: 1em;
   }
+
   .contract-body :global(h2) {
     font-size: var(--fs-h3);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
     font-family: var(--font-sans);
     font-weight: var(--fw-bold);
     margin-top: 2.6em;
     padding-top: 1em;
     border-top: 1px solid var(--rule);
   }
+
   .contract-body :global(table) {
     width: 100%;
     max-width: 100%;
   }
 
-  /* --- Preview dialog --- */
-  .preview-dialog {
-    border: none;
-    padding: 0;
-    background: var(--paper-soft);
-    width: min(920px, 96vw);
-    max-width: none;
-    max-height: 92vh;
-    box-shadow: 0 20px 60px color-mix(in srgb, var(--ink) 28%, transparent);
-    color: var(--ink);
-    overflow: hidden;
-  }
-  .preview-dialog::backdrop {
-    background: color-mix(in srgb, var(--ink) 55%, transparent);
-    backdrop-filter: blur(2px);
-  }
-  .preview-dialog[open] {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .preview-dialog__bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.8rem 1.2rem;
-    border-bottom: 1px solid var(--rule);
-    background: var(--paper);
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    flex-wrap: wrap;
-  }
-  .preview-dialog__bar-left {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-    min-width: 0;
-  }
-  .preview-dialog__label {
-    font-family: var(--font-sans);
-    font-weight: var(--fw-bold);
-    font-size: var(--fs-meta);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    color: var(--ink-faint);
-  }
-  .preview-dialog__title {
-    font-family: var(--font-serif);
-    font-size: var(--fs-small);
-    color: var(--ink);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: 28rem;
-  }
-  .preview-dialog__lang {
-    font-family: var(--font-sans);
-    font-size: var(--fs-meta);
-    color: var(--ink-faint);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-  }
-  .preview-dialog__bar-right {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-    flex-wrap: wrap;
-  }
-
-  .preview-dialog__paper-wrap {
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 2rem 1.2rem 3rem;
-    flex: 1;
-    background:
-      linear-gradient(180deg,
-        color-mix(in srgb, var(--ink) 4%, transparent) 0,
-        transparent 3rem);
-  }
-  .preview-dialog__paper {
-    background: #fffdf8;
-    color: #1a1a1a;
-    max-width: 680px;
-    margin: 0 auto;
-    padding: 3.2rem 3.4rem 4rem;
-    box-shadow:
-      0 1px 0 color-mix(in srgb, var(--ink) 12%, transparent),
-      0 8px 28px color-mix(in srgb, var(--ink) 18%, transparent);
-    font-family: var(--font-serif);
-    font-size: calc(var(--fs-small) * 1.02);
-    line-height: 1.55;
-    min-height: 50vh;
-  }
-  .preview-dialog__paper :global(h1) {
-    font-size: 1.8rem;
-    border-bottom: 2px solid #1a1a1a;
-    padding-bottom: 0.3em;
-    margin: 0 0 1em;
-  }
-  .preview-dialog__paper :global(h2) {
-    font-family: var(--font-sans);
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    font-weight: var(--fw-bold);
-    margin-top: 2.2em;
-    padding-top: 0.9em;
-    border-top: 1px solid color-mix(in srgb, #1a1a1a 20%, transparent);
-  }
-  .preview-dialog__paper :global(h3) {
-    font-family: var(--font-sans);
-    font-size: 0.92rem;
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-label);
-    margin-top: 1.6em;
-  }
-  .preview-dialog__paper :global(p) {
-    margin: 0.8em 0;
-  }
-  .preview-dialog__paper :global(ul),
-  .preview-dialog__paper :global(ol) {
-    padding-left: 1.4em;
-  }
-  .preview-dialog__paper :global(table) {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 1em 0;
-    font-size: 0.95em;
-  }
-  .preview-dialog__paper :global(th),
-  .preview-dialog__paper :global(td) {
-    border: 1px solid color-mix(in srgb, #1a1a1a 25%, transparent);
-    padding: 0.4em 0.6em;
-    text-align: left;
-  }
-  .preview-dialog__paper :global(.clause) {
-    position: relative;
-  }
-  .preview-dialog__placeholder {
-    color: var(--ink-faint);
-    font-style: italic;
-    text-align: center;
-    padding: 2rem 0;
-  }
-
-  @media (max-width: 640px) {
-    .preview-dialog__paper {
-      padding: 2rem 1.4rem 2.6rem;
+  /* ───────────────────────────────────────────────────── */
+  /* DESKTOP LAYOUT (≥ 1024px): two columns                */
+  /* ───────────────────────────────────────────────────── */
+  @media (min-width: 1024px) {
+    /* Reviewed mode: widen the contract body container so voices can
+       float into a dedicated right column. Contract text itself stays
+       narrow (40rem) for readability. */
+    .contract-layout[data-view="reviewed"] .contract-body,
+    .contract-layout[data-view="brief"] .contract-body {
+      max-width: 62rem;
     }
-    .preview-dialog__paper-wrap {
-      padding: 1rem 0.6rem 2rem;
+
+    /* Keep actual contract text elements at a readable measure */
+    .contract-layout[data-view="reviewed"] .contract-body :global(> p),
+    .contract-layout[data-view="reviewed"] .contract-body :global(> h2),
+    .contract-layout[data-view="reviewed"] .contract-body :global(> h3),
+    .contract-layout[data-view="reviewed"] .contract-body :global(> ul),
+    .contract-layout[data-view="reviewed"] .contract-body :global(> ol),
+    .contract-layout[data-view="reviewed"] .contract-body :global(> blockquote),
+    .contract-layout[data-view="reviewed"] .contract-body :global(> table),
+    .contract-layout[data-view="reviewed"] .contract-body :global(.clause) {
+      max-width: 40rem;
+    }
+
+    /* Voices float into the right column */
+    .contract-layout[data-view="reviewed"] .contract-body :global(.voice) {
+      float: right;
+      clear: right;
+      width: 18rem;
+      max-width: 18rem;
+      margin: 0.3rem 0 1rem 1.5rem;
+      font-size: var(--fs-meta);
+    }
+
+    /* Subtle vertical divider between text and voices */
+    .contract-layout[data-view="reviewed"] .contract-body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 41.5rem;
+      width: 1px;
+      background: var(--rule-soft);
+      pointer-events: none;
     }
   }
 
-  /* Print: when the preview dialog is open and user prints,
-     hide everything outside the paper. */
-  @media print {
-    body.is-printing-preview {
-      background: white;
-    }
-    body.is-printing-preview .layout,
-    body.is-printing-preview .header,
-    body.is-printing-preview .preview-dialog__bar,
-    body.is-printing-preview .contract-body {
-      display: none !important;
-    }
-    body.is-printing-preview .preview-dialog {
-      position: static !important;
-      display: block !important;
-      box-shadow: none;
+  /* ───────────────────────────────────────────────────── */
+  /* CLEAN mode: hide all voices, text widens              */
+  /* ───────────────────────────────────────────────────── */
+  .contract-layout[data-view="clean"] .contract-body :global(.voice),
+  .contract-layout[data-view="clean"] .contract-body :global(blockquote:first-of-type) {
+    display: none;
+  }
+
+  /* ───────────────────────────────────────────────────── */
+  /* BRIEF mode: hide legal body text, keep headers + voices */
+  /* ───────────────────────────────────────────────────── */
+  .contract-layout[data-view="brief"] .contract-body :global(h1),
+  .contract-layout[data-view="brief"] .contract-body :global(h2),
+  .contract-layout[data-view="brief"] .contract-body :global(blockquote:first-of-type),
+  .contract-layout[data-view="brief"] .contract-body :global(.voice) {
+    display: block;
+  }
+
+  .contract-layout[data-view="brief"] .contract-body :global(p),
+  .contract-layout[data-view="brief"] .contract-body :global(ul),
+  .contract-layout[data-view="brief"] .contract-body :global(ol),
+  .contract-layout[data-view="brief"] .contract-body :global(table),
+  .contract-layout[data-view="brief"] .contract-body :global(.clause),
+  .contract-layout[data-view="brief"] .contract-body :global(hr),
+  .contract-layout[data-view="brief"] .contract-body :global(h3) {
+    display: none;
+  }
+
+  /* But keep the brief blockquote visible */
+  .contract-layout[data-view="brief"] .contract-body :global(blockquote:first-of-type) {
+    display: block !important;
+  }
+
+  /* In brief mode voices stay in left column (no float) */
+  @media (min-width: 1024px) {
+    .contract-layout[data-view="brief"] .contract-body :global(.voice) {
+      float: none;
+      clear: none;
       width: auto;
-      max-width: none;
-      max-height: none;
-      background: white;
+      max-width: 100%;
+      margin: 0.6rem 0;
+      font-size: var(--fs-small);
     }
-    body.is-printing-preview .preview-dialog__paper-wrap {
-      overflow: visible;
-      padding: 0;
-      background: white;
+  }
+
+  /* Mobile: voices stay inline as full-width cards regardless of view */
+  @media (max-width: 1023px) {
+    .view-toggle {
+      flex-wrap: wrap;
     }
-    body.is-printing-preview .preview-dialog__paper {
-      box-shadow: none;
-      margin: 0;
-      padding: 1.5cm 1.8cm;
-      max-width: none;
+    .view-toggle__btn {
+      flex: 1 1 auto;
     }
   }
 </style>

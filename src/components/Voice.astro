@@ -1,20 +1,17 @@
 ---
 /**
- * Disco Elysium-style margin voice. Renders as a compact card
- * positioned on the left or right side of the main text.
- *
- * On desktop (wide): pulls into the actual page margin via float
- * + negative margin — genuine margin commentary.
- * On desktop (medium): half-width cards aligned left or right
- * within the body column — creates a dialogue feel.
- * On mobile: full-width inline cards with colored left border.
+ * Disco Elysium-style margin voice. A compact card styled per
+ * voice personality. Positioning (float / inline) is controlled
+ * by the host context — e.g. the contract page floats these
+ * into a dedicated right column. On pages that don't style .voice,
+ * it falls back to an inline card.
  *
  * Voices:
- *   legal        ⚖️  Юридичний   — left side, steel blue
- *   business     💼  Бізнес      — right side, muted green
- *   negotiations 🎯  Переговори  — right side, lavender
- *   delivery     🔧  Delivery    — left side, warm amber
- *   interaction  🔗  Взаємодія   — full width, neutral
+ *   legal        ⚖️  Юридичний   steel blue
+ *   business     💼  Бізнес       muted green
+ *   negotiations 🎯  Переговори   lavender
+ *   delivery     🔧  Delivery     warm amber
+ *   interaction  🔗  Взаємодія    neutral grey
  */
 export interface Props {
   voice: 'legal' | 'business' | 'negotiations' | 'delivery' | 'interaction';
@@ -23,24 +20,24 @@ export interface Props {
 const { voice } = Astro.props;
 
 const config = {
-  legal:        { emoji: '⚖️', label: 'Юридичний',  side: 'left',  color: '#7e8fa6' },
-  business:     { emoji: '💼', label: 'Бізнес',      side: 'right', color: '#6b9e6b' },
-  negotiations: { emoji: '🎯', label: 'Переговори',  side: 'right', color: '#9ca9ef' },
-  delivery:     { emoji: '🔧', label: 'Delivery',    side: 'left',  color: '#c4956a' },
-  interaction:  { emoji: '🔗', label: 'Взаємодія',   side: 'full',  color: '#b0b0b0' },
+  legal:        { emoji: '⚖️', label: 'Юридичний',  color: '#7e8fa6' },
+  business:     { emoji: '💼', label: 'Бізнес',      color: '#6b9e6b' },
+  negotiations: { emoji: '🎯', label: 'Переговори',  color: '#9ca9ef' },
+  delivery:     { emoji: '🔧', label: 'Delivery',    color: '#c4956a' },
+  interaction:  { emoji: '🔗', label: 'Взаємодія',   color: '#a0a0a0' },
 } as const;
 
 const v = config[voice];
 ---
 
 <aside
-  class={`voice voice--${v.side}`}
+  class={`voice voice--${voice}`}
   style={`--voice-color: ${v.color}`}
   data-voice={voice}
 >
   <p class="voice__label">
-    <span class="voice__emoji">{v.emoji}</span>
-    {v.label}
+    <span class="voice__emoji" aria-hidden="true">{v.emoji}</span>
+    <span class="voice__name">{v.label}</span>
   </p>
   <div class="voice__body">
     <slot />
@@ -65,18 +62,20 @@ const v = config[voice];
     font-size: 0.7rem;
     font-weight: var(--fw-bold);
     color: var(--voice-color);
-    margin: 0 0 0.3rem;
+    margin: 0 0 0.4rem;
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.4rem;
+    letter-spacing: 0.02em;
   }
 
   .voice__emoji {
     font-size: 0.85rem;
+    line-height: 1;
   }
 
-  .voice__body {
-    margin: 0;
+  .voice__name {
+    line-height: 1;
   }
 
   .voice__body :global(p) {
@@ -95,57 +94,10 @@ const v = config[voice];
     color: var(--voice-color);
   }
 
-  /* ── Right-side voices ─────────────────────────────── */
-  .voice--right {
-    border-left: 0;
-    border-right: 3px solid var(--voice-color);
-  }
-
-  /* ── Full-width (interaction) ──────────────────────── */
-  .voice--full {
-    border-left: 0;
-    border-top: 2px solid var(--voice-color);
-    border-bottom: 1px solid var(--rule);
-    background: transparent;
-    padding: 0.8rem 0;
-  }
-
-  /* ── Desktop: dialogue layout within body column ───── */
-  @media (min-width: 768px) {
-    .voice--left {
-      max-width: 52%;
-      margin-right: auto;
-    }
-
-    .voice--right {
-      max-width: 52%;
-      margin-left: auto;
-    }
-  }
-
-  /* ── Wide desktop: pull into actual margins ────────── */
-  @media (min-width: 1440px) {
-    .voice--right {
-      float: right;
-      clear: right;
-      width: 17rem;
-      max-width: 17rem;
-      margin-right: calc(-17rem - 2rem);
-      margin-top: 0.2rem;
-      margin-bottom: 0.6rem;
-      border-right: 3px solid var(--voice-color);
-      font-size: var(--fs-meta);
-    }
-
-    .voice--left {
-      float: left;
-      clear: left;
-      width: 17rem;
-      max-width: 17rem;
-      margin-left: calc(-17rem - 2rem);
-      margin-top: 0.2rem;
-      margin-bottom: 0.6rem;
-      font-size: var(--fs-meta);
-    }
+  .voice__body :global(code) {
+    font-size: 0.85em;
+    background: color-mix(in srgb, var(--voice-color) 10%, transparent);
+    padding: 0.05em 0.3em;
+    border-radius: 2px;
   }
 </style>

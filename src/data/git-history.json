@@ -1,5 +1,23 @@
 [
   {
+    "hash": "c4bb0918e1a4843861635eff7a88e6fb5a6eb1e3",
+    "shortHash": "c4bb091",
+    "date": "2026-04-13",
+    "author": "workflowcat",
+    "subject": "feat: Voice component — Disco Elysium margin comments on contracts",
+    "body": "Replaces blockquote annotations with a proper <Voice> component that\nrenders as margin comments from different organizational perspectives.\n\nComponent (src/components/Voice.astro):\n- 5 voices with distinct colors and fixed sides:\n  ⚖️ Юридичний (steel blue, left) — legal risk, regulatory context\n  💼 Бізнес (muted green, right) — revenue, deal dynamics, cash flow\n  🎯 Переговори (lavender, right) — what to say, trade-offs\n  🔧 Delivery (warm amber, left) — practical workability, team impact\n  🔗 Взаємодія (neutral, full-width) — clause connections\n\nLayout behavior:\n- Mobile: full-width inline cards with colored left/right border\n- Desktop (768px+): half-width cards aligned left or right within\n  body column — creates a dialogue/conversation feel\n- Wide desktop (1440px+): floats into actual page margins via\n  negative margins, like Tufte-style sidenotes\n\nApplied to all 5 contract templates:\n- MSA: 21 voices (UK variant converted from blockquotes)\n- T&M: 29 voices\n- Dedicated Team: 30 voices\n- SoW: 38 voices\n- DPA: 37 voices\nTotal: 155 margin comments across the contract library.\n\nAlso stripped export buttons from contract page header (previously\nplanned cut — removed .docx, .md, .zip download links and preview\nbutton; kept language toggle and \"ready to sign\" pill).\n\nLint: 96 entries, 0 warnings, 0 errors. Build: 81 pages.\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>",
+    "files": [
+      "src/components/Voice.astro",
+      "src/content/contracts/data-processing-agreement-2026.en.mdx",
+      "src/content/contracts/dedicated-team-2026.en.mdx",
+      "src/content/contracts/services-agreement-2026.uk.mdx",
+      "src/content/contracts/statement-of-work-2026.en.mdx",
+      "src/content/contracts/time-and-materials-2026.en.mdx",
+      "src/data/git-history.json",
+      "src/pages/contracts/[id].astro"
+    ]
+  },
+  {
     "hash": "a3ac23febdc488c73a6cd24fdfcf54a6f085ed97",
     "shortHash": "a3ac23f",
     "date": "2026-04-13",
