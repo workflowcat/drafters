@@ -240,27 +240,22 @@ const languages = variants.map((v: any) => v.data.lang);
   }
 
   /* ───────────────────────────────────────────────────── */
-  /* DESKTOP LAYOUT (≥ 1024px): two columns                */
+  /* DESKTOP LAYOUT — TWO COLUMNS at ≥ 1280px              */
+  /* The page grid (layout.css) expands to 13rem + 62rem in  */
+  /* reviewed mode. Below 1280px the page frame is too tight  */
+  /* to comfortably fit 34rem content + 20rem voices side by  */
+  /* side, so we fall back to inline voices (same as mobile). */
   /* ───────────────────────────────────────────────────── */
-  @media (min-width: 1024px) {
-    /* Reviewed mode: widen the contract body container so voices can
-       float into a dedicated right column. Contract text itself stays
-       narrow (40rem) for readability. */
-    .contract-layout[data-view="reviewed"] .contract-body,
-    .contract-layout[data-view="brief"] .contract-body {
+  @media (min-width: 1280px) {
+    .contract-layout[data-view="reviewed"] .contract-body {
       max-width: 62rem;
     }
 
-    /* Keep actual contract text elements at a readable measure */
-    .contract-layout[data-view="reviewed"] .contract-body :global(> p),
-    .contract-layout[data-view="reviewed"] .contract-body :global(> h2),
-    .contract-layout[data-view="reviewed"] .contract-body :global(> h3),
-    .contract-layout[data-view="reviewed"] .contract-body :global(> ul),
-    .contract-layout[data-view="reviewed"] .contract-body :global(> ol),
-    .contract-layout[data-view="reviewed"] .contract-body :global(> blockquote),
-    .contract-layout[data-view="reviewed"] .contract-body :global(> table),
-    .contract-layout[data-view="reviewed"] .contract-body :global(.clause) {
-      max-width: 40rem;
+    /* Non-voice direct children reserve a 20rem voice gutter on the
+       right (18rem voice + 2rem left margin). Using calc on the
+       parent width makes this robust to viewport changes. */
+    .contract-layout[data-view="reviewed"] .contract-body :global(> *:not(.voice)) {
+      max-width: calc(100% - 20rem);
     }
 
     /* Voices float into the right column */
@@ -269,66 +264,55 @@ const languages = variants.map((v: any) => v.data.lang);
       clear: right;
       width: 18rem;
       max-width: 18rem;
-      margin: 0.3rem 0 1rem 1.5rem;
+      margin: 0.3rem 0 1rem 2rem;
       font-size: var(--fs-meta);
     }
 
-    /* Subtle vertical divider between text and voices */
-    .contract-layout[data-view="reviewed"] .contract-body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: 41.5rem;
-      width: 1px;
-      background: var(--rule-soft);
-      pointer-events: none;
+    /* Each new h2 section starts below any preceding floats — keeps
+       voices tied to the section they comment on. */
+    .contract-layout[data-view="reviewed"] .contract-body :global(> h2) {
+      clear: right;
+    }
+  }
+
+  /* Brief mode: single-column narrow (briefing + headers + voices only) */
+  @media (min-width: 1024px) {
+    .contract-layout[data-view="brief"] .contract-body {
+      max-width: 40rem;
     }
   }
 
   /* ───────────────────────────────────────────────────── */
-  /* CLEAN mode: hide all voices, text widens              */
+  /* CLEAN mode: hide all voices and the briefing callout  */
   /* ───────────────────────────────────────────────────── */
   .contract-layout[data-view="clean"] .contract-body :global(.voice),
-  .contract-layout[data-view="clean"] .contract-body :global(blockquote:first-of-type) {
+  .contract-layout[data-view="clean"] .contract-body :global(> blockquote) {
     display: none;
   }
 
   /* ───────────────────────────────────────────────────── */
-  /* BRIEF mode: hide legal body text, keep headers + voices */
+  /* BRIEF mode: hide everything except briefing + headings */
+  /* + voices. Start from "hide all direct children" then  */
+  /* opt in the elements we want.                          */
   /* ───────────────────────────────────────────────────── */
-  .contract-layout[data-view="brief"] .contract-body :global(h1),
-  .contract-layout[data-view="brief"] .contract-body :global(h2),
-  .contract-layout[data-view="brief"] .contract-body :global(blockquote:first-of-type),
-  .contract-layout[data-view="brief"] .contract-body :global(.voice) {
+  .contract-layout[data-view="brief"] .contract-body :global(> *) {
+    display: none;
+  }
+  .contract-layout[data-view="brief"] .contract-body :global(> h1),
+  .contract-layout[data-view="brief"] .contract-body :global(> h2),
+  .contract-layout[data-view="brief"] .contract-body :global(> blockquote),
+  .contract-layout[data-view="brief"] .contract-body :global(> .voice) {
     display: block;
   }
 
-  .contract-layout[data-view="brief"] .contract-body :global(p),
-  .contract-layout[data-view="brief"] .contract-body :global(ul),
-  .contract-layout[data-view="brief"] .contract-body :global(ol),
-  .contract-layout[data-view="brief"] .contract-body :global(table),
-  .contract-layout[data-view="brief"] .contract-body :global(.clause),
-  .contract-layout[data-view="brief"] .contract-body :global(hr),
-  .contract-layout[data-view="brief"] .contract-body :global(h3) {
-    display: none;
-  }
-
-  /* But keep the brief blockquote visible */
-  .contract-layout[data-view="brief"] .contract-body :global(blockquote:first-of-type) {
-    display: block !important;
-  }
-
-  /* In brief mode voices stay in left column (no float) */
-  @media (min-width: 1024px) {
-    .contract-layout[data-view="brief"] .contract-body :global(.voice) {
-      float: none;
-      clear: none;
-      width: auto;
-      max-width: 100%;
-      margin: 0.6rem 0;
-      font-size: var(--fs-small);
-    }
+  /* In brief mode voices are inline full-width cards (no float) */
+  .contract-layout[data-view="brief"] .contract-body :global(.voice) {
+    float: none;
+    clear: none;
+    width: auto;
+    max-width: 100%;
+    margin: 0.6rem 0;
+    font-size: var(--fs-small);
   }
 
   /* Mobile: voices stay inline as full-width cards regardless of view */

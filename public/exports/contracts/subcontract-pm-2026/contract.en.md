@@ -3,7 +3,7 @@
 
 **Date:** \_\_\_\_\_\_\_\_\_\_\_
 
-**Contractor:** **Sloboda Software GMBH**, a company incorporated
+**Contractor:** **Acme Services GmbH**, a company incorporated
 under the laws of the Federal Republic of Germany, Registry code
 **HRB123456X**, VAT ID **DE999888777**, with its registered address
 at Musterstraße 1, Berlin, 10115, Germany, represented by its
@@ -223,7 +223,7 @@ claim shall be settled in the **courts of England and Wales**.
 
 ## 11. Signatures
 
-| **Sloboda Software GMBH** | **Subcontractor** |
+| **Acme Services GmbH** | **Subcontractor** |
 | :---- | :---- |
 | Registry code: HRB123456X | Company ID: \_\_\_\_\_\_\_\_\_\_\_ |
 | Jurisdiction: Germany | Jurisdiction: \_\_\_\_\_\_\_\_\_\_\_ |

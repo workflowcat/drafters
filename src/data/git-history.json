@@ -1,5 +1,18 @@
 [
   {
+    "hash": "65816d4f18be08d016df67712e4f1e0e15dd5b31",
+    "shortHash": "65816d4",
+    "date": "2026-04-14",
+    "author": "workflowcat",
+    "subject": "feat: three-layer view on contracts — clean / reviewed / brief",
+    "body": "Contract pages now support three distinct reading modes via a toggle\nat the top of each contract:\n\n  1. Чистий текст — just the contract, voices hidden, text reads\n     as a clean legal document. Use this when preparing for signature\n     or sharing with the client.\n\n  2. З коментарями (default) — contract in a narrow left column,\n     voices float into a dedicated right column with a thin vertical\n     rule separating them. True spatial separation, no inline\n     interruptions. Each voice sits next to the clause it comments on.\n\n  3. Лише бриф — contract body hidden, only the negotiation brief\n     + section headers + all voices remain. The cheat sheet view:\n     all commentary without the legal text.\n\nView choice persists in localStorage per browser.\n\nImplementation:\n- View toggle UI in contract header (3-button group)\n- data-view attribute on contract-layout wrapper controls CSS\n- Reviewed mode: body widens to 62rem, text stays 40rem, voices\n  float right at 18rem, vertical rule at 41.5rem\n- Clean mode: voices + top brief hidden via display:none\n- Brief mode: paragraphs/clauses/tables hidden, headers + voices kept\n\nAlso removed the preview dialog (200+ lines of JS/CSS) — it was\nunreachable after we removed the export buttons.\n\nLint: 96 entries, 0 warnings, 0 errors. Build: 81 pages.\n\nCo-Authored-By: Claude Opus 4.6 (1M context) <noreply@anthropic.com>",
+    "files": [
+      "src/components/Voice.astro",
+      "src/data/git-history.json",
+      "src/pages/contracts/[id].astro"
+    ]
+  },
+  {
     "hash": "c4bb0918e1a4843861635eff7a88e6fb5a6eb1e3",
     "shortHash": "c4bb091",
     "date": "2026-04-13",

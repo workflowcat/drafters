@@ -23,6 +23,26 @@
     max-width: calc(13rem + var(--measure) + 22rem + var(--gap-lg) * 2);
     margin: 0 auto;
   }
+
+  /* Brief mode hides the TOC — the briefing blockquote IS the TOC. */
+  .page:has(.contract-layout[data-view="brief"]) .page__margin {
+    display: none;
+  }
+}
+
+/* Contract pages in "reviewed" mode need a wider body column so voices
+   can float into a dedicated right margin. We take over the .page__margin
+   column (which would normally hold the TOC) and give the contract body
+   room for 34rem of text + 20rem of voice gutter. Two-column mode only
+   activates at ≥1280px; below that, voices render inline. */
+@media (min-width: 1280px) {
+  .page:has(.contract-layout[data-view="reviewed"]) {
+    grid-template-columns: 13rem minmax(0, 62rem);
+    max-width: calc(13rem + 62rem + var(--gap-lg) * 2);
+  }
+  .page:has(.contract-layout[data-view="reviewed"]) .page__margin {
+    display: none;
+  }
 }
 
 .page__rail {
@@ -84,6 +104,12 @@
 /* Defensive: any child of the body column is bounded by it. */
 .page__body > * {
   max-width: 100%;
+}
+/* Exception: the contract layout manages its own max-width (62rem in
+   reviewed mode, otherwise measure). Letting it opt out of the 100% cap
+   lets its two-column layout work cleanly. */
+.page__body > article:has(.contract-layout) {
+  max-width: none;
 }
 
 .page__margin {

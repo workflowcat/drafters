@@ -3,7 +3,7 @@
 
 **Start date:** \_\_\_\_\_\_\_\_\_\_\_
 
-**Контрактор:** **Sloboda Software GMBH**, юридична особа,
+**Контрактор:** **Acme Services GmbH**, юридична особа,
 зареєстрована відповідно до законодавства Федеративної Республіки
 Німеччина, Registry code **HRB123456X**, VAT ID **DE999888777**,
 з юридичною адресою: Musterstraße 1, Berlin, 10115, Germany,
@@ -257,7 +257,7 @@ non-solicitation та non-compete** зберігаються в силі.
 
 ## 11. Підписи
 
-| **Sloboda Software GMBH** | **Private entrepreneur** |
+| **Acme Services GmbH** | **Private entrepreneur** |
 | :---- | :---- |
 | Registry code: HRB123456X | Company ID: \_\_\_\_\_\_\_\_\_\_\_ |
 | Jurisdiction: Germany | Jurisdiction: \_\_\_\_\_\_\_\_\_\_\_ |
