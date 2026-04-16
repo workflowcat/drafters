@@ -330,6 +330,18 @@ const languages = variants.map((v: any) => v.data.lang);
   .contract-body :global(.clause > h3) {
     display: none;
   }
+  /* Strip editorial commentary from inlined clauses. Clause MDX bodies
+     use h2 sub-headings ("How this works in practice", "Things to watch",
+     "Notes", "Where used", etc.) to mark where legal text ends and the
+     wiki-style editorial begins. When a clause is inlined into a contract,
+     only the legal text above that first h2 should render — the
+     standalone /clauses/[id] page is where the editorial belongs.
+     A clause that needs sub-structure inside its legal text should use
+     bold lead-in paragraphs ("**Term of confidentiality.** ..."), not h2. */
+  .contract-body :global(.clause h2),
+  .contract-body :global(.clause h2 ~ *) {
+    display: none;
+  }
   /* Give stacked clauses a minimal separator so they don't run together. */
   .contract-body :global(.clause + .clause) {
     margin-top: 1.2rem;
