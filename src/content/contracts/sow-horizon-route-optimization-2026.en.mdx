@@ -1,0 +1,275 @@
+---
+id: sow-horizon-route-optimization-2026.en
+baseId: sow-horizon-route-optimization-2026
+documentId: sow-horizon-route-optimization-2026
+lang: en
+title:
+  en: SoW-01 — Route-Optimization Engineering Support (T&M) — Horizon × Acme
+  uk: SoW-01 — Інженерна підтримка оптимізації маршрутів (T&M) — Horizon × Acme
+contractor: acme-services
+counterparty: horizon
+updated: '2026-04-16'
+tags: [contract, sow, tm, client, "2026", horizon, signable]
+---
+
+# Statement of Work 01 — Route-Optimization Engineering Support
+
+> **Briefing before negotiation.** This is a T&M engagement under the
+> Horizon MSA. The MSA carries the heavy terms (IP, liability,
+> confidentiality, payment); this SoW only defines **what we do, who
+> does it, at what rate, and for how long**. Two things to watch in
+> the first review: Horizon may ask for a **monthly hours cap
+> (not just an estimate)** — resist, because a hard cap converts T&M
+> into fixed-capacity and makes overruns painful to explain mid-sprint.
+> They may also ask for **acceptance gating on sprint deliverables** —
+> decline for T&M; acceptance gates belong to fixed-price work, not
+> a dedicated-team engagement.
+
+**SoW reference:** SoW-01
+
+**Under:** Master Services Agreement between Acme Services GmbH and
+Horizon Maritime Analytics Oy, dated \_\_\_\_\_\_\_\_\_\_\_ (the
+"**MSA**"). Defined terms used without definition in this SoW have
+the meanings given in the MSA.
+
+**Effective date:** \_\_\_\_\_\_\_\_\_\_\_
+
+**Planned end date:** 12 months from the Effective date, renewing
+on the terms set out in §7.
+
+## 1. Summary
+
+| Item | Value |
+| :---- | :---- |
+| **Engagement** | Route-optimization engineering support for Horizon's vessel-routing product |
+| **Billing model** | **Time and Materials (T&M)**, monthly in arrears |
+| **Estimated monthly commitment** | ~160 engineering hours, distributed across the team below (indicative, not a cap) |
+| **Monthly estimate (EUR)** | **~€33,000**, excluding expenses; actuals billed monthly per §4 |
+| **Currency** | EUR |
+| **Overtime** | Per MSA §1 (2× Rate, written approval only) |
+| **Duration** | 12 months rolling; either Party may terminate this SoW on **14 days' notice** per §7 |
+
+<Voice voice="business">
+The €33,000/month figure is an **estimate**, not a commitment. Under
+T&M we bill actuals. Horizon's procurement will want to see a PO for
+the annualised figure (~€400k) to reserve budget; write that PO
+against "up to" language, not "fixed." A fixed PO against a T&M SoW
+is a category error that causes disputes six months in.
+</Voice>
+
+<Voice voice="negotiations">
+Horizon asks for the SoW termination notice to match the MSA's 30 days.
+Defend 14 days here: T&M engagements depend on ramp-down flexibility.
+If they insist, counter with "14 days for the Customer, 30 days for
+the Contractor" — asymmetric notice is reasonable when one side
+(us) carries staffing inertia that the other does not.
+</Voice>
+
+## 2. Scope of Services
+
+The Contractor shall provide engineering support for the Customer's
+vessel-route optimisation product, comprising:
+
+- **Backend engineering** on the route-solver service: performance
+  work, algorithmic improvements, integration with new telemetry
+  inputs.
+- **Data-pipeline work** on the emissions-telemetry ingest: schema
+  evolution, back-fills, monitoring.
+- **On-call support rotation** for the services the team maintains,
+  within the hours stated on the rate card (§3).
+- **Pairing and code review** with the Customer's engineering team
+  during the engagement.
+
+**Explicitly out of scope** (handled under a separate SoW if needed):
+
+- Front-end engineering on the Customer's dashboard product.
+- Mobile-app engineering.
+- SRE / platform-level incident response outside the team's services.
+- New-product work outside route-optimisation and emissions
+  telemetry.
+
+<Voice voice="delivery">
+Explicit exclusions are worth their weight in billed hours. Without
+them, every Friday-afternoon request ("could someone take a quick
+look at the dashboard bug?") turns into scope drift. With them, we
+have a crisp answer: "yes, and it's a new SoW." The exclusions list
+is a contract-shaped "no" that the Customer's engineering leads can
+use internally to protect our focus.
+</Voice>
+
+## 3. Team and Rate Card
+
+| Role | Rate (EUR/hour) | Planned allocation |
+| :---- | ----: | :---- |
+| Principal Engineer | 180 | ~0.2 FTE |
+| Senior Engineer | 140 | 2 × ~0.5 FTE |
+| Engineering Manager | 160 | ~0.2 FTE |
+| Technical Product Lead | 150 | ~0.1 FTE, as required |
+
+**Named team.** At the Effective date the assigned team is listed
+in **Exhibit A — Named Team**, attached. Role substitutions are
+managed per §5 (Change Requests).
+
+**On-call hours.** On-call is billed at the applicable Rate during
+active incidents; idle on-call time is not billed unless the SoW
+is amended to include a retainer.
+
+<Voice voice="legal">
+Naming the team in Exhibit A is deliberate. Horizon will want a
+non-solicit-style clause against the named roster — that belongs in
+the MSA, not here (and the MSA does not currently include one;
+raise at the next renewal, not in this SoW). In the meantime, do
+not add names to this SoW without HR signing off on the risk.
+</Voice>
+
+## 4. Billing
+
+**Rate × hours.** Each month, the Contractor invoices for hours
+worked at the Rate for the role performing the work, in 0.25-hour
+increments.
+
+**Timesheet evidence.** Invoices are accompanied by timesheet
+exports showing engineer, role, date, hours, and a one-line task
+description, exported from the Contractor's time-tracking system.
+
+**Expenses.** Reasonable travel and out-of-pocket expenses approved
+in writing by the Customer in advance are billed at cost, with
+receipts.
+
+**Payment mechanics.** Invoicing cadence, payment period, disputes,
+and late interest follow the MSA — specifically **MSA §3**. This
+SoW does not vary those terms.
+
+<Voice voice="interaction">
+This section deliberately does not restate MSA §3. Restating it
+creates drift: if MSA §3 is amended at renewal and this SoW still
+says "14 days" when the MSA now says "21," the SoW silently
+overrides (per MSA §2). Keep SoW billing terse and reference the
+MSA; let the MSA be the one place payment rules live.
+</Voice>
+
+## 5. Change Requests
+
+**Lightweight change process.** Because this is a T&M engagement,
+routine scope adjustments (changing priorities within the stated
+scope of §2) do not require a formal change order. The team and
+the Customer's engineering lead manage sprint-level priorities
+through the normal product-management channels.
+
+**When a Change Request is required.** A written, signed Change
+Request is required where the change:
+
+1. Adds work outside the scope defined in §2, or
+2. Adds a named role not on the rate card in §3, or
+3. Changes the monthly estimate in §1 by more than **±20%**, or
+4. Extends the planned end date.
+
+A Change Request shall describe the change, its impact on the
+rate card and monthly estimate, and be signed by an authorised
+signatory of each Party. Until signed, the Contractor is not
+obliged to perform the changed work.
+
+<Voice voice="negotiations">
+A fixed-price engagement would compose the
+[[Change Order]] clause here — that clause
+freezes scope and gates all changes through a written order. For
+T&M, that level of ceremony is over-engineered and slows the team
+down. The lighter process above is calibrated to the engagement
+type. If a future SoW is fixed-price, use the full Change Order
+clause instead; they are not interchangeable.
+</Voice>
+
+## 6. Acceptance
+
+**T&M — no acceptance gate.** This engagement is not structured
+around discrete deliverables against which formal acceptance is
+meaningful. Quality is assured through the Warranties in **MSA §6**,
+through ongoing pairing and review with the Customer's engineering
+team, and through the Customer's right to request rework at no
+additional charge where work does not meet the professional
+standard stated in MSA §6.
+
+**Continuous feedback.** The Parties shall review progress and
+priorities at a standing bi-weekly cadence. Material concerns
+raised in that review shall be addressed in the following sprint
+at no additional charge, subject to the scope limits of §2.
+
+<Voice voice="delivery">
+The absence of an acceptance gate is not a gap — it is the shape
+of the engagement. Teams that try to attach
+[[Acceptance Criteria]] to a T&M SoW
+end up creating a gate that either never fires (because every
+sprint has some in-flight work) or fires weekly and creates
+administrative overhead that the engagement model cannot absorb.
+Use the bi-weekly review; keep the contract quiet.
+</Voice>
+
+## 7. Duration and Termination
+
+**Initial term.** 12 months from the Effective date.
+
+**Renewal.** On expiry of the initial term, this SoW renews for
+successive 3-month periods unless either Party gives notice of
+non-renewal at least 30 days before the end of the then-current
+period.
+
+**Termination for convenience.** Either Party may terminate this
+SoW on **14 days' written notice**, without cause. This notice
+period varies the MSA's 30 days for this SoW only, as permitted by
+MSA §2.
+
+**Effect of termination.** On termination, the Contractor shall
+complete work-in-progress to a safe handover state, invoice for
+hours worked through the termination date, and hand over all
+Deliverables in accordance with MSA §4 (Intellectual Property).
+
+<Voice voice="interaction">
+The 14-day notice here is the single variation from the MSA, and
+it has to be stated expressly per MSA §2. Without the phrase "as
+permitted by MSA §2," the 30-day MSA notice would prevail and the
+14-day language would be unenforceable. This is why MSA §2 matters:
+every SoW deviation has to be loud on the page.
+</Voice>
+
+## 8. Variations from the MSA
+
+Except for the termination notice period set out in §7, **no
+provision of the MSA is varied by this SoW**. All other terms of
+the MSA apply to this engagement in full.
+
+## 9. Signatures
+
+**For the Contractor — Acme Services GmbH**
+
+Name: [Director Name]
+
+Title: Director
+
+Signature: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+Date: \_\_\_\_\_\_\_\_\_\_\_
+
+**For the Customer — Horizon Maritime Analytics Oy**
+
+Name: [Signatory Name]
+
+Title: [Signatory Title]
+
+Signature: \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+Date: \_\_\_\_\_\_\_\_\_\_\_
+
+## Exhibit A — Named Team
+
+| Name | Role | Start date |
+| :---- | :---- | :---- |
+| [TBC] | Principal Engineer | Effective date |
+| [TBC] | Senior Engineer | Effective date |
+| [TBC] | Senior Engineer | Effective date |
+| [TBC] | Engineering Manager | Effective date |
+| [TBC] | Technical Product Lead | As required |
+
+Role substitutions are managed per §5 (Change Requests); name
+substitutions within the same role do not require a Change Request
+but shall be notified to the Customer in writing within 5 business
+days.
