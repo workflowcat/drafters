@@ -20,21 +20,15 @@ const CONTENT_ROOT = fileURLToPath(new URL('../content/', import.meta.url));
 const COLLECTION_TYPES = [
   'terms',
   'clauses',
-  'documents',
-  'roles',
-  'workflows',
-  'cases',
   'cast',
+  'contracts',
 ];
 
 const ROUTE_PREFIX = {
   terms: '/terms',
   clauses: '/clauses',
-  documents: '/documents',
-  roles: '/roles',
-  workflows: '/workflows',
-  cases: '/cases',
   cast: '/cast',
+  contracts: '/contracts',
 };
 
 // Very small YAML frontmatter reader. We don't need full YAML — just strings,
@@ -129,9 +123,9 @@ export function buildIndex() {
       const fm = parseFrontmatter(source);
       if (!fm || !fm.id) continue;
 
-      // For clauses, collapse language variants to their baseId
+      // For clauses & contracts, collapse language variants to their baseId
       let entryKey = fm.id;
-      if (collection === 'clauses' && fm.baseId) {
+      if ((collection === 'clauses' || collection === 'contracts') && fm.baseId) {
         if (seenBaseIds.has(fm.baseId)) continue; // only first variant wins
         seenBaseIds.add(fm.baseId);
         entryKey = fm.baseId;
@@ -181,7 +175,7 @@ export function resolve(target) {
   if (!target) return null;
   const key = target.trim().toLowerCase();
 
-  // Support explicit "collection/id" form: e.g. [[roles/pm]]
+  // Support explicit "collection/id" form: e.g. [[clauses/payment-dispute]]
   if (key.includes('/')) {
     const [collection, id] = key.split('/', 2);
     if (COLLECTION_TYPES.includes(collection) && id) {

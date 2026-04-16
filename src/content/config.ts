@@ -1,4 +1,4 @@
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, z } from 'astro:content';
 
 // Shared fragments ----------------------------------------------------------
 
@@ -12,7 +12,6 @@ const bilingualText = z.union([
 ]);
 
 const tagList = z.array(z.string()).default([]);
-const statusLiteral = z.enum(['draft', 'active', 'deprecated', 'archived']).default('draft');
 const languageLiteral = z.enum(['uk', 'en', 'de']);
 
 // Terms — glossary entries (tooltips + full pages) --------------------------
@@ -50,107 +49,22 @@ const clauses = defineCollection({
     aliases: z.array(z.string()).default([]),
     tags: tagList,
     commentary: z.string().optional(),
-    source: z.string().optional(), // upstream Drive doc
+    source: z.string().optional(),
     reviewedBy: z.string().optional(),
     reviewedOn: z.string().optional(),
     reviewExpires: z.string().optional(),
   }),
 });
 
-// Documents — contracts, SoPs, composed of clauses --------------------------
+// Cast — companies + people referenced by contracts and cases ---------------
 
-const documents = defineCollection({
-  type: 'content',
-  schema: z.object({
-    id: z.string(),
-    title: bilingualText,
-    type: z.enum(['contract', 'policy', 'form', 'checklist', 'sop']),
-    languages: z.array(languageLiteral).default(['uk']),
-    status: statusLiteral,
-    composedOf: z.array(z.string()).default([]), // clause ids
-    workflows: z.array(z.string()).default([]),
-    driveSource: z.string().url().optional(),
-    supersedes: z.string().optional(),
-    aliases: z.array(z.string()).default([]),
-    tags: tagList,
-    updated: z.string().optional(), // ISO date
-    reviewedBy: z.string().optional(),
-    reviewedOn: z.string().optional(),
-    reviewExpires: z.string().optional(),
-  }),
-});
-
-// Roles — actors referenced in workflows ------------------------------------
-
-const roles = defineCollection({
-  type: 'content',
-  schema: z.object({
-    id: z.string(),
-    title: bilingualText,
-    short: bilingualText.optional(),
-    tags: tagList,
-  }),
-});
-
-// Workflows — the narrative binding unit ------------------------------------
-
-const workflowStep = z.object({
-  id: z.string().optional(),
-  title: bilingualText.optional(),
-  role: z.string().optional(),
-  uses: z.array(z.string()).default([]),
-  outputs: z.array(z.string()).default([]),
-});
-
-const workflows = defineCollection({
-  type: 'content',
-  schema: z.object({
-    id: z.string(),
-    title: bilingualText,
-    pillar: z.enum([
-      'gtm',
-      'client-engagement',
-      'delivery',
-      'people',
-      'finance',
-      'security',
-      'internal-it',
-    ]),
-    primaryLanguage: languageLiteral.default('uk'),
-    status: statusLiteral,
-    steps: z.array(workflowStep).default([]),
-    related: z.array(z.string()).default([]),
-    tags: tagList,
-    updated: z.string().optional(),
-  }),
-});
-
-// Cases — scenarios bundling multiple workflows -----------------------------
-
-const cases = defineCollection({
-  type: 'content',
-  schema: z.object({
-    id: z.string(),
-    title: bilingualText,
-    workflows: z.array(z.string()).default([]),
-    tags: tagList,
-    // Optional recurring cast references for cross-linking cases.
-    clients: z.array(z.string()).default([]),       // company cast ids
-    people: z.array(z.string()).default([]),        // individual cast ids
-  }),
-});
-
-// Cast — recurring fake characters (companies + people) that appear
-// across cases. Having them as a collection lets us link them via
-// wikilinks, show where each character shows up, and evolve their
-// profiles over time.
 const cast = defineCollection({
   type: 'content',
   schema: z.object({
     id: z.string(),
     kind: z.enum(['company', 'person']),
-    title: z.string(),           // short display name e.g. "Horizon"
-    legalName: z.string().optional(), // full legal name e.g. "Horizon Maritime Analytics Oy"
+    title: z.string(),
+    legalName: z.string().optional(),
     country: z.string().optional(),
     law: z.string().optional(),
     industry: z.string().optional(),
@@ -158,25 +72,22 @@ const cast = defineCollection({
     personality: z.string().optional(),
     aliases: z.array(z.string()).default([]),
     tags: tagList,
-    // Cross-references
     relatedCompanies: z.array(z.string()).default([]),
     relatedPeople: z.array(z.string()).default([]),
   }),
 });
 
 // Contracts — compiled, signable contract bodies ---------------------------
-// Each entry is one language variant of one document's contract body.
-// The MDX body contains the actual contract text: preamble, key terms table,
-// clauses inlined via <Clause baseId="..." lang="..."/> components,
-// termination, liability, signatures, attachments. This is what the export
-// pipeline turns into a real .docx that you could print and sign.
+// One MDX file per (contract, language) pair. The MDX body contains the
+// full contract text: preamble, key terms table, sections composing clauses
+// via <Clause baseId="..." />, voices, signatures, attachments.
 
 const contracts = defineCollection({
   type: 'content',
   schema: z.object({
     id: z.string(),
     baseId: z.string(),
-    documentId: z.string(),
+    documentId: z.string().optional(),
     lang: languageLiteral,
     title: bilingualText,
     contractor: z.string().optional(),
@@ -189,10 +100,6 @@ const contracts = defineCollection({
 export const collections = {
   terms,
   clauses,
-  documents,
-  roles,
-  workflows,
-  cases,
   cast,
   contracts,
 };

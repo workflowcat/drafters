@@ -1,10 +1,8 @@
 ---
 /**
- * Metadata strip below page titles.
- * Small uppercase Raleway pills separated by middots.
+ * Metadata strip below page titles. Minimal — just the updated date
+ * when present. No pills, no uppercase chrome, no pillar tags.
  */
-import StatusPill from './StatusPill.astro';
-
 export interface Props {
   pillar?: string;
   languages?: string[];
@@ -12,16 +10,10 @@ export interface Props {
   updated?: string;
 }
 
-const { pillar, languages, status, updated } = Astro.props;
+const { updated } = Astro.props;
 ---
-<div class="header__meta">
-  {pillar && <StatusPill label={pillar} />}
-  {languages && languages.length > 0 && <StatusPill label={languages.join(' · ')} />}
-  {status && (
-    <StatusPill
-      label={status}
-      kind={status === 'active' ? 'active' : status === 'deprecated' || status === 'archived' ? 'deprecated' : 'default'}
-    />
-  )}
-  {updated && <StatusPill label={`оновлено ${updated}`} />}
-</div>
+{updated && (
+  <div class="header__meta">
+    <span class="header__meta-item">Updated {updated}</span>
+  </div>
+)}

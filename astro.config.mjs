@@ -14,7 +14,7 @@ const rehypePlugins = [
       behavior: 'append',
       properties: {
         className: ['heading-anchor'],
-        'aria-label': 'Постійне посилання на цей заголовок',
+        'aria-label': 'Permanent link to this heading',
       },
       content: {
         type: 'element',

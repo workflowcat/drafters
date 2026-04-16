@@ -366,11 +366,7 @@ async function main() {
 
   const now = new Date().toISOString().slice(0, 10);
 
-  const workflows = loadCollection('workflows');
-  const documents = loadCollection('documents');
   const clauses = loadCollection('clauses');
-  const terms = loadCollection('terms');
-  const roles = loadCollection('roles');
   const contracts = loadCollection('contracts');
 
   // Index clauses by baseId
@@ -389,72 +385,7 @@ async function main() {
     contractsByBase.get(base).push(c);
   }
 
-  // Write the clauses manifest for the /builder page
-  await writeClausesManifest(clausesByBase);
-
   let count = 0;
-
-  // ── Workflows ────────────────────────────
-  for (const w of workflows) {
-    const id = w.data.id;
-    const title = pickTitle(w.data.title) || id;
-    const outDir = join(EXPORT_ROOT, 'workflows', id);
-    ensureDir(outDir);
-
-    writeFileSync(join(outDir, 'source.mdx'), w.raw);
-    await writeDocx(w.body, title, join(outDir, 'workflow.docx'));
-
-    // Bundle: workflow.docx + all referenced docs as docx + README
-    const bundleFiles = [
-      { path: join(outDir, 'workflow.docx'), name: `01_workflow.docx` },
-      { path: join(outDir, 'source.mdx'), name: `source/workflow.mdx` },
-    ];
-    const affected = new Set();
-    // Walk steps, pull referenced documents
-    if (Array.isArray(w.data.steps)) {
-      for (const step of w.data.steps) {
-        if (!Array.isArray(step.uses)) continue;
-        for (const useId of step.uses) {
-          affected.add(useId);
-        }
-      }
-    }
-    let fileIndex = 2;
-    for (const useId of affected) {
-      const doc = documents.find((d) => d.data.id === useId);
-      if (doc) {
-        const docTitle = pickTitle(doc.data.title);
-        const docOutPath = join(outDir, `ref-${useId}.docx`);
-        await writeDocx(doc.body, docTitle, docOutPath);
-        bundleFiles.push({
-          path: docOutPath,
-          name: `documents/${String(fileIndex).padStart(2, '0')}_${useId}.docx`,
-        });
-        bundleFiles.push({
-          content: doc.raw,
-          name: `source/documents/${useId}.mdx`,
-        });
-        fileIndex++;
-      }
-    }
-
-    const readme = mkReadme({
-      title,
-      lines: [
-        `Workflow bundle exported from Drafters.`,
-        ``,
-        `Contains the workflow narrative + every document referenced in its steps,`,
-        `plus the raw MDX source under ./source/.`,
-        ``,
-        `Referenced documents: ${affected.size}`,
-      ],
-      generated: now,
-    });
-    bundleFiles.push({ content: readme, name: 'README.md' });
-
-    await zipDir(bundleFiles, join(outDir, 'bundle.zip'));
-    count++;
-  }
 
   // ── Contracts (compiled, signable contract bodies) ───
   // For each contract entry, inline its <Clause> components and
@@ -516,61 +447,6 @@ async function main() {
     });
     bundleFiles.push({ content: readme, name: 'README.md' });
     await zipDir(bundleFiles, join(outDir, 'contract.zip'));
-  }
-
-  // ── Documents ────────────────────────────
-  for (const d of documents) {
-    const id = d.data.id;
-    const title = pickTitle(d.data.title) || id;
-    const outDir = join(EXPORT_ROOT, 'documents', id);
-    ensureDir(outDir);
-
-    writeFileSync(join(outDir, 'source.mdx'), d.raw);
-    await writeDocx(d.body, title, join(outDir, 'document.docx'));
-
-    // Bundle with context: document.docx + composed clauses + terms glossary + README
-    const bundleFiles = [
-      { path: join(outDir, 'document.docx'), name: `01_document.docx` },
-      { path: join(outDir, 'source.mdx'), name: `source/document.mdx` },
-    ];
-    let idx = 2;
-    if (Array.isArray(d.data.composedOf)) {
-      for (const clauseBaseId of d.data.composedOf) {
-        const variants = clausesByBase.get(clauseBaseId) || [];
-        const ukVariant = variants.find((c) => c.data.lang === 'uk') || variants[0];
-        if (ukVariant) {
-          const clauseTitle = pickTitle(ukVariant.data.title);
-          const clauseOut = join(outDir, `ref-${clauseBaseId}.docx`);
-          await writeDocx(ukVariant.body, clauseTitle, clauseOut);
-          bundleFiles.push({
-            path: clauseOut,
-            name: `clauses/${String(idx).padStart(2, '0')}_${clauseBaseId}.docx`,
-          });
-          bundleFiles.push({
-            content: ukVariant.raw,
-            name: `source/clauses/${clauseBaseId}.mdx`,
-          });
-          idx++;
-        }
-      }
-    }
-
-    const readme = mkReadme({
-      title,
-      lines: [
-        `Document bundle exported from Drafters.`,
-        ``,
-        `Contains the document + all its composed clauses as separate files,`,
-        `plus the raw MDX sources under ./source/.`,
-        ``,
-        `Composed of ${(d.data.composedOf || []).length} clauses.`,
-      ],
-      generated: now,
-    });
-    bundleFiles.push({ content: readme, name: 'README.md' });
-
-    await zipDir(bundleFiles, join(outDir, 'with-context.zip'));
-    count++;
   }
 
   // ── Clauses ──────────────────────────────

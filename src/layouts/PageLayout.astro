@@ -16,7 +16,7 @@ export interface Props {
   lang?: 'uk' | 'en';
 }
 
-const { title, description, crumbSegments, lang = 'uk' } = Astro.props;
+const { title, description, crumbSegments, lang = 'en' } = Astro.props;
 const pageTitle = crumbSegments.length === 0 ? 'Drafters' : `${title} · Drafters`;
 
 const crumbs = crumbSegments.map((seg, i) => ({
@@ -30,7 +30,7 @@ const crumbs = crumbSegments.map((seg, i) => ({
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description ?? 'Drafters — бібліотека контрактів для ІТ-сервісних компаній.'} />
+    <meta name="description" content={description ?? 'Drafters — a composable contract reference library with three views over every document.'} />
     <meta name="color-scheme" content="light" />
     <title>{pageTitle}</title>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -41,19 +41,18 @@ const crumbs = crumbSegments.map((seg, i) => ({
     <CommandPalette />
 
     <div class="page">
-      <aside class="page__rail" aria-label="Навігація">
+      <aside class="page__rail" aria-label="Navigation">
         <slot name="rail">
           <div class="page__rail-inner">
-            <button class="page__rail-search" data-open-palette aria-label="Пошук">
-              <span>Пошук</span>
+            <button class="page__rail-search" data-open-palette aria-label="Search">
+              <span>Search</span>
               <kbd>/</kbd>
             </button>
             <nav class="page__rail-nav">
-              <a href="/">Головна</a>
-              <a href="/contracts">Контракти</a>
-              <a href="/clauses">Пункти</a>
-              <a href="/cases">Кейси</a>
-              <a href="/cast">Персонажі</a>
+              <a href="/">Home</a>
+              <a href="/contracts">Contracts</a>
+              <a href="/clauses">Clauses</a>
+              <a href="/cast">Cast</a>
             </nav>
           </div>
         </slot>
@@ -80,7 +79,7 @@ const crumbs = crumbSegments.map((seg, i) => ({
         </article>
       </main>
 
-      <aside class="page__margin" aria-label="Нотатки">
+      <aside class="page__margin" aria-label="Notes">
         <slot name="margin" />
       </aside>
     </div>

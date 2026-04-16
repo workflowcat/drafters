@@ -13,26 +13,26 @@
       <input
         type="search"
         class="cpal__input"
-        placeholder="Пошук або команда…"
-        aria-label="Пошук"
+        placeholder="Search or command…"
+        aria-label="Search"
         autocomplete="off"
         spellcheck="false"
         data-cpal-input
       />
-      <button class="cpal__close" aria-label="Закрити" data-cpal-close>
+      <button class="cpal__close" aria-label="Close" data-cpal-close>
         <kbd>esc</kbd>
       </button>
     </header>
     <div class="cpal__results" data-cpal-results>
       <div class="cpal__hint">
-        Почніть вводити, щоб шукати по всіх процесах, документах, пунктах і
-        термінах. Стрілки ↑↓ для навігації, Enter — відкрити.
+        Start typing to search contracts, clauses, cast, and terms.
+        Arrows ↑↓ to navigate, Enter to open.
       </div>
     </div>
     <footer class="cpal__footer">
-      <span><kbd>↑</kbd><kbd>↓</kbd> навігація</span>
-      <span><kbd>↵</kbd> відкрити</span>
-      <span><kbd>esc</kbd> закрити</span>
+      <span><kbd>↑</kbd><kbd>↓</kbd> navigate</span>
+      <span><kbd>↵</kbd> open</span>
+      <span><kbd>esc</kbd> close</span>
     </footer>
   </div>
 </dialog>
@@ -183,21 +183,13 @@
   // to search for a specific page. They surface first when the query
   // starts with ">" or matches their keyword.
   const COMMANDS = [
-    { id: 'home', label: 'Перейти: головна', hint: 'g h', url: '/' },
-    { id: 'workflows', label: 'Перейти: процеси', hint: 'g w', url: '/workflows' },
-    { id: 'documents', label: 'Перейти: документи', hint: 'g d', url: '/documents' },
-    { id: 'contracts', label: 'Перейти: контракти', url: '/contracts' },
-    { id: 'clauses', label: 'Перейти: пункти', hint: 'g c', url: '/clauses' },
-    { id: 'terms', label: 'Перейти: терміни', hint: 'g t', url: '/terms' },
-    { id: 'roles', label: 'Перейти: ролі', hint: 'g r', url: '/roles' },
-    { id: 'cases', label: 'Перейти: кейси', url: '/cases' },
-    { id: 'cast', label: 'Перейти: персонажі', url: '/cast' },
-    { id: 'changelog', label: 'Перейти: журнал змін', url: '/changelog' },
-    { id: 'tools', label: 'Перейти: інструменти', url: '/tools' },
-    { id: 'graph', label: 'Інструмент: граф знань', url: '/tools/graph' },
-    { id: 'admin', label: 'Інструмент: стан контенту', url: '/tools/admin' },
-    { id: 'github', label: 'Відкрити GitHub репо', url: 'https://github.com/workflowcat/drafters' },
-    { id: 'print', label: 'Друк / зберегти PDF', url: 'print:' },
+    { id: 'home', label: 'Go: home', hint: 'g h', url: '/' },
+    { id: 'contracts', label: 'Go: contracts', hint: 'g k', url: '/contracts' },
+    { id: 'clauses', label: 'Go: clauses', hint: 'g c', url: '/clauses' },
+    { id: 'terms', label: 'Go: terms', hint: 'g t', url: '/terms' },
+    { id: 'cast', label: 'Go: cast', url: '/cast' },
+    { id: 'github', label: 'Open GitHub repository', url: 'https://github.com/workflowcat/drafters' },
+    { id: 'print', label: 'Print / save as PDF', url: 'print:' },
   ];
 
   interface PfResult {
@@ -226,7 +218,7 @@
   }
 
   function getCollectionFromUrl(url: string): string {
-    const m = url.match(/\/(workflows|documents|clauses|terms|roles|cases|cast)\//);
+    const m = url.match(/\/(contracts|clauses|terms|cast)\//);
     return m ? m[1] : 'page';
   }
 

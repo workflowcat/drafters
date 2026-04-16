@@ -38,7 +38,7 @@ function bodyText(src) {
 }
 
 // Scan everything
-const collections = ['terms', 'clauses', 'documents', 'roles', 'workflows', 'cases', 'contracts', 'cast'];
+const collections = ['terms', 'clauses', 'contracts', 'cast'];
 const entries = [];
 for (const col of collections) {
   for (const file of walk(join(CONTENT, col))) {
@@ -102,6 +102,7 @@ for (const e of entries) {
 
 // Orphan clauses — clauses with zero inbound references
 const inboundCount = new Map();
+const CLAUSE_COMPONENT = /<Clause\s+baseId=["']([^"']+)["']/g;
 for (const e of entries) {
   // Frontmatter references
   if (Array.isArray(e.fm.composedOf)) {
@@ -120,6 +121,13 @@ for (const e of entries) {
       inboundCount.set(key, (inboundCount.get(key) || 0) + 1);
     }
   }
+  // Body <Clause baseId="..."> composition
+  CLAUSE_COMPONENT.lastIndex = 0;
+  let cm;
+  while ((cm = CLAUSE_COMPONENT.exec(e.body))) {
+    const base = cm[1];
+    inboundCount.set(`clauses/${base}`, (inboundCount.get(`clauses/${base}`) || 0) + 1);
+  }
 }
 const seenBases = new Set();
 for (const e of entries) {
@@ -133,31 +141,10 @@ for (const e of entries) {
   }
 }
 
-// Missing required fields
+// Missing required fields — contracts should carry an updated stamp
 for (const e of entries) {
-  if (e.collection === 'workflows' || e.collection === 'documents') {
-    if (!e.fm.updated) {
-      console.log(`[META]    ${e.collection}/${e.id} missing 'updated' timestamp`);
-      warnings++;
-    }
-  }
-}
-
-// Contracts completeness: check that every active commercial contract
-// has the essential "protection quartet". NDAs and SLAs are subordinate
-// documents and have their own protection patterns, so skip them.
-const ESSENTIAL = ['dispute-resolution-uk', 'liability-limitation-mutual', 'effect-of-termination'];
-const SKIP_IDS = new Set(['nda-general', 'sla-template', 'data-processing-agreement-2026', 'statement-of-work-2026']);
-for (const e of entries) {
-  if (e.collection !== 'documents') continue;
-  if (e.fm.type !== 'contract') continue;
-  if (e.fm.status !== 'active') continue;
-  if (SKIP_IDS.has(e.id)) continue;
-  const composedRaw = e.fm.composedOf;
-  const composed = Array.isArray(composedRaw) ? composedRaw : [];
-  const missing = ESSENTIAL.filter((c) => !composed.includes(c));
-  if (missing.length > 0) {
-    console.log(`[AUDIT]   ${e.id} missing essential clauses: ${missing.join(', ')}`);
+  if (e.collection === 'contracts' && !e.fm.updated) {
+    console.log(`[META]    ${e.collection}/${e.id} missing 'updated' timestamp`);
     warnings++;
   }
 }

@@ -3,20 +3,16 @@ import { render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
-import UsageCounter from '~/components/UsageCounter.astro';
 import RelatedPanel from '~/components/RelatedPanel.astro';
 import PageFooter from '~/components/PageFooter.astro';
 import Toc from '~/components/Toc.astro';
 import LangToggle from '~/components/LangToggle.astro';
-import ReadingTime from '~/components/ReadingTime.astro';
-import FileHistory from '~/components/FileHistory.astro';
 import { listClauseBases, getClauseByBase } from '~/lib/clause-variants';
 
 export async function getStaticPaths() {
   const bases = await listClauseBases();
   const paths: any[] = [];
   for (const { baseId, languages, preferred } of bases) {
-    // Default entry under the bare baseId, plus one path per language suffix
     paths.push({
       params: { id: baseId },
       props: { baseId, languages, lang: preferred.data.lang ?? 'uk' },
@@ -31,7 +27,6 @@ const { baseId, languages, lang } = Astro.props as {
   lang: string;
 };
 
-// Allow ?lang=en to override via URL param at runtime by picking at build time
 const urlLang = Astro.url.searchParams.get('lang');
 const resolveLang = urlLang && languages.includes(urlLang) ? urlLang : lang;
 const { entry } = await getClauseByBase(baseId, resolveLang);
@@ -54,32 +49,20 @@ const title =
 <PageLayout title={title} crumbSegments={['clauses', baseId]} lang={resolveLang as any}>
   <slot slot="header">
     <h1 class="header__title">{title}</h1>
-    <MetaBlock pillar="clause" languages={languages} />
-    <div class="header__meta">
-      <ReadingTime body={entry.body ?? ''} lang={resolveLang as any} />
-    </div>
+    <MetaBlock />
     <LangToggle base={`/clauses/${baseId}`} languages={languages} current={resolveLang} />
-    
   </slot>
 
   <Toc slot="margin" headings={headings} />
-
-  <UsageCounter collection="clauses" id={baseId} />
 
   <Content />
 
   {entry.data.commentary && (
     <>
-      <p class="divider">Коментар</p>
+      <p class="divider">Commentary</p>
       <p style="color: var(--ink-muted); max-width: var(--measure);">{entry.data.commentary}</p>
     </>
   )}
-
-  <FileHistory
-    collection="clauses"
-    id={entry.data.id}
-    reviewedOn={entry.data.reviewedOn}
-  />
 
   <RelatedPanel collection="clauses" id={baseId} tags={entry.data.tags ?? []} />
   <BacklinksSection collection="clauses" id={baseId} />

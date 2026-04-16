@@ -21,21 +21,15 @@ export function pickShort(short: unknown): string {
 }
 
 export const COLLECTION_LABELS: Record<string, { uk: string; en: string }> = {
-  workflows: { uk: 'Процеси', en: 'Workflows' },
-  documents: { uk: 'Документи', en: 'Documents' },
+  contracts: { uk: 'Контракти', en: 'Contracts' },
   clauses: { uk: 'Пункти', en: 'Clauses' },
   terms: { uk: 'Терміни', en: 'Terms' },
-  roles: { uk: 'Ролі', en: 'Roles' },
-  cases: { uk: 'Кейси', en: 'Cases' },
   cast: { uk: 'Персонажі', en: 'Cast' },
 };
 
 export const ROUTE_PREFIX: Record<string, string> = {
-  workflows: '/workflows',
-  documents: '/documents',
+  contracts: '/contracts',
   clauses: '/clauses',
   terms: '/terms',
-  roles: '/roles',
-  cases: '/cases',
   cast: '/cast',
 };

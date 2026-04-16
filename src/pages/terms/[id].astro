@@ -3,7 +3,6 @@ import { getCollection, render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
 import MetaBlock from '~/components/MetaBlock.astro';
-import UsageCounter from '~/components/UsageCounter.astro';
 import RelatedPanel from '~/components/RelatedPanel.astro';
 import PageFooter from '~/components/PageFooter.astro';
 
@@ -28,10 +27,8 @@ const shortEn = entry.data.short?.en;
         {entry.data.title.en}
       </p>
     )}
-    <MetaBlock pillar="term" />
+    <MetaBlock />
   </slot>
-
-  <UsageCounter collection="terms" id={entry.data.id} />
 
   {shortUk && <p class="lead">{shortUk}</p>}
   {shortEn && shortEn !== shortUk && <p style="font-style: italic; color: var(--ink-faint); font-size: var(--fs-small);">{shortEn}</p>}
