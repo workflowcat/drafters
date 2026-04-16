@@ -14,6 +14,18 @@ tags: [contract, dpa, gdpr, privacy, client, "2026", signable]
 
 # Data Processing Agreement
 
+> **Negotiation Brief — DPA / GDPR**
+>
+> **Три ключові точки тертя:** список субпроцесорів, право на аудит, строк повідомлення про порушення даних.
+>
+> **Типовий вплив на sales-цикл:** кастомні переговори по DPA додають 4-12 тижнів до закриття угоди. Максимально використовуйте стандартизовані формулювання, щоб скоротити цей термін.
+>
+> **Асиметрія ризиків:** штрафи GDPR (до 4% глобального обороту) перевищують вартість будь-якого контракту. Клієнти завжди намагаються вивести штрафи з-під загального ліміту відповідальності. Це єдина поступка, яку варто давати без опору.
+>
+> **Позиція підрядника:** ми процесор, не контролер. Наша мета — чітко розмежувати відповідальність і зберегти операційну гнучкість (субпроцесори, строки, локація обробки).
+>
+> **Стратегія:** починайте з нашого стандартного DPA. Якщо клієнт наполягає на кастомних змінах — переходьте до обговорення конкретних пунктів нижче, а не переписуйте весь документ.
+
 **Effective date:** \_\_\_\_\_\_\_\_\_\_\_
 
 **Under:** Master Services Agreement dated \_\_\_\_\_\_\_\_\_\_\_
@@ -36,9 +48,29 @@ Customer in accordance with Regulation (EU) 2016/679 ("GDPR").
 | **Types of personal data** | As specified in Annex A |
 | **Duration of processing** | For the term of the MSA, plus any retention period required by law |
 
+<Voice voice="legal">Таблиця Scope of Processing — це ядро DPA за ст. 28(3) GDPR. Кожне поле має бути заповнене конкретно, а не "as described in MSA". Наглядові органи перевіряють саме цю таблицю першою.</Voice>
+
+<Voice voice="business">Не залишайте "As specified in Annex A" без заповненого Annex A при підписанні. Це затримає закриття угоди — клієнтський DPO не підпише документ з порожніми полями.</Voice>
+
+<Voice voice="negotiations">Клієнти часто просять вказати конкретні cloud-регіони та заборонити обробку за межами ЄС. Компроміс: вказати "EU (Germany)" як primary location, але зберегти право на субпроцесорів в інших юрисдикціях через Annex B.</Voice>
+
+<Voice voice="delivery">Команда розробки має знати, які саме категорії даних обробляються. Якщо в таблиці вказані special categories (здоров'я, біометрія) — це тригер для додаткових технічних заходів та DPIA.</Voice>
+
+<Voice voice="interaction">Ця таблиця посилається на Annex A (деталі обробки) та MSA (scope послуг). Будь-яка зміна в MSA scope автоматично впливає на DPA — переконайтесь, що amendment process це враховує.</Voice>
+
 ## 2. Processor Obligations
 
 <Clause baseId="data-processing" lang="en" />
+
+<Voice voice="legal">Стаття 28(3) GDPR вимагає конкретних зобов'язань процесора: інструкції контролера, конфіденційність, технічні заходи, субпроцесори, допомога контролеру, повернення/видалення даних, аудит. Перевірте, що клауза покриває всі сім пунктів.</Voice>
+
+<Voice voice="business">Три найдорожчі зобов'язання з точки зору операційних витрат: (1) повідомлення про порушення — клієнти просять 24 години, ринковий стандарт 48-72 години після підтвердження (не після виявлення); (2) видалення даних — 30 днів стандарт, деякі клієнти хочуть 14 днів; (3) аудити — необмежені аудити = необмежені витрати.</Voice>
+
+<Voice voice="negotiations">Субпроцесори — головне поле бою. Клієнти хочуть prior written consent на кожного субпроцесора. Наша позиція: notice-and-objection mechanism з правом на розірвання як єдиний засіб захисту. Аргумент: "ми не можемо зупинити production на тиждень, поки ваш DPO review'ює зміну хостинг-провайдера." Право на аудит: пропонуйте 1 раз на рік з 30-денним попередженням + SOC 2 звіти між аудитами.</Voice>
+
+<Voice voice="delivery">Breach notification timeline прив'язаний до момент "awareness" (підтвердження інциденту), а не до моменту виявлення аномалії. Команда DevOps має мати чіткий incident response runbook з визначенням, що вважається "confirmed breach". Строк видалення даних (30 днів) має бути реалістичним для вашої інфраструктури — перевірте backup retention policies.</Voice>
+
+<Voice voice="interaction">Цей розділ посилається на Annex B (субпроцесори) та Annex C (технічні заходи). Зобов'язання з повернення/видалення даних кореспондують з Section 6 (Term and Termination). Breach notification може тригернути liability clause в Section 4.</Voice>
 
 ## 3. Confidentiality
 
@@ -48,6 +80,14 @@ The Contractor shall ensure that any person authorized to process
 personal data has committed to confidentiality or is under an
 appropriate statutory obligation of confidentiality.
 
+<Voice voice="legal">Конфіденційність у DPA — це не просто NDA. Стаття 28(3)(b) GDPR вимагає, щоб усі особи, які мають доступ до персональних даних, були зобов'язані конфіденційністю. Це стосується і субпідрядників, і фрілансерів — не тільки штатних працівників.</Voice>
+
+<Voice voice="business">Додатковий параграф про statutory obligation — це стандартне формулювання, яке рідко викликає суперечки. Якщо клієнт наполягає на додаткових зобов'язаннях (наприклад, background checks для персоналу) — це збільшує HR-витрати. Оцініть, чи виправдано це обсягом контракту.</Voice>
+
+<Voice voice="negotiations">Цей розділ рідко є точкою тертя. Якщо клієнт хоче більш жорстких формулювань — поступіться тут, щоб мати leverage на субпроцесорах або аудитах. Типова поступка: "committed to confidentiality AND under an appropriate statutory obligation" замість "OR".</Voice>
+
+<Voice voice="delivery">Кожен розробник, який має доступ до production даних клієнта, має бути під NDA або employment contract з confidentiality clause. PM має перевірити це перед onboarding нових людей на проект.</Voice>
+
 ## 4. Limitation of Liability
 
 <Clause baseId="liability-limitation-mutual" lang="en" />
@@ -55,6 +95,16 @@ appropriate statutory obligation of confidentiality.
 **Note:** The parties acknowledge that regulatory fines imposed
 directly on a party by a supervisory authority under GDPR are
 borne by that party and are not subject to the liability cap above.
+
+<Voice voice="legal">Виключення GDPR-штрафів з liability cap — це ринковий стандарт і правильна позиція. Штрафи за ст. 83 GDPR (до 20 млн EUR або 4% обороту) не підлягають contractual indemnification за більшістю юрисдикцій ЄС. Спроба включити їх у cap створює хибне відчуття безпеки.</Voice>
+
+<Voice voice="business">Liability cap у DPA — найчастіша причина ескалації до C-level. Клієнти хочуть unlimited liability за data breaches. Наша позиція: загальний cap з MSA застосовується, але GDPR-штрафи excluded. Це розумний компроміс: клієнт захищений від регуляторних ризиків, ми захищені від disproportionate claims.</Voice>
+
+<Voice voice="negotiations">Якщо клієнт наполягає на окремому, вищому cap для DPA — запропонуйте 2x annual contract value для data-related claims (окремо від загального cap). Ніколи не погоджуйтесь на unlimited liability. Аргумент: "наш страховий поліс покриває X, unlimited liability зробить проект нерентабельним."</Voice>
+
+<Voice voice="delivery">Liability clause безпосередньо впливає на те, яке cyber insurance потрібно мати. Якщо cap підвищений — повідомте фінансовий відділ для перевірки страхового покриття перед підписанням.</Voice>
+
+<Voice voice="interaction">Цей розділ кореспондує з liability clause в MSA. Переконайтесь, що DPA cap не суперечить MSA cap. Note про GDPR-штрафи — це carve-out, який має бути зеркально відображений в MSA, якщо MSA підписано раніше.</Voice>
 
 ## 5. Dispute Resolution
 
@@ -65,6 +115,16 @@ borne by that party and are not subject to the liability cap above.
 This DPA is effective for the duration of the MSA. Upon termination
 of the MSA, the data return and deletion obligations in Section 2
 above shall apply.
+
+<Voice voice="legal">Стаття 28(3)(g) GDPR вимагає: після завершення обробки — видалити або повернути всі персональні дані та видалити існуючі копії (якщо законодавство ЄС не вимагає зберігання). Формулювання "shall apply" недостатньо конкретне — клієнт може вимагати explicit timeline.</Voice>
+
+<Voice voice="business">Строк видалення даних після termination — часта точка переговорів. 30 днів — ринковий стандарт. Деякі enterprise-клієнти вимагають 14 днів. Враховуйте реальну вартість прискореного видалення: backup rotation cycles, archived logs, third-party sub-processors з власними retention policies.</Voice>
+
+<Voice voice="negotiations">Клієнти часто просять: (1) сертифікат про видалення даних; (2) право обрати "return" замість "delete"; (3) конкретний строк (14-30 днів). Давайте сертифікат — це безкоштовно. Return vs delete — наш вибір за замовчуванням "delete unless instructed otherwise." Строк — тримайте 30 днів, аргумент: "backup retention cycles не дозволяють швидше."</Voice>
+
+<Voice voice="delivery">Після завершення проекту DevOps має виконати data deletion checklist: production DB, staging, backups, logs, error tracking (Sentry), analytics. Сертифікат видалення підписує CTO або Head of Engineering. Заздалегідь підготуйте шаблон.</Voice>
+
+<Voice voice="interaction">Строки видалення мають бути узгоджені із зобов'язаннями в Section 2 (Processor Obligations). Якщо MSA має окремий survival clause — перевірте, що він не конфліктує з deletion obligations. Annex B (субпроцесори) — кожен субпроцесор також має видалити дані.</Voice>
 
 ## 7. Signatures
 
@@ -78,6 +138,14 @@ above shall apply.
 
 ## Annex A — Details of Processing
 
+<Voice voice="legal">Annex A — обов'язковий елемент за ст. 28(3) GDPR. Наглядові органи перевіряють конкретність заповнення. "Various data" або "as needed" — не проходить. Кожне поле має бути специфічним для проекту.</Voice>
+
+<Voice voice="business">Клієнтський DPO зазвичай pushback'ить на: (1) занадто широкі categories of data subjects — звужуйте до реальних; (2) special categories — якщо проект не потребує health/biometric data, явно вкажіть "None"; (3) location of processing — клієнти все частіше вимагають EU-only processing.</Voice>
+
+<Voice voice="negotiations">Location of processing — зростаючий тренд: клієнти вимагають гарантії, що дані не покидають ЄС. Якщо ваша команда в Україні — це не ЄС. Рішення: дані зберігаються в EU cloud (Frankfurt/Ireland), доступ з України через encrypted channels. Вкажіть це явно. Якщо клієнт наполягає на EU-only access — це потребує VDI/jump-server інфраструктури та збільшує вартість.</Voice>
+
+<Voice voice="delivery">Заповнюйте Annex A разом із tech lead проекту. Categories of data та processing operations мають точно відповідати тому, що реально відбувається в коді. Якщо scope зміниться — Annex A потребує amendment.</Voice>
+
 | Field | Description |
 | :---- | :---- |
 | **Categories of data subjects** | _[e.g., Customer's employees, Customer's end-users, Customer's clients]_ |
@@ -88,6 +156,14 @@ above shall apply.
 
 ## Annex B — Approved Sub-processors
 
+<Voice voice="legal">Список субпроцесорів — вимога ст. 28(2) GDPR. Контролер має право заперечити проти нового субпроцесора. Без цього annex DPA не відповідає GDPR.</Voice>
+
+<Voice voice="business">Це найбільша точка тертя в DPA-переговорах. Enterprise-клієнти витрачають тижні на review кожного субпроцесора. Кожна зміна субпроцесора (навіть upgrade AWS -> Azure) потребує notification process. Вартість управління цим процесом значна — закладайте її в overhead.</Voice>
+
+<Voice voice="negotiations">Клієнти хочуть "prior written consent" на кожного субпроцесора. Ринковий компроміс: notice-and-objection mechanism — ми повідомляємо за 30 днів, клієнт може заперечити, єдиний засіб захисту — termination affected services. Аргумент: "ми не можемо ставити production на паузу кожен раз, коли ви review'ите vendor." Заздалегідь складіть повний список поточних субпроцесорів — клієнти не люблять сюрпризів після підписання.</Voice>
+
+<Voice voice="delivery">Перед заповненням: проведіть аудит всіх третіх сторін, які мають доступ до даних клієнта. Це включає: cloud providers, error tracking (Sentry), analytics (Amplitude), CI/CD (GitHub Actions), communication (Slack — якщо channel містить client data). Не забудьте вказати location кожного субпроцесора.</Voice>
+
 | Sub-processor | Purpose | Location |
 | :---- | :---- | :---- |
 | _[e.g., AWS]_ | _[Cloud hosting]_ | _[EU — Frankfurt]_ |
@@ -95,6 +171,16 @@ above shall apply.
 |  |  |  |
 
 ## Annex C — Technical and Organizational Measures
+
+<Voice voice="legal">TOMs (Technical and Organizational Measures) — вимога ст. 32 GDPR. Рівень заходів має бути "appropriate to the risk." Для special categories даних — вимоги значно вищі. Цей annex може бути використаний проти вас у разі breach — описуйте те, що реально маєте, а не aspirational measures.</Voice>
+
+<Voice voice="business">Клієнти часто вимагають: SOC 2 Type II, ISO 27001, penetration testing reports. Якщо у вас немає SOC 2 — це може бути deal-breaker для enterprise. Вартість отримання SOC 2: $30-80K + 6-12 місяців. Розглядайте це як інвестицію в pipeline, а не витрату на один контракт.</Voice>
+
+<Voice voice="negotiations">Якщо у вас немає формальних сертифікацій — компенсуйте конкретикою: "AES-256 at rest, TLS 1.3 in transit, MFA for all systems, quarterly access reviews, annual pen testing." Клієнти цінують деталі більше, ніж загальні фрази. Пропонуйте щорічне оновлення Annex C як альтернативу частим аудитам.</Voice>
+
+<Voice voice="delivery">Цей annex — відповідальність CTO/Head of Security. Кожен пункт має бути реально імплементований. Після підписання — проведіть gap analysis між тим, що написано, і тим, що є. Annual review Annex C — додайте в calendar.</Voice>
+
+<Voice voice="interaction">Annex C підтримує зобов'язання з Section 2 (Processor Obligations) щодо "appropriate technical and organizational measures." Якщо клієнт проводить аудит (Section 2) — він перевірятиме саме відповідність цьому annex. Annex B (субпроцесори) — кожен субпроцесор також має відповідати рівню TOMs, описаному тут.</Voice>
 
 _[List the security measures the Contractor has in place. Examples:]_
 
