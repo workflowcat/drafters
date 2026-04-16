@@ -1,17 +1,17 @@
 ---
 /**
- * Disco Elysium-style margin voice. A compact card styled per
- * voice personality. Positioning (float / inline) is controlled
- * by the host context — e.g. the contract page floats these
- * into a dedicated right column. On pages that don't style .voice,
- * it falls back to an inline card.
+ * Tufte-style sidenote / margin voice. A compact, subdued comment
+ * anchored to a colored left border. Positioning (float / inline) is
+ * controlled by the host context — the contract page floats these
+ * into a dedicated right column on wide screens; elsewhere they fall
+ * back to an inline bordered block.
  *
- * Voices:
- *   legal        ⚖️  Юридичний   steel blue
- *   business     💼  Бізнес       muted green
- *   negotiations 🎯  Переговори   lavender
- *   delivery     🔧  Delivery     warm amber
- *   interaction  🔗  Взаємодія    neutral grey
+ * Voices (color only — no emoji, no chip):
+ *   legal        Юридичний    steel blue
+ *   business     Бізнес       muted green
+ *   negotiations Переговори   lavender
+ *   delivery     Delivery     warm amber
+ *   interaction  Взаємодія    neutral grey
  */
 export interface Props {
   voice: 'legal' | 'business' | 'negotiations' | 'delivery' | 'interaction';
@@ -20,11 +20,11 @@ export interface Props {
 const { voice } = Astro.props;
 
 const config = {
-  legal:        { emoji: '⚖️', label: 'Юридичний',  color: '#7e8fa6' },
-  business:     { emoji: '💼', label: 'Бізнес',      color: '#6b9e6b' },
-  negotiations: { emoji: '🎯', label: 'Переговори',  color: '#9ca9ef' },
-  delivery:     { emoji: '🔧', label: 'Delivery',    color: '#c4956a' },
-  interaction:  { emoji: '🔗', label: 'Взаємодія',   color: '#a0a0a0' },
+  legal:        { label: 'Юридичний',  color: '#7e8fa6' },
+  business:     { label: 'Бізнес',      color: '#6b9e6b' },
+  negotiations: { label: 'Переговори',  color: '#9ca9ef' },
+  delivery:     { label: 'Delivery',    color: '#c4956a' },
+  interaction:  { label: 'Взаємодія',   color: '#a0a0a0' },
 } as const;
 
 const v = config[voice];
@@ -35,10 +35,7 @@ const v = config[voice];
   style={`--voice-color: ${v.color}`}
   data-voice={voice}
 >
-  <p class="voice__label">
-    <span class="voice__emoji" aria-hidden="true">{v.emoji}</span>
-    <span class="voice__name">{v.label}</span>
-  </p>
+  <p class="voice__label">{v.label}</p>
   <div class="voice__body">
     <slot />
   </div>
@@ -51,35 +48,24 @@ const v = config[voice];
     line-height: 1.55;
     color: var(--ink-muted);
     margin: 1rem 0;
-    padding: 0.7rem 0.9rem;
-    background: var(--paper-soft);
-    border-left: 3px solid var(--voice-color);
+    padding: 0 0 0 0.9rem;
+    border-left: 2px solid var(--voice-color);
     max-width: 100%;
   }
 
   .voice__label {
     font-family: var(--font-sans);
-    font-size: 0.7rem;
-    font-weight: var(--fw-bold);
+    font-size: 0.68rem;
+    font-weight: var(--fw-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--voice-color);
-    margin: 0 0 0.4rem;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    letter-spacing: 0.02em;
-  }
-
-  .voice__emoji {
-    font-size: 0.85rem;
-    line-height: 1;
-  }
-
-  .voice__name {
-    line-height: 1;
+    margin: 0 0 0.3rem;
+    opacity: 0.85;
   }
 
   .voice__body :global(p) {
-    margin: 0.3rem 0;
+    margin: 0.35rem 0;
   }
 
   .voice__body :global(p:first-child) {
