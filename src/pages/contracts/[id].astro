@@ -1,7 +1,6 @@
 ---
 import { getCollection, render } from 'astro:content';
 import PageLayout from '~/layouts/PageLayout.astro';
-import MetaBlock from '~/components/MetaBlock.astro';
 import LangToggle from '~/components/LangToggle.astro';
 import BacklinksSection from '~/components/BacklinksSection.astro';
 import PageFooter from '~/components/PageFooter.astro';
@@ -69,50 +68,50 @@ const languages = variants.map((v: any) => v.data.lang);
   lang={currentLang as any}
 >
   <slot slot="header">
-    <h1 class="header__title">{title}</h1>
-    <MetaBlock
-      pillar="contract"
-      languages={languages}
-      status="active"
-      updated={entry.data.updated}
-    />
-    <LangToggle base={`/contracts/${baseId}`} languages={languages} current={currentLang} />
+    {/* Slim sticky toolbar — view toggle + copy + lang toggle.
+        No page-level h1 here: the contract's own MDX `# title` (rendered
+        inside <article> below) owns the title slot, so we don't burn
+        ~480px of vertical space on a duplicate title before any
+        contract content shows. */}
+    <div class="contract-toolbar">
+      <div class="view-toggle" role="tablist" aria-label="View mode">
+        <button
+          type="button"
+          class="view-toggle__btn"
+          data-view-btn="clean"
+          role="tab"
+        >
+          <span class="view-toggle__label">Clean</span>
+          <span class="view-toggle__hint">contract only</span>
+        </button>
+        <button
+          type="button"
+          class="view-toggle__btn is-active"
+          data-view-btn="reviewed"
+          role="tab"
+          aria-selected="true"
+        >
+          <span class="view-toggle__label">Reviewed</span>
+          <span class="view-toggle__hint">contract + voices</span>
+        </button>
+        <button
+          type="button"
+          class="view-toggle__btn"
+          data-view-btn="brief"
+          role="tab"
+        >
+          <span class="view-toggle__label">Brief</span>
+          <span class="view-toggle__hint">summary + structure</span>
+        </button>
+      </div>
 
-    <div class="view-toggle" role="tablist" aria-label="Режим перегляду">
-      <button
-        type="button"
-        class="view-toggle__btn"
-        data-view-btn="clean"
-        role="tab"
-      >
-        <span class="view-toggle__label">Чистий текст</span>
-        <span class="view-toggle__hint">лише контракт</span>
-      </button>
-      <button
-        type="button"
-        class="view-toggle__btn is-active"
-        data-view-btn="reviewed"
-        role="tab"
-        aria-selected="true"
-      >
-        <span class="view-toggle__label">З коментарями</span>
-        <span class="view-toggle__hint">контракт + голоси</span>
-      </button>
-      <button
-        type="button"
-        class="view-toggle__btn"
-        data-view-btn="brief"
-        role="tab"
-      >
-        <span class="view-toggle__label">Лише бриф</span>
-        <span class="view-toggle__hint">огляд + структура</span>
-      </button>
-    </div>
-
-    <div class="contract-actions">
       <button type="button" class="contract-actions__btn" data-copy-contract>
-        <span data-copy-label>Скопіювати чистий текст</span>
+        <span data-copy-label>Copy clean text</span>
       </button>
+
+      {languages.length > 1 && (
+        <LangToggle base={`/contracts/${baseId}`} languages={languages} current={currentLang} />
+      )}
     </div>
   </slot>
 
@@ -165,7 +164,7 @@ const languages = variants.map((v: any) => v.data.lang);
       const body = document.querySelector<HTMLElement>('.contract-body');
       if (!btn || !body) return;
       const labelEl = btn.querySelector<HTMLElement>('[data-copy-label]');
-      const defaultLabel = labelEl?.textContent ?? 'Скопіювати';
+      const defaultLabel = labelEl?.textContent ?? 'Copy clean text';
 
       btn.addEventListener('click', async () => {
         const clone = body.cloneNode(true) as HTMLElement;
@@ -186,13 +185,13 @@ const languages = variants.map((v: any) => v.data.lang);
         try {
           await navigator.clipboard.writeText(text);
           if (labelEl) {
-            labelEl.textContent = 'Скопійовано ✓';
+            labelEl.textContent = 'Copied ✓';
             setTimeout(() => (labelEl.textContent = defaultLabel), 1800);
           }
         } catch (err) {
           console.error('Copy failed:', err);
           if (labelEl) {
-            labelEl.textContent = 'Не вдалося скопіювати';
+            labelEl.textContent = 'Copy failed';
             setTimeout(() => (labelEl.textContent = defaultLabel), 1800);
           }
         }
@@ -213,12 +212,45 @@ const languages = variants.map((v: any) => v.data.lang);
 
 <style>
   /* ───────────────────────────────────────────────────── */
+  /* Page header tightening on contract pages.             */
+  /* The default global .header__crumb has margin-bottom   */
+  /* 2rem (sized for when an h1 followed it). With no h1   */
+  /* in the slot, that gap is dead space — close it.       */
+  /* Same for .header bottom margin: the contract body's   */
+  /* MDX h1 brings its own breathing room.                 */
+  /* ───────────────────────────────────────────────────── */
+  :global(main.page__body > header.header) {
+    margin-bottom: 0.8rem;
+  }
+  :global(main.page__body > header.header > .header__crumb) {
+    margin-bottom: 0.4rem;
+  }
+
+  /* ───────────────────────────────────────────────────── */
+  /* Slim sticky toolbar — view toggle + copy + lang.      */
+  /* Sticks to viewport top so the layer toggle is always  */
+  /* reachable while reading. Sits inside the page header  */
+  /* slot, just under the breadcrumb.                       */
+  /* ───────────────────────────────────────────────────── */
+  .contract-toolbar {
+    display: flex;
+    align-items: stretch;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin: 0.4rem 0 0.6rem;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--paper);
+    padding: 0.4rem 0;
+  }
+
+  /* ───────────────────────────────────────────────────── */
   /* View toggle UI                                        */
   /* ───────────────────────────────────────────────────── */
   .view-toggle {
     display: inline-flex;
     gap: 0;
-    margin-top: 1.2rem;
     border: 1px solid var(--rule);
     background: var(--paper);
   }
@@ -260,13 +292,7 @@ const languages = variants.map((v: any) => v.data.lang);
     font-weight: var(--fw-regular);
   }
 
-  /* "Copy clean contract" action, sits beside the view-toggle */
-  .contract-actions {
-    margin-top: 1rem;
-    display: flex;
-    gap: 0.6rem;
-    flex-wrap: wrap;
-  }
+  /* "Copy clean text" button — sits inline in the toolbar. */
   .contract-actions__btn {
     background: transparent;
     border: 1px solid var(--rule);

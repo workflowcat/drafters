@@ -6,12 +6,16 @@
  * into a dedicated right column on wide screens; elsewhere they fall
  * back to an inline bordered block.
  *
+ * The persona label is bilingual; CSS picks one based on the closest
+ * <html lang> via :lang(). One source of truth for which language is
+ * shown — the page sets <html lang>, voices follow.
+ *
  * Voices (color only — no emoji, no chip):
- *   legal        Юридичний    steel blue
- *   business     Бізнес       muted green
- *   negotiations Переговори   lavender
- *   delivery     Delivery     warm amber
- *   interaction  Взаємодія    neutral grey
+ *   legal        Legal / Юридичний       steel blue
+ *   business     Business / Бізнес       muted green
+ *   negotiations Negotiations / Переговори  lavender
+ *   delivery     Delivery / Delivery     warm amber
+ *   interaction  Interaction / Взаємодія neutral grey
  */
 export interface Props {
   voice: 'legal' | 'business' | 'negotiations' | 'delivery' | 'interaction';
@@ -20,11 +24,11 @@ export interface Props {
 const { voice } = Astro.props;
 
 const config = {
-  legal:        { label: 'Юридичний',  color: '#7e8fa6' },
-  business:     { label: 'Бізнес',      color: '#6b9e6b' },
-  negotiations: { label: 'Переговори',  color: '#9ca9ef' },
-  delivery:     { label: 'Delivery',    color: '#c4956a' },
-  interaction:  { label: 'Взаємодія',   color: '#a0a0a0' },
+  legal:        { en: 'Legal',        uk: 'Юридичний',  color: '#7e8fa6' },
+  business:     { en: 'Business',     uk: 'Бізнес',      color: '#6b9e6b' },
+  negotiations: { en: 'Negotiations', uk: 'Переговори',  color: '#9ca9ef' },
+  delivery:     { en: 'Delivery',     uk: 'Delivery',    color: '#c4956a' },
+  interaction:  { en: 'Interaction',  uk: 'Взаємодія',   color: '#a0a0a0' },
 } as const;
 
 const v = config[voice];
@@ -35,7 +39,10 @@ const v = config[voice];
   style={`--voice-color: ${v.color}`}
   data-voice={voice}
 >
-  <p class="voice__label">{v.label}</p>
+  <p class="voice__label">
+    <span lang="en" class="voice__label-en">{v.en}</span>
+    <span lang="uk" class="voice__label-uk">{v.uk}</span>
+  </p>
   <div class="voice__body">
     <slot />
   </div>
@@ -63,6 +70,15 @@ const v = config[voice];
     margin: 0 0 0.3rem;
     opacity: 0.85;
   }
+
+  /* Bilingual label switch via :lang() on the page root.
+     Page lang="en" → English label visible, Ukrainian hidden. */
+  :global(html[lang="en"]) .voice__label-uk,
+  :global(html:not([lang])) .voice__label-uk { display: none; }
+  :global(html[lang="uk"]) .voice__label-en,
+  :global(html[lang="de"]) .voice__label-en { display: none; }
+  :global(html[lang="uk"]) .voice__label-uk,
+  :global(html[lang="en"]) .voice__label-en { display: inline; }
 
   .voice__body :global(p) {
     margin: 0.35rem 0;

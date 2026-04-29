@@ -14,7 +14,7 @@ const { base, languages, current } = Astro.props;
 ---
 
 {languages.length > 1 && (
-  <div class="lang-toggle" role="group" aria-label="Мова">
+  <div class="lang-toggle" role="group" aria-label="Language">
     {languages.map((l) => (
       <a
         href={l === current ? '#' : `${base}?lang=${l}`}
